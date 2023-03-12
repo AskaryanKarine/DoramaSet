@@ -72,5 +72,17 @@
 ![bpmn](docs/img/bpmn.svg)
 
 
-[//]: <(в виде BPMN)>
-[//]: <()>
+## Технологический стек
+
+* *Тип приложения* - Web SPA  
+* *backend* - go  
+* *frontend* - ReactJS  
+* database - PostgreSQL  
+
+## Верхнеуровневое разбиение
+
+## UML
+
+## ER-диаграмма БД
+
+![er-bd](docs/img/er-bd.svg)
