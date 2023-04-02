@@ -9,11 +9,3 @@ type IStaffController interface {
 	CreateStaff(username string, record model.Staff) error
 	UpdateStaff(username string, record model.Staff) error
 }
-
-type IStaffRepo interface {
-	GetList() ([]model.Staff, error)
-	GetListName(name string) ([]model.Staff, error)
-	GetListDorama(idDorama int) ([]model.Staff, error)
-	CreateStaff(record model.Staff) error
-	UpdateStaff(record model.Staff) error
-}

@@ -8,9 +8,3 @@ type IUserController interface {
 	Logout(record model.User) error
 	UpdateActive(record model.User) error
 }
-
-type IUserRepo interface {
-	GetUser(username string) (model.User, error)
-	CreateUser(record model.User) error
-	UpdateUser(record model.User) error
-}

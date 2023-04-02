@@ -2,14 +2,14 @@ package interfaces
 
 import "DoramaSet/internal/logic/model"
 
-type IListController interface {
-	CreateList(record model.List) error
+type IListRepo interface {
 	GetUserLists(username string) ([]model.List, error)
 	GetPublicLists() ([]model.List, error)
-	DetListById(id int) (model.List, error)
-	AddToList(idL, idD int) error
+	GetListId(id int) (model.List, error)
+	CreateList(record model.List) error
+	DelList(id int) error
+	AddToList(idL, IdD int) error
 	DelFromList(idL, idD int) error
-	DelList(idL int) error
 	AddToFav(idL int, username string) error
 	GetFavList(username string) ([]model.List, error)
 }

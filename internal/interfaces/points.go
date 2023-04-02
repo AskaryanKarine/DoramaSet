@@ -1,6 +1,6 @@
 package interfaces
 
 type IPointsController interface {
-	earnPointForLogin(username string) error
-	purgePoint(username string, point int) error
+	EarnPointForLogin(username string) error
+	PurgePoint(username string, point int) error
 }
