@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/interfaces"
 	"errors"
 )
 
@@ -12,18 +12,15 @@ type DoramaController struct {
 }
 
 func (d *DoramaController) GetAll() ([]model.Dorama, error) {
-	res, err := d.repo.GetList()
-	return res, err
+	return d.repo.GetList()
 }
 
 func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
-	res, err := d.repo.GetListName(name)
-	return res, err
+	return d.repo.GetListName(name)
 }
 
 func (d *DoramaController) GetById(id int) (model.Dorama, error) {
-	res, err := d.repo.GetDorama(id)
-	return res, err
+	return d.repo.GetDorama(id)
 }
 
 func (d *DoramaController) CreateDorama(username string, record model.Dorama) error {

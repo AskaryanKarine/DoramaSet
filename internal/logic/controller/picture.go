@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/interfaces"
 	"errors"
 )
 
@@ -12,13 +12,11 @@ type PictureController struct {
 }
 
 func (p *PictureController) GetListByDorama(idD int) ([]model.Picture, error) {
-	res, err := p.repo.GetListDorama(idD)
-	return res, err
+	return p.repo.GetListDorama(idD)
 }
 
 func (p *PictureController) GetListByStaff(idS int) ([]model.Picture, error) {
-	res, err := p.repo.GetListStaff(idS)
-	return res, err
+	return p.repo.GetListStaff(idS)
 }
 
 func (p *PictureController) CreatePicture(username string, record model.Picture) error {

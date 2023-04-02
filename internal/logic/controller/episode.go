@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/interfaces"
 )
 
 type EpisodeController struct {
@@ -11,13 +11,11 @@ type EpisodeController struct {
 }
 
 func (e *EpisodeController) GetEpisodeList(idD int) ([]model.Episode, error) {
-	res, err := e.repo.GetList(idD)
-	return res, err
+	return e.repo.GetList(idD)
 }
 
 func (e *EpisodeController) GetEpisode(id int) (model.Episode, error) {
-	res, err := e.repo.GetEpisode(id)
-	return res, err
+	return e.repo.GetEpisode(id)
 }
 
 func (e *EpisodeController) MarkWatchingEpisode(idEp int, username string) error {

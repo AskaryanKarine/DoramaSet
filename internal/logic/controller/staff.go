@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/interfaces"
 	"errors"
 )
 
@@ -12,18 +12,15 @@ type StaffController struct {
 }
 
 func (s *StaffController) GetList() ([]model.Staff, error) {
-	res, err := s.repo.GetList()
-	return res, err
+	return s.repo.GetList()
 }
 
 func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
-	res, err := s.repo.GetListName(name)
-	return res, err
+	return s.repo.GetListName(name)
 }
 
 func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
-	res, err := s.repo.GetListDorama(idD)
-	return res, err
+	return s.repo.GetListDorama(idD)
 }
 
 func (s *StaffController) CreateStaff(username string, record model.Staff) error {
