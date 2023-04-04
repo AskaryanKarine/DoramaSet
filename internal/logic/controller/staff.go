@@ -1,18 +1,23 @@
 package controller
 
 import (
+	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/interfaces"
 	"errors"
+	"fmt"
 )
 
 type StaffController struct {
-	repo  interfaces.IStaffRepo
-	urepo interfaces.IUserRepo
+	repo interfaces.IStaffRepo
+	uc   interfaces.IUserController
 }
 
 func (s *StaffController) GetList() ([]model.Staff, error) {
-	return s.repo.GetList()
+	res, err := s.repo.GetList()
+	if err != nil {
+		return nil, fmt.Errorf("getList: %w", err)
+	}
+	return res, nil
 }
 
 func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
@@ -20,30 +25,42 @@ func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
 }
 
 func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
-	return s.repo.GetListDorama(idD)
+	res, err := s.repo.GetListDorama(idD)
+	if err != nil {
+		return nil, fmt.Errorf("getListByDorama: %w", err)
+	}
+	return res, nil
 }
 
-func (s *StaffController) CreateStaff(username string, record model.Staff) error {
-	user, err := s.urepo.GetUser(username)
+func (s *StaffController) CreateStaff(token string, record model.Staff) error {
+	user, err := s.uc.AuthByToken(token)
 	if err != nil {
-		return err
+		return fmt.Errorf("createStaff: %w", err)
 	}
 
 	if !user.IsAdmin {
-		return errors.New("low level of access")
+		return errors.New("createStaff: low level of access")
 	}
 
-	return s.repo.CreateStaff(record)
+	err = s.repo.CreateStaff(record)
+	if err != nil {
+		return fmt.Errorf("createStaff: %w", err)
+	}
+	return nil
 }
 
-func (s *StaffController) UpdateStaff(username string, record model.Staff) error {
-	user, err := s.urepo.GetUser(username)
+func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
+	user, err := s.uc.AuthByToken(token)
 	if err != nil {
-		return err
+		return fmt.Errorf("updateStaff: %w", err)
 	}
 
 	if !user.IsAdmin {
-		return errors.New("low level of access")
+		return errors.New("updateStaff: low level of access")
 	}
-	return s.repo.UpdateStaff(record)
+	err = s.repo.UpdateStaff(record)
+	if err != nil {
+		return fmt.Errorf("updateStaff: %w", err)
+	}
+	return nil
 }

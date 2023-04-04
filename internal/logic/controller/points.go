@@ -1,8 +1,9 @@
 package controller
 
 import (
-	"DoramaSet/internal/repository/interfaces"
+	"DoramaSet/internal/interfaces"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -30,26 +31,53 @@ func checkYear(date time.Time) bool {
 func (p *PointsController) EarnPointForLogin(username string) error {
 	user, err := p.repo.GetUser(username)
 	if err != nil {
-		return err
+		return fmt.Errorf("earnPointLogin: %w", err)
 	}
 	user.Points += 5
+
 	if checkYear(user.RegData) {
 		user.Points += 10
 	}
 
-	return p.repo.UpdateUser(user)
+	if time.Since(user.LastActive).Hours() > 4400.0 {
+		user.Points += 50
+	}
+
+	err = p.repo.UpdateUser(*user)
+	if err != nil {
+		return fmt.Errorf("earnPointLogin: %w", err)
+	}
+	return nil
 }
 
 func (p *PointsController) PurgePoint(username string, point int) error {
 	user, err := p.repo.GetUser(username)
 	if err != nil {
-		return err
+		return fmt.Errorf("purgePoint: %w", err)
 	}
 
 	if user.Points < point {
-		return errors.New("not enough points")
+		return errors.New("purgePoint: not enough points")
 	}
 
 	user.Points -= point
-	return p.repo.UpdateUser(user)
+
+	err = p.repo.UpdateUser(*user)
+	if err != nil {
+		return fmt.Errorf("purgePoint: %w", err)
+	}
+	return nil
+}
+
+func (p *PointsController) EarnPoint(username string, point int) error {
+	user, err := p.repo.GetUser(username)
+	if err != nil {
+		return fmt.Errorf("earnPoint: %w", err)
+	}
+	user.Points += point
+	err = p.repo.UpdateUser(*user)
+	if err != nil {
+		return fmt.Errorf("earnPoint: %w", err)
+	}
+	return nil
 }

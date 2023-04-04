@@ -1,27 +1,40 @@
 package controller
 
 import (
+	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/interfaces"
+	"fmt"
 )
 
 type EpisodeController struct {
-	repo  interfaces.IEpisodeRepo
-	urepo interfaces.IUserRepo
+	repo interfaces.IEpisodeRepo
+	uc   interfaces.IUserController
 }
 
 func (e *EpisodeController) GetEpisodeList(idD int) ([]model.Episode, error) {
-	return e.repo.GetList(idD)
-}
-
-func (e *EpisodeController) GetEpisode(id int) (model.Episode, error) {
-	return e.repo.GetEpisode(id)
-}
-
-func (e *EpisodeController) MarkWatchingEpisode(idEp int, username string) error {
-	_, err := e.urepo.GetUser(username)
+	res, err := e.repo.GetList(idD)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("getEpList: %w", err)
 	}
-	return e.repo.MarkEpisode(idEp, username)
+	return res, nil
+}
+
+func (e *EpisodeController) GetEpisode(id int) (*model.Episode, error) {
+	res, err := e.repo.GetEpisode(id)
+	if err != nil {
+		return nil, fmt.Errorf("getEp: %w", err)
+	}
+	return res, nil
+}
+
+func (e *EpisodeController) MarkWatchingEpisode(idEp int, token string) error {
+	user, err := e.uc.AuthByToken(token)
+	if err != nil {
+		return fmt.Errorf("auth: %w", err)
+	}
+	err = e.repo.MarkEpisode(idEp, user.Username)
+	if err != nil {
+		return fmt.Errorf("markWathEp: %w", err)
+	}
+	return nil
 }

@@ -3,45 +3,69 @@ package controller
 import (
 	"DoramaSet/internal/interfaces"
 	"DoramaSet/internal/logic/model"
-	repository "DoramaSet/internal/repository/interfaces"
+	"fmt"
 )
 
 type SubscriptionController struct {
-	repo  repository.ISubscriptionRepo
-	urepo repository.IUserRepo
+	repo  interfaces.ISubscriptionRepo
+	urepo interfaces.IUserRepo
 	pc    interfaces.IPointsController
+	uc    interfaces.IUserController
 }
 
 func (s *SubscriptionController) GetAll() ([]model.Subscription, error) {
-	return s.repo.GetList()
-}
-
-func (s *SubscriptionController) GetInfo(id int) (model.Subscription, error) {
-	return s.repo.GetSubscription(id)
-}
-
-func (s *SubscriptionController) SubscribeUser(id int, username string) error {
-	user, err := s.urepo.GetUser(username)
+	res, err := s.repo.GetList()
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("getAll: %w", err)
+	}
+	return res, nil
+}
+
+func (s *SubscriptionController) GetInfo(id int) (*model.Subscription, error) {
+	res, err := s.repo.GetSubscription(id)
+	if err != nil {
+		return nil, fmt.Errorf("GetInfo: %w", err)
+	}
+	return res, nil
+}
+
+func (s *SubscriptionController) SubscribeUser(id int, token string) error {
+	user, err := s.uc.AuthByToken(token)
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
 	}
 
 	sub, err := s.repo.GetSubscription(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("subscribe: %w", err)
 	}
 
-	if user.IsUsingPoints {
-		return s.pc.PurgePoint(username, sub.Cost)
-	}
-
-	// тут что-то с оплатой?
+	s.pc.PurgePoint(user.Username, sub.Cost)
 
 	user.Sub = sub
 
-	return s.urepo.UpdateUser(user)
+	err = s.urepo.UpdateUser(*user)
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
+	return nil
 }
 
-func (s *SubscriptionController) UnsubscribeUser(username string) error {
+func (s *SubscriptionController) UnsubscribeUser(token string) error {
+	user, err := s.uc.AuthByToken(token)
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
+
+	sub, err := s.repo.GetSubscriptionByPrice(0)
+	if err != nil {
+		return fmt.Errorf("unsubscribe: %w", err)
+	}
+	user.Sub = sub
+
+	err = s.urepo.UpdateUser(*user)
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
 	return nil
 }
