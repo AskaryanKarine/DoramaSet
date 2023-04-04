@@ -29,7 +29,7 @@ func (s *SubscriptionController) GetInfo(id int) (*model.Subscription, error) {
 	return res, nil
 }
 
-func (s *SubscriptionController) SubscribeUser(id int, token string) error {
+func (s *SubscriptionController) SubscribeUser(token string, id int) error {
 	user, err := s.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("subscribe: %w", err)
@@ -40,7 +40,10 @@ func (s *SubscriptionController) SubscribeUser(id int, token string) error {
 		return fmt.Errorf("subscribe: %w", err)
 	}
 
-	s.pc.PurgePoint(user.Username, sub.Cost)
+	err = s.pc.PurgePoint(user.Username, sub.Cost)
+	if err != nil {
+		return fmt.Errorf("subscribe: %w", err)
+	}
 
 	user.Sub = sub
 

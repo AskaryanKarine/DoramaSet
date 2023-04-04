@@ -56,10 +56,17 @@ func (l *ListController) GetListById(id int) (*model.List, error) {
 	return res, nil
 }
 
-func (l *ListController) AddToList(idL, idD int) error {
-	_, err := l.GetListById(idL)
+func (l *ListController) AddToList(token string, idL, idD int) error {
+	user, err := l.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("addToList: %w", err)
+	}
+	list, err := l.repo.GetListId(idL)
+	if err != nil {
+		return fmt.Errorf("addToList: %w", err)
+	}
+	if user.Username != list.CreatorName {
+		return fmt.Errorf("addToList: no access")
 	}
 	_, err = l.drepo.GetDorama(idD)
 	if err != nil {
@@ -72,11 +79,20 @@ func (l *ListController) AddToList(idL, idD int) error {
 	return nil
 }
 
-func (l *ListController) DelFromList(idL, idD int) error {
-	_, err := l.GetListById(idL)
+func (l *ListController) DelFromList(token string, idL, idD int) error {
+	user, err := l.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("delFromList: %w", err)
 	}
+	list, err := l.GetListById(idL)
+	if err != nil {
+		return fmt.Errorf("delFromList: %w", err)
+	}
+
+	if user.Username != list.CreatorName {
+		return fmt.Errorf("delFromList: no access")
+	}
+
 	_, err = l.drepo.GetDorama(idD)
 	if err != nil {
 		return fmt.Errorf("delFromList: %w", err)
@@ -88,14 +104,22 @@ func (l *ListController) DelFromList(idL, idD int) error {
 	return nil
 }
 
-func (l *ListController) DelList(idL int) error {
-	_, err := l.GetListById(idL)
-
+func (l *ListController) DelList(token string, idL int) error {
+	user, err := l.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("delList: %w", err)
 	}
 
-	err = l.DelList(idL)
+	list, err := l.repo.GetListId(idL)
+	if err != nil {
+		return fmt.Errorf("delList: %w", err)
+	}
+
+	if user.Username != list.CreatorName {
+		return fmt.Errorf("delList: no access")
+	}
+
+	err = l.repo.DelList(idL)
 
 	if err != nil {
 		return fmt.Errorf("delList: %w", err)
@@ -104,12 +128,12 @@ func (l *ListController) DelList(idL int) error {
 	return nil
 }
 
-func (l *ListController) AddToFav(idL int, token string) error {
+func (l *ListController) AddToFav(token string, idL int) error {
 	user, err := l.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("auth: %w", err)
 	}
-	_, err = l.GetListById(idL)
+	_, err = l.repo.GetListId(idL)
 	if err != nil {
 		return fmt.Errorf("getListById: %w", err)
 	}

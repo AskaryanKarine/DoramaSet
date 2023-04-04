@@ -50,11 +50,7 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 	newUser.RegData = time.Now()
 	newUser.LastActive = time.Now().Add(-time.Hour * 24)
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
-
-	if err != nil {
-		return "", fmt.Errorf("encrypt: %w", err)
-	}
+	hash, _ := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
 	newUser.Password = string(hash)
 
@@ -75,21 +71,18 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, _ := token.SignedString(u.secretKey)
+	ss, _ := token.SignedString([]byte(u.secretKey))
 
 	return ss, nil
 }
 
 func (u *UserController) Login(username, password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", fmt.Errorf("login: %w", err)
-	}
 	user, err := u.repo.GetUser(username)
 	if err != nil {
 		return "", fmt.Errorf("login: %w", err)
 	}
-	if user.Password != string(hash) {
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
 		return "", fmt.Errorf("login: wrong login or password")
 	}
 
@@ -111,7 +104,7 @@ func (u *UserController) Login(username, password string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, _ := token.SignedString(u.secretKey)
+	ss, _ := token.SignedString([]byte(u.secretKey))
 
 	return ss, nil
 }
@@ -137,11 +130,13 @@ func (u *UserController) UpdateActive(token string) error {
 
 	user.LastActive = time.Now()
 	err = u.repo.UpdateUser(*user)
-	return fmt.Errorf("updateActive: %w", err)
+	if err != nil {
+		return fmt.Errorf("updateActive: %w", err)
+	}
+	return nil
 }
 
 func (u *UserController) AuthByToken(token string) (*model.User, error) {
-
 	var claims jwt.RegisteredClaims
 	_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(u.secretKey), nil

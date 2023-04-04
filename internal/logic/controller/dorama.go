@@ -47,7 +47,10 @@ func (d *DoramaController) CreateDorama(token string, record model.Dorama) error
 	}
 
 	err = d.repo.CreateDorama(record)
-	return fmt.Errorf("createDorama: %w", err)
+	if err != nil {
+		return fmt.Errorf("createDorama: %w", err)
+	}
+	return nil
 }
 
 func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error {
@@ -61,5 +64,8 @@ func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error
 	}
 
 	err = d.repo.UpdateDorama(record)
-	return fmt.Errorf("updateDorama: %w", err)
+	if err != nil {
+		return fmt.Errorf("updateDorama: %w", err)
+	}
+	return nil
 }

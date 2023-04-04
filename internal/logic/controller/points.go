@@ -2,7 +2,6 @@ package controller
 
 import (
 	"DoramaSet/internal/interfaces"
-	"errors"
 	"fmt"
 	"time"
 )
@@ -13,15 +12,16 @@ type PointsController struct {
 
 func checkYear(date time.Time) bool {
 	today := time.Now()
-	if date.Month() != today.Month() {
-		return false
-	}
 
 	if date.Month() == time.February && date.Day() == 29 {
-		date.Add(-time.Hour * 24)
+		date = date.Add(-time.Hour * 24)
 	}
 
 	if date.Day() != today.Day() {
+		return false
+	}
+
+	if date.Month() != today.Month() {
 		return false
 	}
 
@@ -57,7 +57,7 @@ func (p *PointsController) PurgePoint(username string, point int) error {
 	}
 
 	if user.Points < point {
-		return errors.New("purgePoint: not enough points")
+		return fmt.Errorf("purgePoint: not enough point: you have %d, but need: %d", user.Points, point)
 	}
 
 	user.Points -= point

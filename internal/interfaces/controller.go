@@ -21,10 +21,10 @@ type IListController interface {
 	GetUserLists(token string) ([]model.List, error)
 	GetPublicLists() ([]model.List, error)
 	DetListById(id int) (*model.List, error)
-	AddToList(idL, idD int) error
-	DelFromList(idL, idD int) error
-	DelList(idL int) error
-	AddToFav(idL int, token string) error
+	AddToList(token string, idL, idD int) error
+	DelFromList(token string, idL, idD int) error
+	DelList(token string, idL int) error
+	AddToFav(token string, idL int) error
 	GetFavList(token string) ([]model.List, error)
 }
 
@@ -51,7 +51,7 @@ type IStaffController interface {
 type ISubscriptionController interface {
 	GetAll() ([]model.Subscription, error)
 	GetInfo(id int) (*model.Subscription, error)
-	SubscribeUser(id int, token string) error
+	SubscribeUser(token string, id int) error
 	UnsubscribeUser(token string) error
 }
 

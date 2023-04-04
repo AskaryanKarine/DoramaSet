@@ -21,7 +21,11 @@ func (s *StaffController) GetList() ([]model.Staff, error) {
 }
 
 func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
-	return s.repo.GetListName(name)
+	res, err := s.repo.GetListName(name)
+	if err != nil {
+		return nil, fmt.Errorf("getListByName: %w", err)
+	}
+	return res, nil
 }
 
 func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
