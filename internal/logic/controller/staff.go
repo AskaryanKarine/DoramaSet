@@ -1,15 +1,16 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"errors"
 	"fmt"
 )
 
 type StaffController struct {
-	repo interfaces.IStaffRepo
-	uc   interfaces.IUserController
+	repo repository.IStaffRepo
+	uc   controller.IUserController
 }
 
 func (s *StaffController) GetList() ([]model.Staff, error) {

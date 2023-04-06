@@ -1,14 +1,15 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 )
 
 type EpisodeController struct {
-	repo interfaces.IEpisodeRepo
-	uc   interfaces.IUserController
+	repo repository.IEpisodeRepo
+	uc   controller.IUserController
 }
 
 func (e *EpisodeController) GetEpisodeList(idD int) ([]model.Episode, error) {

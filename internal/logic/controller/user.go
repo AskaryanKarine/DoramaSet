@@ -1,7 +1,8 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"errors"
 	"fmt"
@@ -13,8 +14,8 @@ import (
 )
 
 type UserController struct {
-	repo      interfaces.IUserRepo
-	pc        interfaces.IPointsController
+	repo      repository.IUserRepo
+	pc        controller.IPointsController
 	secretKey string
 }
 

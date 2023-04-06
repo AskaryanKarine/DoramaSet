@@ -1,15 +1,16 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"errors"
 	"fmt"
 )
 
 type DoramaController struct {
-	repo interfaces.IDoramaRepo
-	uc   interfaces.IUserController
+	repo repository.IDoramaRepo
+	uc   controller.IUserController
 }
 
 func (d *DoramaController) GetAll() ([]model.Dorama, error) {

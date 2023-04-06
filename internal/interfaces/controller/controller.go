@@ -1,4 +1,4 @@
-package interfaces
+package controller
 
 import "DoramaSet/internal/logic/model"
 

@@ -1,16 +1,17 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 )
 
 type SubscriptionController struct {
-	repo  interfaces.ISubscriptionRepo
-	urepo interfaces.IUserRepo
-	pc    interfaces.IPointsController
-	uc    interfaces.IUserController
+	repo  repository.ISubscriptionRepo
+	urepo repository.IUserRepo
+	pc    controller.IPointsController
+	uc    controller.IUserController
 }
 
 func (s *SubscriptionController) GetAll() ([]model.Subscription, error) {

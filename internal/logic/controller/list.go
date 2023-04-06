@@ -1,15 +1,16 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 )
 
 type ListController struct {
-	repo  interfaces.IListRepo
-	drepo interfaces.IDoramaRepo
-	uc    interfaces.IUserController
+	repo  repository.IListRepo
+	drepo repository.IDoramaRepo
+	uc    controller.IUserController
 }
 
 func (l *ListController) CreateList(token string, record model.List) error {

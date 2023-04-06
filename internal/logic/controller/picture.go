@@ -1,15 +1,16 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"errors"
 	"fmt"
 )
 
 type PictureController struct {
-	repo interfaces.IPictureRepo
-	uc   interfaces.IUserController
+	repo repository.IPictureRepo
+	uc   controller.IUserController
 }
 
 func (p *PictureController) GetListByDorama(idD int) ([]model.Picture, error) {

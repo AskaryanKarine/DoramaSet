@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"DoramaSet/internal/interfaces"
+	"DoramaSet/internal/interfaces/repository"
 	"fmt"
 	"time"
 )
 
 type PointsController struct {
-	repo interfaces.IUserRepo
+	repo repository.IUserRepo
 }
 
 func checkYear(date time.Time) bool {
