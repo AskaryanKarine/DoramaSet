@@ -2,6 +2,7 @@ package controller
 
 import (
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic_error"
 	"fmt"
 	"time"
 )
@@ -9,6 +10,13 @@ import (
 type PointsController struct {
 	repo repository.IUserRepo
 }
+
+const (
+	everyDayPoint    = 5
+	everyYearPoint   = 10
+	longNoLoginPoint = 50
+	longNoLoginHours = 4400.0
+)
 
 func checkYear(date time.Time) bool {
 	today := time.Now()
@@ -31,21 +39,21 @@ func checkYear(date time.Time) bool {
 func (p *PointsController) EarnPointForLogin(username string) error {
 	user, err := p.repo.GetUser(username)
 	if err != nil {
-		return fmt.Errorf("earnPointLogin: %w", err)
+		return fmt.Errorf("getUser: %w", err)
 	}
-	user.Points += 5
+	user.Points += everyDayPoint
 
 	if checkYear(user.RegData) {
-		user.Points += 10
+		user.Points += everyYearPoint
 	}
 
-	if time.Since(user.LastActive).Hours() > 4400.0 {
-		user.Points += 50
+	if time.Since(user.LastActive).Hours() > longNoLoginHours {
+		user.Points += longNoLoginPoint
 	}
 
 	err = p.repo.UpdateUser(*user)
 	if err != nil {
-		return fmt.Errorf("earnPointLogin: %w", err)
+		return fmt.Errorf("updateUser: %w", err)
 	}
 	return nil
 }
@@ -53,18 +61,23 @@ func (p *PointsController) EarnPointForLogin(username string) error {
 func (p *PointsController) PurgePoint(username string, point int) error {
 	user, err := p.repo.GetUser(username)
 	if err != nil {
-		return fmt.Errorf("purgePoint: %w", err)
+		return fmt.Errorf("getUser: %w", err)
 	}
 
+	//TODO +balanceError
 	if user.Points < point {
-		return fmt.Errorf("purgePoint: not enough point: you have %d, but need: %d", user.Points, point)
+		err := logic_error.BalanceError{
+			Have: user.Points,
+			Want: point,
+		}
+		return fmt.Errorf("purgePoint: %w", err)
 	}
 
 	user.Points -= point
 
 	err = p.repo.UpdateUser(*user)
 	if err != nil {
-		return fmt.Errorf("purgePoint: %w", err)
+		return fmt.Errorf("updateUser: %w", err)
 	}
 	return nil
 }
@@ -72,12 +85,12 @@ func (p *PointsController) PurgePoint(username string, point int) error {
 func (p *PointsController) EarnPoint(username string, point int) error {
 	user, err := p.repo.GetUser(username)
 	if err != nil {
-		return fmt.Errorf("earnPoint: %w", err)
+		return fmt.Errorf("getUser: %w", err)
 	}
 	user.Points += point
 	err = p.repo.UpdateUser(*user)
 	if err != nil {
-		return fmt.Errorf("earnPoint: %w", err)
+		return fmt.Errorf("updateUser: %w", err)
 	}
 	return nil
 }

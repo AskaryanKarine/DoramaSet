@@ -4,7 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
-	"errors"
+	"DoramaSet/internal/logic_error"
 	"fmt"
 )
 
@@ -16,7 +16,7 @@ type DoramaController struct {
 func (d *DoramaController) GetAll() ([]model.Dorama, error) {
 	res, err := d.repo.GetList()
 	if err != nil {
-		return nil, fmt.Errorf("getDorama: %w", err)
+		return nil, fmt.Errorf("getList: %w", err)
 	}
 	return res, nil
 }
@@ -24,7 +24,7 @@ func (d *DoramaController) GetAll() ([]model.Dorama, error) {
 func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
 	res, err := d.repo.GetListName(name)
 	if err != nil {
-		return nil, fmt.Errorf("getByName: %w", err)
+		return nil, fmt.Errorf("getListName: %w", err)
 	}
 	return res, nil
 }
@@ -32,7 +32,7 @@ func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
 func (d *DoramaController) GetById(id int) (*model.Dorama, error) {
 	res, err := d.repo.GetDorama(id)
 	if err != nil {
-		return nil, fmt.Errorf("getById: %w", err)
+		return nil, fmt.Errorf("getDorama: %w", err)
 	}
 	return res, nil
 }
@@ -42,9 +42,9 @@ func (d *DoramaController) CreateDorama(token string, record model.Dorama) error
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
 	}
-
+	// TODO +adminAccessError
 	if !user.IsAdmin {
-		return errors.New("createDorama: low level os access")
+		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
 	}
 
 	err = d.repo.CreateDorama(record)
@@ -59,9 +59,9 @@ func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
 	}
-
+	// TODO +adminAccessError
 	if !user.IsAdmin {
-		return errors.New("updateDorama: low level os access")
+		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
 	}
 
 	err = d.repo.UpdateDorama(record)

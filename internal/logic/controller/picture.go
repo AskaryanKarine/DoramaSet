@@ -4,7 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
-	"errors"
+	"DoramaSet/internal/logic_error"
 	"fmt"
 )
 
@@ -32,16 +32,17 @@ func (p *PictureController) GetListByStaff(idS int) ([]model.Picture, error) {
 func (p *PictureController) CreatePicture(token string, record model.Picture) error {
 	user, err := p.uc.AuthByToken(token)
 	if err != nil {
-		return err
+		return fmt.Errorf("authToken: %w", err)
 	}
 
+	//TODO +adminAccessError
 	if !user.IsAdmin {
-		return errors.New("createPic: low level of access")
+		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
 	}
 
 	err = p.repo.CreatePicture(record)
 	if err != nil {
-		return fmt.Errorf("createPic: %w", err)
+		return fmt.Errorf("createPicture: %w", err)
 	}
 	return nil
 }

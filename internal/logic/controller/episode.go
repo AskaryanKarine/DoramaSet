@@ -15,7 +15,7 @@ type EpisodeController struct {
 func (e *EpisodeController) GetEpisodeList(idD int) ([]model.Episode, error) {
 	res, err := e.repo.GetList(idD)
 	if err != nil {
-		return nil, fmt.Errorf("getEpList: %w", err)
+		return nil, fmt.Errorf("getList: %w", err)
 	}
 	return res, nil
 }
@@ -23,19 +23,19 @@ func (e *EpisodeController) GetEpisodeList(idD int) ([]model.Episode, error) {
 func (e *EpisodeController) GetEpisode(id int) (*model.Episode, error) {
 	res, err := e.repo.GetEpisode(id)
 	if err != nil {
-		return nil, fmt.Errorf("getEp: %w", err)
+		return nil, fmt.Errorf("getEpisode: %w", err)
 	}
 	return res, nil
 }
 
-func (e *EpisodeController) MarkWatchingEpisode(idEp int, token string) error {
+func (e *EpisodeController) MarkWatchingEpisode(token string, idEp int) error {
 	user, err := e.uc.AuthByToken(token)
 	if err != nil {
-		return fmt.Errorf("auth: %w", err)
+		return fmt.Errorf("authToken: %w", err)
 	}
 	err = e.repo.MarkEpisode(idEp, user.Username)
 	if err != nil {
-		return fmt.Errorf("markWathEp: %w", err)
+		return fmt.Errorf("markEpisode: %w", err)
 	}
 	return nil
 }

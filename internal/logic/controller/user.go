@@ -4,7 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
-	"errors"
+	"DoramaSet/internal/logic_error"
 	"fmt"
 	"net/mail"
 	"time"
@@ -28,24 +28,26 @@ const (
 func (u *UserController) Registration(newUser model.User) (string, error) {
 	res, err := u.repo.GetUser(newUser.Username)
 	if err != nil {
-		return "", fmt.Errorf("registration: %w", err)
+		return "", fmt.Errorf("getUser: %w", err)
 	}
-
+	// TODO +userExistError
 	if res != nil {
-		return "", errors.New("registration: user already exists")
+		return "", fmt.Errorf("%w", logic_error.ErrorUserExist)
 	}
-
+	// TODO +loginLenError
 	if len(newUser.Username) < loginLen {
-		return "", fmt.Errorf("registration: login must be more then %d symbols", loginLen)
+		err := logic_error.LoginLenError{LoginLen: loginLen}
+		return "", fmt.Errorf("%w", err)
 	}
-
+	// TODO +passwordLenError
 	if len(newUser.Password) < passwordLen {
-		return "", fmt.Errorf("registration: password must be more then %d symbols", loginLen)
+		err := logic_error.PasswordLenError{PasswordLen: passwordLen}
+		return "", fmt.Errorf("%w", err)
 	}
-
+	// TODO +invalidEmailError
 	_, err = mail.ParseAddress(newUser.Email)
 	if err != nil {
-		return "", fmt.Errorf("registration: invalid email")
+		return "", fmt.Errorf("%w", logic_error.ErrorInvalidEmail)
 	}
 
 	newUser.RegData = time.Now()
@@ -57,12 +59,12 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 
 	err = u.repo.CreateUser(newUser)
 	if err != nil {
-		return "", fmt.Errorf("registration: %w", err)
+		return "", fmt.Errorf("createUser: %w", err)
 	}
 
 	err = u.pc.EarnPointForLogin(newUser.Username)
 	if err != nil {
-		return "", fmt.Errorf("earnPoint: %w", err)
+		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
 	claims := jwt.RegisteredClaims{
@@ -80,22 +82,23 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 func (u *UserController) Login(username, password string) (string, error) {
 	user, err := u.repo.GetUser(username)
 	if err != nil {
-		return "", fmt.Errorf("login: %w", err)
+		return "", fmt.Errorf("getUser: %w", err)
 	}
+	// TODO +wrongLoginError
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", fmt.Errorf("login: wrong login or password")
+		return "", fmt.Errorf("%w", logic_error.ErrorWrongLogin)
 	}
 
 	err = u.pc.EarnPointForLogin(username)
 	if err != nil {
-		return "", fmt.Errorf("earnPoint: %w", err)
+		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
 	user.LastActive = time.Now()
 	err = u.repo.UpdateUser(*user)
 	if err != nil {
-		return "", fmt.Errorf("update: %w", err)
+		return "", fmt.Errorf("updateUser: %w", err)
 	}
 
 	claims := jwt.RegisteredClaims{
@@ -123,7 +126,7 @@ func eqDate(date1, date2 time.Time) bool {
 func (u *UserController) UpdateActive(token string) error {
 	user, err := u.AuthByToken(token)
 	if err != nil {
-		return fmt.Errorf("updateActive: %w", err)
+		return fmt.Errorf("authToken: %w", err)
 	}
 	if !eqDate(user.LastActive, time.Now()) {
 		u.pc.EarnPointForLogin(user.Username)
@@ -132,7 +135,7 @@ func (u *UserController) UpdateActive(token string) error {
 	user.LastActive = time.Now()
 	err = u.repo.UpdateUser(*user)
 	if err != nil {
-		return fmt.Errorf("updateActive: %w", err)
+		return fmt.Errorf("updateUser: %w", err)
 	}
 	return nil
 }
@@ -149,7 +152,7 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 
 	user, err := u.repo.GetUser(claims.ID)
 	if err != nil {
-		return nil, fmt.Errorf("get: %w", err)
+		return nil, fmt.Errorf("getUser: %w", err)
 	}
 
 	return user, nil

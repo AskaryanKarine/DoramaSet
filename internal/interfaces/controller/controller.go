@@ -13,7 +13,7 @@ type IDoramaController interface {
 type IEpisodeController interface {
 	GetEpisodeList(idD int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
-	MarkWatchingEpisode(idEp int, token string) error
+	MarkWatchingEpisode(token string, idEp int) error
 }
 
 type IListController interface {

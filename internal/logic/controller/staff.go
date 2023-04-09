@@ -4,7 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
-	"errors"
+	"DoramaSet/internal/logic_error"
 	"fmt"
 )
 
@@ -24,7 +24,7 @@ func (s *StaffController) GetList() ([]model.Staff, error) {
 func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
 	res, err := s.repo.GetListName(name)
 	if err != nil {
-		return nil, fmt.Errorf("getListByName: %w", err)
+		return nil, fmt.Errorf("getListName: %w", err)
 	}
 	return res, nil
 }
@@ -32,7 +32,7 @@ func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
 func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
 	res, err := s.repo.GetListDorama(idD)
 	if err != nil {
-		return nil, fmt.Errorf("getListByDorama: %w", err)
+		return nil, fmt.Errorf("getListDorama: %w", err)
 	}
 	return res, nil
 }
@@ -40,11 +40,12 @@ func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
 func (s *StaffController) CreateStaff(token string, record model.Staff) error {
 	user, err := s.uc.AuthByToken(token)
 	if err != nil {
-		return fmt.Errorf("createStaff: %w", err)
+		return fmt.Errorf("authToken: %w", err)
 	}
 
+	//TODO +adminAccessError
 	if !user.IsAdmin {
-		return errors.New("createStaff: low level of access")
+		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
 	}
 
 	err = s.repo.CreateStaff(record)
@@ -57,11 +58,12 @@ func (s *StaffController) CreateStaff(token string, record model.Staff) error {
 func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
 	user, err := s.uc.AuthByToken(token)
 	if err != nil {
-		return fmt.Errorf("updateStaff: %w", err)
+		return fmt.Errorf("authToken: %w", err)
 	}
 
+	// TODO +adminAccessError
 	if !user.IsAdmin {
-		return errors.New("updateStaff: low level of access")
+		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
 	}
 	err = s.repo.UpdateStaff(record)
 	if err != nil {
