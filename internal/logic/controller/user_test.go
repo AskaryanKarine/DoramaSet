@@ -26,7 +26,7 @@ func getToken(newUser model.User, secretKey string) string {
 	return ss
 }
 
-func TestRegistration(t *testing.T) {
+func TestRegistrationUser(t *testing.T) {
 	mc := minimock.NewController(t)
 	correctUser := model.User{
 		Username:   "123456789",
@@ -65,7 +65,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "exists user",
+			name: "exists user error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -76,7 +76,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "error get user",
+			name: "get user error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -87,7 +87,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "short login",
+			name: "short login error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -98,7 +98,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "short password",
+			name: "short password error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -109,7 +109,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "wrong email",
+			name: "wrong email error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -120,7 +120,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "error create",
+			name: "create error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(errors.New("error")),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -131,7 +131,7 @@ func TestRegistration(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "error earn",
+			name: "earn error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
@@ -152,16 +152,16 @@ func TestRegistration(t *testing.T) {
 			}
 			res, err := dc.Registration(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("Registration() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("Registration(): got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
 }
 
-func TestLogin(t *testing.T) {
+func TestLoginUser(t *testing.T) {
 	mc := minimock.NewController(t)
 	myString := "1"
 	hash, _ := bcrypt.GenerateFromPassword([]byte(myString), bcrypt.DefaultCost)
@@ -200,7 +200,7 @@ func TestLogin(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "wrong password",
+			name: "wrong password error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -211,7 +211,7 @@ func TestLogin(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "error get",
+			name: "get user error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).UpdateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -222,7 +222,7 @@ func TestLogin(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "error earn",
+			name: "earn error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
@@ -233,7 +233,7 @@ func TestLogin(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "error update",
+			name: "update error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(errors.New("error")),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -254,10 +254,10 @@ func TestLogin(t *testing.T) {
 			}
 			res, err := dc.Login(testCase.arg.login, testCase.arg.password)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("Login() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("Login() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -297,7 +297,7 @@ func TestUpdateActive(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(nil, errors.New("error")),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -317,7 +317,7 @@ func TestUpdateActive(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "error update",
+			name: "update user error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&activeUser, nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -337,7 +337,7 @@ func TestUpdateActive(t *testing.T) {
 			}
 			err := dc.UpdateActive(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("UpdateActive() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
@@ -376,7 +376,7 @@ func TestAuthByToken(t *testing.T) {
 			result: &correctUser,
 		},
 		{
-			name: "error update",
+			name: "update error",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(nil, errors.New("error")),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
@@ -407,10 +407,10 @@ func TestAuthByToken(t *testing.T) {
 			}
 			res, err := dc.AuthByToken(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("AuthByToken() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("AuthByToken() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}

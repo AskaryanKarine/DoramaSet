@@ -47,7 +47,7 @@ func TestCreateList(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative create",
+			name: "create list error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(errors.New("error")),
 				drepo: nil,
@@ -60,7 +60,7 @@ func TestCreateList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative user",
+			name: "auth error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(nil),
 				drepo: nil,
@@ -83,7 +83,7 @@ func TestCreateList(t *testing.T) {
 			}
 			err := dc.CreateList(testCase.arg.token, testCase.arg.record)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("CreateList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
@@ -111,7 +111,7 @@ func TestGetUserList(t *testing.T) {
 			result: resultArrayList,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetUserListsMock.Return(nil, errors.New("error")),
 				drepo: nil,
@@ -121,7 +121,7 @@ func TestGetUserList(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "negative get lists",
+			name: "get user lists error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetUserListsMock.Return(nil, errors.New("error")),
 				drepo: nil,
@@ -141,10 +141,10 @@ func TestGetUserList(t *testing.T) {
 			}
 			res, err := dc.GetUserLists(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetUserLists() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetByName() got: %v, expect: %v", res, testCase.result)
+				t.Errorf("GetUserLists() got: %v, expect: %v", res, testCase.result)
 			}
 		})
 	}
@@ -170,7 +170,7 @@ func TestGetPublicLists(t *testing.T) {
 			result: resultArrayList,
 		},
 		{
-			name: "negative result",
+			name: "get public list error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetPublicListsMock.Return(nil, errors.New("error")),
 				drepo: nil,
@@ -190,10 +190,10 @@ func TestGetPublicLists(t *testing.T) {
 			}
 			res, err := dc.GetPublicLists()
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetPublicLists() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetByName() got: %v, expect: %v", res, testCase.result)
+				t.Errorf("GetPublicLists() got: %v, expect: %v", res, testCase.result)
 			}
 		})
 	}
@@ -221,7 +221,7 @@ func TestGetListById(t *testing.T) {
 			result: &resultArrayList[0],
 		},
 		{
-			name: "negative result",
+			name: "get list id error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(nil, errors.New("error")),
 				drepo: nil,
@@ -242,10 +242,10 @@ func TestGetListById(t *testing.T) {
 			}
 			res, err := dc.GetListById(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetListById() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetByName() got: %v, expect: %v", res, testCase.result)
+				t.Errorf("GetListById() got: %v, expect: %v", res, testCase.result)
 			}
 		})
 	}
@@ -273,7 +273,7 @@ func TestGetFavList(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative get",
+			name: "get favorite list error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetFavListMock.Return(nil, errors.New("error")),
 				drepo: nil,
@@ -284,9 +284,9 @@ func TestGetFavList(t *testing.T) {
 			isNeg:  true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetFavListMock.Return(nil, errors.New("error")),
+				repo:  mocks.NewIListRepoMock(mc).GetFavListMock.Return(resultArrayList, nil),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
 			},
@@ -305,10 +305,10 @@ func TestGetFavList(t *testing.T) {
 			}
 			res, err := dc.GetFavList(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetFavList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetByName() got: %v, expect: %v", res, testCase.result)
+				t.Errorf("GetFavList() got: %v, expect: %v", res, testCase.result)
 			}
 		})
 	}
@@ -337,7 +337,7 @@ func TestAddToList(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative add",
+			name: "add to list error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).AddToListMock.Return(errors.New("error")),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&model.Dorama{}, nil),
@@ -347,7 +347,7 @@ func TestAddToList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get dorama",
+			name: "get dorama error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).AddToListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),
@@ -357,7 +357,7 @@ func TestAddToList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).AddToListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),
@@ -367,7 +367,7 @@ func TestAddToList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get dorama",
+			name: "get list id error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(nil, errors.New("error")).AddToListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&model.Dorama{}, nil),
@@ -377,7 +377,7 @@ func TestAddToList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative access",
+			name: "access error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{CreatorName: "ertyu"}, nil).AddToListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&model.Dorama{}, nil),
@@ -397,7 +397,7 @@ func TestAddToList(t *testing.T) {
 			}
 			err := dc.AddToList(testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("AddToList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
@@ -426,7 +426,7 @@ func TestDelFromList(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative add",
+			name: "add from list error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).DelFromListMock.Return(errors.New("error")),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&model.Dorama{}, nil),
@@ -436,7 +436,7 @@ func TestDelFromList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get dorama",
+			name: "get dorama error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).DelFromListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),
@@ -446,17 +446,17 @@ func TestDelFromList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).DelFromListMock.Return(nil),
-				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),
+				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, nil),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
 			},
 			arg:   argument{"", 1, 1},
 			isNeg: true,
 		},
 		{
-			name: "negative get dorama",
+			name: "get list id error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(nil, errors.New("error")).DelFromListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&model.Dorama{}, nil),
@@ -466,7 +466,7 @@ func TestDelFromList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative access",
+			name: "access error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{CreatorName: "ertyu"}, nil).DelFromListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&model.Dorama{}, nil),
@@ -486,7 +486,7 @@ func TestDelFromList(t *testing.T) {
 			}
 			err := dc.DelFromList(testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("DelFromList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
@@ -515,7 +515,7 @@ func TestDelList(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative del",
+			name: "delete list error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).DelListMock.Return(errors.New("error")),
 				drepo: nil,
@@ -525,7 +525,7 @@ func TestDelList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).DelListMock.Return(nil),
 				drepo: nil,
@@ -535,7 +535,7 @@ func TestDelList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get list",
+			name: "get list id error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(nil, errors.New("error")).DelListMock.Return(nil),
 				drepo: nil,
@@ -545,7 +545,7 @@ func TestDelList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative access",
+			name: "access error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{CreatorName: "ertyu"}, nil).DelListMock.Return(nil),
 				drepo: nil,
@@ -565,13 +565,13 @@ func TestDelList(t *testing.T) {
 			}
 			err := dc.DelList(testCase.arg.token, testCase.arg.id1)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("DelList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
 }
 
-func TestAddToFav(t *testing.T) {
+func TestAddToFavList(t *testing.T) {
 	mc := minimock.NewController(t)
 	type argument struct {
 		token string
@@ -594,7 +594,7 @@ func TestAddToFav(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative add",
+			name: "add to fav error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).AddToFavMock.Return(errors.New("error")),
 				drepo: nil,
@@ -604,7 +604,7 @@ func TestAddToFav(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).AddToFavMock.Return(nil),
 				drepo: nil,
@@ -614,7 +614,7 @@ func TestAddToFav(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get list",
+			name: "get list id error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(nil, errors.New("error")).AddToFavMock.Return(nil),
 				drepo: nil,
@@ -634,7 +634,7 @@ func TestAddToFav(t *testing.T) {
 			}
 			err := dc.AddToFav(testCase.arg.token, testCase.arg.id1)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("AddToFav() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}

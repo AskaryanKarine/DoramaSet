@@ -34,7 +34,7 @@ func TestGetListStaff(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get list staff error",
 			fl: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).GetListMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -52,10 +52,10 @@ func TestGetListStaff(t *testing.T) {
 			}
 			res, err := dc.GetList()
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetList() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -82,7 +82,7 @@ func TestGetListByNameStaff(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get list name error",
 			fl: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).GetListNameMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -101,10 +101,10 @@ func TestGetListByNameStaff(t *testing.T) {
 			}
 			res, err := dc.GetListByName(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetListByName() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetListByName() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -130,7 +130,7 @@ func TestGetListByDoramaStaff(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get list dorama staff error",
 			fl: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).GetListDoramaMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -148,10 +148,10 @@ func TestGetListByDoramaStaff(t *testing.T) {
 			}
 			res, err := dc.GetListByDorama(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetListByDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetListByDorama() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -186,7 +186,7 @@ func TestCreateStaff(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -198,7 +198,7 @@ func TestCreateStaff(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative admin",
+			name: "access error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
@@ -230,7 +230,7 @@ func TestCreateStaff(t *testing.T) {
 			}
 			err := dc.CreateStaff(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("CreateStaff() error: %v, expect: %v", err, test.isNeg)
 			}
 		})
 	}
@@ -265,7 +265,7 @@ func TestUpdateStaff(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -277,7 +277,7 @@ func TestUpdateStaff(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative admin",
+			name: "access error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
@@ -309,7 +309,7 @@ func TestUpdateStaff(t *testing.T) {
 			}
 			err := dc.UpdateStaff(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("UpdateStaff() error: %v, expect: %v", err, test.isNeg)
 			}
 		})
 	}

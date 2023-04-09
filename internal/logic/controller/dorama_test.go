@@ -43,7 +43,7 @@ func TestGetAllDorama(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "error get list",
 			fl: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).GetListMock.Return(nil, errors.New("error")), //GetDoramaMock.Return(res, nil),
 				uc:   nil,
@@ -53,18 +53,18 @@ func TestGetAllDorama(t *testing.T) {
 		},
 	}
 
-	for _, testCase := range testsTable {
-		t.Run(testCase.name, func(t *testing.T) {
+	for _, test := range testsTable {
+		t.Run(test.name, func(t *testing.T) {
 			dc := DoramaController{
-				repo: testCase.fl.repo,
-				uc:   testCase.fl.uc,
+				repo: test.fl.repo,
+				uc:   test.fl.uc,
 			}
 			r, err := dc.GetAll()
-			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetAll(): error = %v, expect = %v", err, testCase.isNeg)
+			if (err != nil) != test.isNeg {
+				t.Errorf("GetAll(): error = %v, expect = %v", err, test.isNeg)
 			}
-			if !reflect.DeepEqual(r, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", r, testCase.result)
+			if !reflect.DeepEqual(r, test.result) {
+				t.Errorf("GotAll(): got: %v, expect = %v", r, test.result)
 			}
 		})
 	}
@@ -72,7 +72,7 @@ func TestGetAllDorama(t *testing.T) {
 
 func TestGetByNameDorama(t *testing.T) {
 	mc := minimock.NewController(t)
-	tests := []struct {
+	testTable := []struct {
 		name   string
 		field  DoramaController
 		arg    string
@@ -80,7 +80,7 @@ func TestGetByNameDorama(t *testing.T) {
 		isNeg  bool
 	}{
 		{
-			name: "successful",
+			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).GetListNameMock.Return(resultArrayDorama, nil),
 				uc:   nil,
@@ -90,7 +90,7 @@ func TestGetByNameDorama(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative",
+			name: "get by name error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).GetListNameMock.Return(nil, errors.New("error")),
 			},
@@ -99,7 +99,7 @@ func TestGetByNameDorama(t *testing.T) {
 			isNeg:  true,
 		},
 	}
-	for _, test := range tests {
+	for _, test := range testTable {
 		t.Run(test.name, func(t *testing.T) {
 			dc := DoramaController{
 				repo: test.field.repo,
@@ -126,7 +126,7 @@ func TestByIdDorama(t *testing.T) {
 		isNeg  bool
 	}{
 		{
-			name: "successful",
+			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(&resultArrayDorama[0], nil),
 				uc:   nil,
@@ -136,7 +136,7 @@ func TestByIdDorama(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative",
+			name: "get by id error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),
 			},
@@ -153,10 +153,10 @@ func TestByIdDorama(t *testing.T) {
 			}
 			res, err := dc.GetById(test.arg)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("GetById() error: %v, expect: %v", err, test.isNeg)
 			}
 			if !reflect.DeepEqual(res, test.result) {
-				t.Errorf("GetByName() got: %v, expect: %v", res, test.result)
+				t.Errorf("GetById() got: %v, expect: %v", res, test.result)
 			}
 		})
 	}
@@ -189,7 +189,7 @@ func TestCreateDorama(t *testing.T) {
 		isNeg bool
 	}{
 		{
-			name: "successful",
+			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
@@ -201,7 +201,7 @@ func TestCreateDorama(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -213,7 +213,7 @@ func TestCreateDorama(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative admin",
+			name: "access error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
@@ -225,7 +225,7 @@ func TestCreateDorama(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "create error",
+			name: "create dorama error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(errors.New("error")),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
@@ -245,7 +245,7 @@ func TestCreateDorama(t *testing.T) {
 			}
 			err := dc.CreateDorama(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("CreateDorama() error: %v, expect: %v", err, test.isNeg)
 			}
 		})
 	}
@@ -278,7 +278,7 @@ func TestUpdateDorama(t *testing.T) {
 		isNeg bool
 	}{
 		{
-			name: "successful",
+			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
@@ -290,7 +290,7 @@ func TestUpdateDorama(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -302,7 +302,7 @@ func TestUpdateDorama(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative admin",
+			name: "access error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
@@ -334,7 +334,7 @@ func TestUpdateDorama(t *testing.T) {
 			}
 			err := dc.UpdateDorama(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("UpdateDorama() error: %v, expect: %v", err, test.isNeg)
 			}
 		})
 	}

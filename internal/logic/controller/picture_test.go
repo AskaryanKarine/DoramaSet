@@ -18,7 +18,7 @@ var resultPicArray = []model.Picture{
 	},
 }
 
-func TestGetLisByDorama(t *testing.T) {
+func TestGetLisByDoramaPicture(t *testing.T) {
 	mc := minimock.NewController(t)
 
 	testsTable := []struct {
@@ -39,7 +39,7 @@ func TestGetLisByDorama(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get picture list by dorama error ",
 			fl: PictureController{
 				repo: mocks.NewIPictureRepoMock(mc).GetListDoramaMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -58,16 +58,16 @@ func TestGetLisByDorama(t *testing.T) {
 			}
 			res, err := dc.GetListByDorama(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetListByDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetListByDorama() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
 }
 
-func TestGetLisByStaff(t *testing.T) {
+func TestGetLisByStaffPicture(t *testing.T) {
 	mc := minimock.NewController(t)
 
 	testsTable := []struct {
@@ -88,7 +88,7 @@ func TestGetLisByStaff(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get list picture by staff error",
 			fl: PictureController{
 				repo: mocks.NewIPictureRepoMock(mc).GetListStaffMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -107,10 +107,10 @@ func TestGetLisByStaff(t *testing.T) {
 			}
 			res, err := dc.GetListByStaff(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetListByStaff() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetListByStaff() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -145,7 +145,7 @@ func TestCreatePicture(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			field: PictureController{
 				repo: mocks.NewIPictureRepoMock(mc).CreatePictureMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -157,7 +157,7 @@ func TestCreatePicture(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative admin",
+			name: "admin error",
 			field: PictureController{
 				repo: mocks.NewIPictureRepoMock(mc).CreatePictureMock.Return(nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
@@ -189,7 +189,7 @@ func TestCreatePicture(t *testing.T) {
 			}
 			err := dc.CreatePicture(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("CreatePicture() error: %v, expect: %v", err, test.isNeg)
 			}
 		})
 	}

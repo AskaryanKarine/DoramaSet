@@ -38,7 +38,7 @@ func TestGetEpisodeList(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get list error",
 			fl: EpisodeController{
 				repo: mocks.NewIEpisodeRepoMock(mc).GetListMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -56,10 +56,10 @@ func TestGetEpisodeList(t *testing.T) {
 			}
 			r, err := dc.GetEpisodeList(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetAll(): error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetEpisodeList(): error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(r, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", r, testCase.result)
+				t.Errorf("GetEpisodeList(): got: %v, expect = %v", r, testCase.result)
 			}
 		})
 	}
@@ -85,7 +85,7 @@ func TestGetEpisode(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get episode error",
 			fl: EpisodeController{
 				repo: mocks.NewIEpisodeRepoMock(mc).GetEpisodeMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -103,16 +103,16 @@ func TestGetEpisode(t *testing.T) {
 			}
 			r, err := dc.GetEpisode(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetAll(): error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetEpisode(): error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(r, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", r, testCase.result)
+				t.Errorf("GetEpisode(): got: %v, expect = %v", r, testCase.result)
 			}
 		})
 	}
 }
 
-func TestMarkWathingEp(t *testing.T) {
+func TestMarkWathingEpisode(t *testing.T) {
 	mc := minimock.NewController(t)
 	type argument struct {
 		id    int
@@ -137,7 +137,7 @@ func TestMarkWathingEp(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative mark",
+			name: "mark episode error",
 			fl: EpisodeController{
 				repo: mocks.NewIEpisodeRepoMock(mc).MarkEpisodeMock.Return(errors.New("error")),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
@@ -149,7 +149,7 @@ func TestMarkWathingEp(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative user",
+			name: "auth error",
 			fl: EpisodeController{
 				repo: mocks.NewIEpisodeRepoMock(mc).MarkEpisodeMock.Return(errors.New("error")),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -168,9 +168,9 @@ func TestMarkWathingEp(t *testing.T) {
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
 			}
-			err := dc.MarkWatchingEpisode(testCase.arg.id, testCase.arg.token)
+			err := dc.MarkWatchingEpisode(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetAll(): error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("MarkWatchingEpisode(): error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}

@@ -32,7 +32,7 @@ func TestGetAllSub(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get list error",
 			fl: SubscriptionController{
 				repo: mocks.NewISubscriptionRepoMock(mc).GetListMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -50,10 +50,10 @@ func TestGetAllSub(t *testing.T) {
 			}
 			res, err := dc.GetAll()
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetAll() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GotAll() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -80,7 +80,7 @@ func TestGetInfoSub(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "negative result",
+			name: "get subscription error",
 			fl: SubscriptionController{
 				repo: mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -99,10 +99,10 @@ func TestGetInfoSub(t *testing.T) {
 			}
 			res, err := dc.GetInfo(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetInfo() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GotAll(): got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetInfo() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -132,7 +132,7 @@ func TestSubscribe(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative update",
+			name: "update user error",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(&resultArraySubs[0], nil),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
@@ -143,7 +143,7 @@ func TestSubscribe(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative purge",
+			name: "purge error",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(&resultArraySubs[0], nil),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
@@ -154,7 +154,7 @@ func TestSubscribe(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get",
+			name: "get subscription error",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(nil, errors.New("error")),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
@@ -165,7 +165,7 @@ func TestSubscribe(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(nil, errors.New("error")),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -187,7 +187,7 @@ func TestSubscribe(t *testing.T) {
 			}
 			err := dc.SubscribeUser(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("SubscribeUser() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
@@ -217,7 +217,7 @@ func TestUnsubscribe(t *testing.T) {
 			isNeg: false,
 		},
 		{
-			name: "negative update",
+			name: "update user error ",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionByPriceMock.Return(&resultArraySubs[0], nil),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
@@ -228,7 +228,7 @@ func TestUnsubscribe(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative get",
+			name: "get subscription bu price error",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionByPriceMock.Return(nil, errors.New("error")),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
@@ -239,7 +239,7 @@ func TestUnsubscribe(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "negative auth",
+			name: "auth error",
 			fl: SubscriptionController{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(nil, errors.New("error")),
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
@@ -261,7 +261,7 @@ func TestUnsubscribe(t *testing.T) {
 			}
 			err := dc.UnsubscribeUser(testCase.arg.token)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("UnsubscribeUser() error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
 	}
