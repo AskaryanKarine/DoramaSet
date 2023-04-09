@@ -20,7 +20,7 @@ type IListRepo interface {
 	GetUserLists(username string) ([]model.List, error)
 	GetPublicLists() ([]model.List, error)
 	GetListId(id int) (*model.List, error)
-	CreateList(List model.List) error
+	CreateList(list model.List) error
 	DelList(id int) error
 	AddToList(idL, IdD int) error
 	DelFromList(idL, idD int) error

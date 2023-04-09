@@ -4,7 +4,7 @@ import "time"
 
 type Subscription struct {
 	Id          int
-	Duration    int
+	Description string
 	Cost        int
-	Description time.Time
+	Duration    time.Time
 }
