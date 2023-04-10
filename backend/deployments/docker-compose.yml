@@ -1,0 +1,26 @@
+version: '3.7'
+
+volumes:
+  postgres:
+
+services:
+  postgres:
+    container_name: postgres_db
+    image: postgres
+    environment:
+      POSTGRES_DB: "DoramaSet"
+      POSTGRES_USER: karine
+      POSTGRES_PASSWORD: 12346
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data:/data
+      - ./data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    networks:
+      - my_persistent_network
+
+networks:
+  my_persistent_network:
+    driver: bridge
