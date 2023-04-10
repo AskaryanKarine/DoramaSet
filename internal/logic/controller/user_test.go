@@ -39,12 +39,12 @@ func TestRegistrationUser(t *testing.T) {
 		Sub:        nil,
 		Collection: nil,
 	}
-	shortlogin := correctUser
-	shortpasword := correctUser
-	shortpasword.Password = "qw"
-	shortlogin.Username = "qw"
-	wrongemail := correctUser
-	wrongemail.Email = "qw"
+	shortLogin := correctUser
+	shortPassword := correctUser
+	shortPassword.Password = "qw"
+	shortLogin.Username = "qw"
+	wrongEmail := correctUser
+	wrongEmail.Email = "qw"
 	secretKey := "qwerty"
 	testsTable := []struct {
 		name   string
@@ -93,7 +93,7 @@ func TestRegistrationUser(t *testing.T) {
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey: secretKey,
 			},
-			arg:    shortlogin,
+			arg:    shortLogin,
 			result: "",
 			isNeg:  true,
 		},
@@ -104,7 +104,7 @@ func TestRegistrationUser(t *testing.T) {
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey: secretKey,
 			},
-			arg:    shortpasword,
+			arg:    shortPassword,
 			result: "",
 			isNeg:  true,
 		},
@@ -115,7 +115,7 @@ func TestRegistrationUser(t *testing.T) {
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey: secretKey,
 			},
-			arg:    wrongemail,
+			arg:    wrongEmail,
 			result: "",
 			isNeg:  true,
 		},
