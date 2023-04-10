@@ -1,4 +1,4 @@
-package logic_error
+package errors
 
 import (
 	"errors"

@@ -3,8 +3,8 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/logic_error"
 	"fmt"
 	"net/mail"
 	"time"
@@ -32,22 +32,22 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 	}
 	// TODO +userExistError
 	if res != nil {
-		return "", fmt.Errorf("%w", logic_error.ErrorUserExist)
+		return "", fmt.Errorf("%w", errors.ErrorUserExist)
 	}
 	// TODO +loginLenError
 	if len(newUser.Username) < loginLen {
-		err := logic_error.LoginLenError{LoginLen: loginLen}
+		err := errors.LoginLenError{LoginLen: loginLen}
 		return "", fmt.Errorf("%w", err)
 	}
 	// TODO +passwordLenError
 	if len(newUser.Password) < passwordLen {
-		err := logic_error.PasswordLenError{PasswordLen: passwordLen}
+		err := errors.PasswordLenError{PasswordLen: passwordLen}
 		return "", fmt.Errorf("%w", err)
 	}
 	// TODO +invalidEmailError
 	_, err = mail.ParseAddress(newUser.Email)
 	if err != nil {
-		return "", fmt.Errorf("%w", logic_error.ErrorInvalidEmail)
+		return "", fmt.Errorf("%w", errors.ErrorInvalidEmail)
 	}
 
 	newUser.RegData = time.Now()
@@ -87,7 +87,7 @@ func (u *UserController) Login(username, password string) (string, error) {
 	// TODO +wrongLoginError
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return "", fmt.Errorf("%w", logic_error.ErrorWrongLogin)
+		return "", fmt.Errorf("%w", errors.ErrorWrongLogin)
 	}
 
 	err = u.pc.EarnPointForLogin(username)

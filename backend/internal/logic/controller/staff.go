@@ -3,8 +3,8 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/logic_error"
 	"fmt"
 )
 
@@ -45,7 +45,7 @@ func (s *StaffController) CreateStaff(token string, record model.Staff) error {
 
 	//TODO +adminAccessError
 	if !user.IsAdmin {
-		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
 	err = s.repo.CreateStaff(record)
@@ -63,7 +63,7 @@ func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
 
 	// TODO +adminAccessError
 	if !user.IsAdmin {
-		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 	err = s.repo.UpdateStaff(record)
 	if err != nil {

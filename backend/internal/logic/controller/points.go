@@ -2,7 +2,7 @@ package controller
 
 import (
 	"DoramaSet/internal/interfaces/repository"
-	"DoramaSet/internal/logic_error"
+	"DoramaSet/internal/logic/errors"
 	"fmt"
 	"time"
 )
@@ -66,7 +66,7 @@ func (p *PointsController) PurgePoint(username string, point int) error {
 
 	//TODO +balanceError
 	if user.Points < point {
-		err := logic_error.BalanceError{
+		err := errors.BalanceError{
 			Have: user.Points,
 			Want: point,
 		}

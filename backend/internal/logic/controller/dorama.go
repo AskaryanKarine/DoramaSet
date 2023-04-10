@@ -3,8 +3,8 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/logic_error"
 	"fmt"
 )
 
@@ -44,7 +44,7 @@ func (d *DoramaController) CreateDorama(token string, record model.Dorama) error
 	}
 	// TODO +adminAccessError
 	if !user.IsAdmin {
-		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
 	err = d.repo.CreateDorama(record)
@@ -61,7 +61,7 @@ func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error
 	}
 	// TODO +adminAccessError
 	if !user.IsAdmin {
-		return fmt.Errorf("%w", logic_error.ErrorAdminAccess)
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
 	err = d.repo.UpdateDorama(record)

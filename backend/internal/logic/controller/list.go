@@ -3,8 +3,8 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/logic_error"
 	"fmt"
 )
 
@@ -69,7 +69,7 @@ func (l *ListController) AddToList(token string, idL, idD int) error {
 	}
 	// TODO +creatorAccessError
 	if user.Username != list.CreatorName {
-		return fmt.Errorf("%w", logic_error.ErrorCreatorAccess)
+		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
 	_, err = l.drepo.GetDorama(idD)
 	if err != nil {
@@ -93,7 +93,7 @@ func (l *ListController) DelFromList(token string, idL, idD int) error {
 	}
 	// TODO +creatorAccessError
 	if user.Username != list.CreatorName {
-		return fmt.Errorf("%w", logic_error.ErrorCreatorAccess)
+		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
 
 	_, err = l.drepo.GetDorama(idD)
@@ -120,7 +120,7 @@ func (l *ListController) DelList(token string, idL int) error {
 
 	//TODO +creatorAccessError
 	if user.Username != list.CreatorName {
-		return fmt.Errorf("%w", logic_error.ErrorCreatorAccess)
+		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
 
 	err = l.repo.DelList(idL)
