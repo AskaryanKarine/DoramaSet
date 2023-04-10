@@ -129,7 +129,10 @@ func (u *UserController) UpdateActive(token string) error {
 		return fmt.Errorf("authToken: %w", err)
 	}
 	if !eqDate(user.LastActive, time.Now()) {
-		u.pc.EarnPointForLogin(user.Username)
+		err = u.pc.EarnPointForLogin(user.Username)
+		if err != nil {
+			return fmt.Errorf("earnPointForLogin: %w", err)
+		}
 	}
 
 	user.LastActive = time.Now()

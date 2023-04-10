@@ -307,6 +307,16 @@ func TestUpdateActive(t *testing.T) {
 			isNeg: true,
 		},
 		{
+			name: "earn point for login error",
+			fl: UserController{
+				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&activeUser, nil),
+				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
+				secretKey: secretKey,
+			},
+			arg:   getToken(correctUser, secretKey),
+			isNeg: true,
+		},
+		{
 			name: "update points",
 			fl: UserController{
 				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&activeUser, nil),
