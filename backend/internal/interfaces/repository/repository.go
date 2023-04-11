@@ -6,14 +6,17 @@ type IDoramaRepo interface {
 	GetList() ([]model.Dorama, error)
 	GetListName(name string) ([]model.Dorama, error)
 	GetDorama(id int) (*model.Dorama, error)
-	CreateDorama(dorama model.Dorama) error
+	CreateDorama(dorama model.Dorama) (int, error)
 	UpdateDorama(dorama model.Dorama) error
+	DeleteDorama(dorama model.Dorama) error
 }
 
 type IEpisodeRepo interface {
 	GetList(idDorama int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
 	MarkEpisode(idEp int, username string) error
+	CreateEpisode(episode model.Episode, idD int) (int, error)
+	DeleteEpisode(episode model.Episode) error
 }
 
 type IListRepo interface {
@@ -52,4 +55,5 @@ type IUserRepo interface {
 	GetUser(username string) (*model.User, error)
 	CreateUser(record model.User) error
 	UpdateUser(record model.User) error
+	DeleteUser(record model.User) error
 }
