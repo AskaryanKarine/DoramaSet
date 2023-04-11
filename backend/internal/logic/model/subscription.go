@@ -6,5 +6,5 @@ type Subscription struct {
 	Id          int
 	Description string
 	Cost        int
-	Duration    time.Time
+	Duration    time.Duration
 }
