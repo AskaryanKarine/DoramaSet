@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type SubscritionRepo struct {
+type SubscriptionRepo struct {
 	db *gorm.DB
 }
 
@@ -18,7 +18,7 @@ type subModel struct {
 	Duration    int
 }
 
-func (s SubscritionRepo) GetList() ([]model.Subscription, error) {
+func (s SubscriptionRepo) GetList() ([]model.Subscription, error) {
 	var subs []subModel
 	var resSubs []model.Subscription
 	result := s.db.Table("dorama_set.subscription").Find(&subs)
@@ -39,7 +39,7 @@ func (s SubscritionRepo) GetList() ([]model.Subscription, error) {
 	return resSubs, nil
 }
 
-func (s SubscritionRepo) GetSubscription(id int) (*model.Subscription, error) {
+func (s SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) {
 	var sub *subModel
 	result := s.db.Table("dorama_set.subscription").Where("id = ?", id).Find(&sub)
 
@@ -58,7 +58,7 @@ func (s SubscritionRepo) GetSubscription(id int) (*model.Subscription, error) {
 	return &res, nil
 }
 
-func (s SubscritionRepo) GetSubscriptionByPrice(price int) (*model.Subscription, error) {
+func (s SubscriptionRepo) GetSubscriptionByPrice(price int) (*model.Subscription, error) {
 	var sub *model.Subscription
 	result := s.db.Table("dorama_set.subscription").Where("cost = ?", price).Find(&sub)
 

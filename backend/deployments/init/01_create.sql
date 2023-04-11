@@ -74,8 +74,8 @@ create table dorama_set.UserEpisode (
     username text not null,
     id_episode int not null,
     primary key (username, id_episode),
-    foreign key (username) references dorama_set."user"(username),
-    foreign key (id_episode) references dorama_set.episode(id)
+    foreign key (username) references dorama_set."user"(username) on delete cascade,
+    foreign key (id_episode) references dorama_set.episode(id) on delete cascade
 );
 
 create table dorama_set.DoramaStaff (

@@ -49,7 +49,7 @@ func (u UserRepo) CreateUser(record model.User) error {
 		IsAdmin:          record.IsAdmin,
 		SubId:            freeSub.Id,
 	}
-	result := u.db.Table("dorama_set.User").Create(&m)
+	result := u.db.Table("dorama_set.user").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
@@ -62,7 +62,7 @@ func (u UserRepo) UpdateUser(record model.User) error {
 }
 
 func (u UserRepo) DeleteUser(record model.User) error {
-	result := u.db.Table("dorama_set.User").Where("username = ?", record.Username).Delete(&userModel{})
+	result := u.db.Table("dorama_set.user").Where("username = ?", record.Username).Delete(&userModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}

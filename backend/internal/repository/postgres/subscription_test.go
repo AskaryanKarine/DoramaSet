@@ -20,7 +20,7 @@ func connect() *gorm.DB {
 
 var db = connect()
 
-func TestSubscritionRepo_GetList(t *testing.T) {
+func TestSubscriptionRepo_GetList(t *testing.T) {
 	type fields struct {
 		db *gorm.DB
 	}
@@ -41,7 +41,7 @@ func TestSubscritionRepo_GetList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := SubscritionRepo{
+			s := SubscriptionRepo{
 				db: tt.fields.db,
 			}
 			got, err := s.GetList()
@@ -56,7 +56,7 @@ func TestSubscritionRepo_GetList(t *testing.T) {
 	}
 }
 
-func TestSubscritionRepo_GetSubscription(t *testing.T) {
+func TestSubscriptionRepo_GetSubscription(t *testing.T) {
 	type fields struct {
 		db *gorm.DB
 	}
@@ -88,7 +88,7 @@ func TestSubscritionRepo_GetSubscription(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := SubscritionRepo{
+			s := SubscriptionRepo{
 				db: tt.fields.db,
 			}
 			got, err := s.GetSubscription(tt.args.id)
@@ -103,7 +103,7 @@ func TestSubscritionRepo_GetSubscription(t *testing.T) {
 	}
 }
 
-func TestSubscritionRepo_GetSubscriptionByPrice(t *testing.T) {
+func TestSubscriptionRepo_GetSubscriptionByPrice(t *testing.T) {
 	type fields struct {
 		db *gorm.DB
 	}
@@ -135,7 +135,7 @@ func TestSubscritionRepo_GetSubscriptionByPrice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := SubscritionRepo{
+			s := SubscriptionRepo{
 				db: tt.fields.db,
 			}
 			got, err := s.GetSubscriptionByPrice(tt.args.price)

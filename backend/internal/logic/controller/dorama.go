@@ -47,7 +47,7 @@ func (d *DoramaController) CreateDorama(token string, record model.Dorama) error
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	err = d.repo.CreateDorama(record)
+	_, err = d.repo.CreateDorama(record)
 	if err != nil {
 		return fmt.Errorf("createDorama: %w", err)
 	}
