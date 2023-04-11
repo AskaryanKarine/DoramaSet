@@ -117,7 +117,7 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 		idEp     int
 		username string
 	}
-	ur := UserRepo{db: db}
+	ur := UserRepo{db: db, subRepo: SubscriptionRepo{db: db}}
 	_ = ur.CreateUser(model.User{Username: "qwerty"})
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
@@ -145,7 +145,8 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 			}
 		})
 	}
-
+	_ = ur.DeleteUser(model.User{Username: "qwerty"})
+	_ = dr.DeleteDorama(model.Dorama{Id: idD, Status: "finish"})
 }
 
 func TestEpisodeRepo_CreateEpisode(t *testing.T) {
