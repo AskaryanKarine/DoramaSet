@@ -6,7 +6,7 @@ create table dorama_set.Subscription (
     id serial primary key,
     cost int not null ,
     description text not null,
-    duration interval not null
+    duration int not null
 );
 
 create table dorama_set.User (
