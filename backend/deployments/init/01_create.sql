@@ -65,29 +65,39 @@ create table dorama_set.Picture (
 create table dorama_set.UserList (
     username text not null,
     id_list int not null,
-    primary key (username, id_list)
+    primary key (username, id_list),
+    foreign key (username) references dorama_set."user"(username),
+    foreign key (id_list) references dorama_set.list(id)
 );
 
 create table dorama_set.UserEpisode (
     username text not null,
     id_episode int not null,
-    primary key (username, id_episode)
+    primary key (username, id_episode),
+    foreign key (username) references dorama_set."user"(username),
+    foreign key (id_episode) references dorama_set.episode(id)
 );
 
 create table dorama_set.DoramaStaff (
     id_dorama int not null,
     id_staff int not null,
-    primary key (id_dorama, id_staff)
+    primary key (id_dorama, id_staff),
+    foreign key (id_dorama) references dorama_set.dorama(id),
+    foreign key (id_staff) references dorama_set.staff(id)
 );
 
 create table dorama_set.DoramaPicture (
     id_dorama int not null,
     id_picture int not null,
-    primary key (id_dorama, id_picture)
+    primary key (id_dorama, id_picture),
+    foreign key (id_dorama) references dorama_set.dorama(id),
+    foreign key (id_picture) references dorama_set.picture(id)
 );
 
 create table dorama_set.StaffPicture (
     id_staff int not null,
     id_picture int not null,
-    primary key (id_staff, id_picture)
+    primary key (id_staff, id_picture),
+    foreign key (id_staff) references dorama_set.staff(id),
+    foreign key (id_picture) references dorama_set.picture(id)
 );
