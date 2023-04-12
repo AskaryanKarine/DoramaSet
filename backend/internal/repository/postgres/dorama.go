@@ -49,9 +49,20 @@ func (d DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
 	return m.ID, nil
 }
 
-func (DoramaRepo) UpdateDorama(dorama model.Dorama) error {
-	//TODO implement me
-	panic("implement me")
+func (d DoramaRepo) UpdateDorama(dorama model.Dorama) error {
+	m := doramaModel{
+		ID:          dorama.Id,
+		Name:        dorama.Name,
+		Description: dorama.Description,
+		ReleaseYear: dorama.ReleaseYear,
+		Status:      dorama.Status,
+		Genre:       dorama.Genre,
+	}
+	result := d.db.Table("dorama_set.dorama").Save(&m)
+	if result.Error != nil {
+		return fmt.Errorf("db: %w", result.Error)
+	}
+	return nil
 }
 
 func (d DoramaRepo) DeleteDorama(dorama model.Dorama) error {

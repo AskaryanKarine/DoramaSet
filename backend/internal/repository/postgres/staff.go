@@ -24,7 +24,7 @@ func (StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	panic("implement me")
 }
 
-func (StaffRepo) CreateStaff(record model.Staff) error {
+func (StaffRepo) CreateStaff(record model.Staff) (int, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -32,4 +32,8 @@ func (StaffRepo) CreateStaff(record model.Staff) error {
 func (StaffRepo) UpdateStaff(record model.Staff) error {
 	//TODO implement me
 	panic("implement me")
+}
+
+func (s StaffRepo) DeleteStaff(record model.Staff) error {
+	panic("")
 }

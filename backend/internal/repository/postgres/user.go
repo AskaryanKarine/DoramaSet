@@ -9,29 +9,53 @@ import (
 )
 
 type UserRepo struct {
-	db      *gorm.DB
-	subRepo repository.ISubscriptionRepo
+	db       *gorm.DB
+	subRepo  repository.ISubscriptionRepo
+	listRepo repository.IListRepo
 }
 
 type userModel struct {
-	Username         string
+	Username         string `gorm:"primaryKey"`
+	IsAdmin          bool
 	SubId            int
 	Password         string
 	Email            string
 	RegistrationDate time.Time
 	LastActive       time.Time
 	Points           int
-	IsAdmin          bool
 }
 
 func (u UserRepo) GetUser(username string) (*model.User, error) {
 	var user *userModel
-	result := u.db.Table("user").Select("user.username = ?", username).Find(&user)
+	//	var user []interface{}
+	result := u.db.Table("dorama_set.user").Where("username = ?", username).Scan(&user)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
-	return nil, nil
+	if user == nil {
+		return nil, nil
+	}
+
+	sub, err := u.subRepo.GetSubscription(user.SubId)
+	if err != nil {
+		return nil, fmt.Errorf("setSubById: %w", err)
+	}
+
+	res := model.User{
+		Username:   user.Username,
+		Password:   user.Password,
+		Email:      user.Email,
+		RegData:    user.RegistrationDate,
+		LastActive: user.LastActive,
+		Points:     user.Points,
+		IsAdmin:    user.IsAdmin,
+		Sub:        sub,
+		// TODO fix after list repo
+		Collection: nil,
+	}
+
+	return &res, nil
 }
 
 func (u UserRepo) CreateUser(record model.User) error {
@@ -49,6 +73,7 @@ func (u UserRepo) CreateUser(record model.User) error {
 		IsAdmin:          record.IsAdmin,
 		SubId:            freeSub.Id,
 	}
+	// TODO create empty watching list
 	result := u.db.Table("dorama_set.user").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
@@ -57,8 +82,21 @@ func (u UserRepo) CreateUser(record model.User) error {
 }
 
 func (u UserRepo) UpdateUser(record model.User) error {
-	//TODO implement me
-	panic("implement me")
+	m := userModel{
+		Username:         record.Username,
+		IsAdmin:          record.IsAdmin,
+		SubId:            record.Sub.Id,
+		Password:         record.Password,
+		Email:            record.Email,
+		RegistrationDate: record.RegData,
+		LastActive:       record.LastActive,
+		Points:           record.Points,
+	}
+	result := u.db.Table("dorama_set.user").Save(&m)
+	if result.Error != nil {
+		return fmt.Errorf("db: %w", result.Error)
+	}
+	return nil
 }
 
 func (u UserRepo) DeleteUser(record model.User) error {

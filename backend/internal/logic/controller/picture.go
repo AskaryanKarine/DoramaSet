@@ -29,7 +29,7 @@ func (p *PictureController) GetListByStaff(idS int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p *PictureController) CreatePicture(token string, record model.Picture) error {
+func (p *PictureController) CreatePicture(token string, record model.Picture, idT int, table string) error {
 	user, err := p.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
@@ -40,7 +40,7 @@ func (p *PictureController) CreatePicture(token string, record model.Picture) er
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	err = p.repo.CreatePicture(record)
+	_, err = p.repo.CreatePicture(record, idT, table)
 	if err != nil {
 		return fmt.Errorf("createPicture: %w", err)
 	}

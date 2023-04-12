@@ -121,6 +121,8 @@ func TestCreatePicture(t *testing.T) {
 	type argument struct {
 		token  string
 		dorama model.Picture
+		idT    int
+		table  string
 	}
 	adminUser := model.User{IsAdmin: true}
 	noadminUser := adminUser
@@ -141,6 +143,8 @@ func TestCreatePicture(t *testing.T) {
 			arg: argument{
 				token:  testToken,
 				dorama: resultPicArray[0],
+				idT:    1,
+				table:  "",
 			},
 			isNeg: false,
 		},
@@ -153,6 +157,8 @@ func TestCreatePicture(t *testing.T) {
 			arg: argument{
 				token:  testToken,
 				dorama: resultPicArray[0],
+				idT:    1,
+				table:  "",
 			},
 			isNeg: true,
 		},
@@ -165,6 +171,8 @@ func TestCreatePicture(t *testing.T) {
 			arg: argument{
 				token:  testToken,
 				dorama: resultPicArray[0],
+				idT:    1,
+				table:  "",
 			},
 			isNeg: true,
 		},
@@ -177,6 +185,8 @@ func TestCreatePicture(t *testing.T) {
 			arg: argument{
 				token:  testToken,
 				dorama: resultPicArray[0],
+				idT:    1,
+				table:  "",
 			},
 			isNeg: true,
 		},
