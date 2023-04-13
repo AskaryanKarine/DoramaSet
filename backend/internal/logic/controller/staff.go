@@ -48,7 +48,7 @@ func (s *StaffController) CreateStaff(token string, record model.Staff) error {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	err = s.repo.CreateStaff(record)
+	_, err = s.repo.CreateStaff(record)
 	if err != nil {
 		return fmt.Errorf("createStaff: %w", err)
 	}

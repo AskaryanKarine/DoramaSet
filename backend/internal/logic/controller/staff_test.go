@@ -130,7 +130,7 @@ func TestGetListByDoramaStaff(t *testing.T) {
 			isNeg:  false,
 		},
 		{
-			name: "get list dorama staff error",
+			name: "get list picture staff error",
 			fl: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).GetListDoramaMock.Return(nil, errors.New("error")),
 				uc:   nil,
@@ -176,7 +176,7 @@ func TestCreateStaff(t *testing.T) {
 		{
 			name: "successful",
 			field: StaffController{
-				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(nil),
+				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
 			},
 			arg: argument{
@@ -188,7 +188,7 @@ func TestCreateStaff(t *testing.T) {
 		{
 			name: "auth error",
 			field: StaffController{
-				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(nil),
+				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
 			},
 			arg: argument{
@@ -200,7 +200,7 @@ func TestCreateStaff(t *testing.T) {
 		{
 			name: "access error",
 			field: StaffController{
-				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(nil),
+				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
 			},
 			arg: argument{
@@ -212,7 +212,7 @@ func TestCreateStaff(t *testing.T) {
 		{
 			name: "create error",
 			field: StaffController{
-				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(errors.New("error")),
+				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(-1, errors.New("error")),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
 			},
 			arg: argument{

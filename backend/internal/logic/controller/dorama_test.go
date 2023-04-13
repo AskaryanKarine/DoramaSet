@@ -24,7 +24,7 @@ var resultArrayDorama = []model.Dorama{
 	},
 }
 
-// dorama controller
+// picture controller
 func TestGetAllDorama(t *testing.T) {
 	mc := minimock.NewController(t)
 	testsTable := []struct {
@@ -191,7 +191,7 @@ func TestCreateDorama(t *testing.T) {
 		{
 			name: "successful result",
 			field: DoramaController{
-				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(nil),
+				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
 			},
 			arg: argument{
@@ -203,7 +203,7 @@ func TestCreateDorama(t *testing.T) {
 		{
 			name: "auth error",
 			field: DoramaController{
-				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(nil),
+				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
 			},
 			arg: argument{
@@ -215,7 +215,7 @@ func TestCreateDorama(t *testing.T) {
 		{
 			name: "access error",
 			field: DoramaController{
-				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(nil),
+				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
 			},
 			arg: argument{
@@ -225,9 +225,9 @@ func TestCreateDorama(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "create dorama error",
+			name: "create picture error",
 			field: DoramaController{
-				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(errors.New("error")),
+				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(-1, errors.New("error")),
 				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
 			},
 			arg: argument{

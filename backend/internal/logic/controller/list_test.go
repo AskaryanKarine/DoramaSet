@@ -36,7 +36,7 @@ func TestCreateList(t *testing.T) {
 		{
 			name: "successful result",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(nil),
+				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(1, nil),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
 			},
@@ -49,7 +49,7 @@ func TestCreateList(t *testing.T) {
 		{
 			name: "create list error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(errors.New("error")),
+				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(-1, errors.New("error")),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{}, nil),
 			},
@@ -62,7 +62,7 @@ func TestCreateList(t *testing.T) {
 		{
 			name: "auth error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(nil),
+				repo:  mocks.NewIListRepoMock(mc).CreateListMock.Return(1, nil),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
 			},
@@ -347,7 +347,7 @@ func TestAddToList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "get dorama error",
+			name: "get picture error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).AddToListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),
@@ -436,7 +436,7 @@ func TestDelFromList(t *testing.T) {
 			isNeg: true,
 		},
 		{
-			name: "get dorama error",
+			name: "get picture error",
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{}, nil).DelFromListMock.Return(nil),
 				drepo: mocks.NewIDoramaRepoMock(mc).GetDoramaMock.Return(nil, errors.New("error")),

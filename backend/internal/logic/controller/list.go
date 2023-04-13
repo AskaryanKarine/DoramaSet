@@ -22,7 +22,7 @@ func (l *ListController) CreateList(token string, record model.List) error {
 
 	record.CreatorName = user.Username
 
-	err = l.repo.CreateList(record)
+	_, err = l.repo.CreateList(record)
 	if err != nil {
 		return fmt.Errorf("createList: %w", err)
 	}

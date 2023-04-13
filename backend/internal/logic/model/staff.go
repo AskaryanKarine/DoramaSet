@@ -5,7 +5,7 @@ import "time"
 type Staff struct {
 	Id       int
 	Name     string
-	Birthdat time.Time
+	Birthday time.Time
 	Type     string
 	Gender   string
 	Bio      string
