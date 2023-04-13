@@ -49,9 +49,11 @@ create table dorama_set.Episode (
 
 create table dorama_set.Staff (
     id serial primary key,
+    name text not null,
     birthday date not null,
     gender text not null,
-    bio text not null
+    bio text not null,
+    type text not null
 );
 
 create table dorama_set.Picture (
@@ -66,8 +68,8 @@ create table dorama_set.UserList (
     username text not null,
     id_list int not null,
     primary key (username, id_list),
-    foreign key (username) references dorama_set."user"(username),
-    foreign key (id_list) references dorama_set.list(id)
+    foreign key (username) references dorama_set."user"(username) on delete cascade,
+    foreign key (id_list) references dorama_set.list(id) on delete cascade
 );
 
 create table dorama_set.UserEpisode (
@@ -82,22 +84,30 @@ create table dorama_set.DoramaStaff (
     id_dorama int not null,
     id_staff int not null,
     primary key (id_dorama, id_staff),
-    foreign key (id_dorama) references dorama_set.dorama(id),
-    foreign key (id_staff) references dorama_set.staff(id)
+    foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
+    foreign key (id_staff) references dorama_set.staff(id) on delete cascade
 );
 
 create table dorama_set.DoramaPicture (
     id_dorama int not null,
     id_picture int not null,
     primary key (id_dorama, id_picture),
-    foreign key (id_dorama) references dorama_set.dorama(id),
-    foreign key (id_picture) references dorama_set.picture(id)
+    foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
+    foreign key (id_picture) references dorama_set.picture(id) on delete cascade
+);
+
+create table dorama_set.ListDorama (
+    id_dorama int not null,
+    id_list int not null,
+    primary key (id_dorama, id_list),
+    foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
+    foreign key (id_list) references dorama_set.list(id) on delete cascade
 );
 
 create table dorama_set.StaffPicture (
     id_staff int not null,
     id_picture int not null,
     primary key (id_staff, id_picture),
-    foreign key (id_staff) references dorama_set.staff(id),
-    foreign key (id_picture) references dorama_set.picture(id)
+    foreign key (id_staff) references dorama_set.staff(id) on delete cascade,
+    foreign key (id_picture) references dorama_set.picture(id) on delete cascade
 );
