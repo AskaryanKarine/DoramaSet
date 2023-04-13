@@ -17,6 +17,12 @@ import (
 type IDoramaRepoMock struct {
 	t minimock.Tester
 
+	funcAddStaff          func(idD int, idS int) (err error)
+	inspectFuncAddStaff   func(idD int, idS int)
+	afterAddStaffCounter  uint64
+	beforeAddStaffCounter uint64
+	AddStaffMock          mIDoramaRepoMockAddStaff
+
 	funcCreateDorama          func(dorama model.Dorama) (i1 int, err error)
 	inspectFuncCreateDorama   func(dorama model.Dorama)
 	afterCreateDoramaCounter  uint64
@@ -41,6 +47,12 @@ type IDoramaRepoMock struct {
 	beforeGetListCounter uint64
 	GetListMock          mIDoramaRepoMockGetList
 
+	funcGetListByListId          func(idL int) (da1 []model.Dorama, err error)
+	inspectFuncGetListByListId   func(idL int)
+	afterGetListByListIdCounter  uint64
+	beforeGetListByListIdCounter uint64
+	GetListByListIdMock          mIDoramaRepoMockGetListByListId
+
 	funcGetListName          func(name string) (da1 []model.Dorama, err error)
 	inspectFuncGetListName   func(name string)
 	afterGetListNameCounter  uint64
@@ -61,6 +73,9 @@ func NewIDoramaRepoMock(t minimock.Tester) *IDoramaRepoMock {
 		controller.RegisterMocker(m)
 	}
 
+	m.AddStaffMock = mIDoramaRepoMockAddStaff{mock: m}
+	m.AddStaffMock.callArgs = []*IDoramaRepoMockAddStaffParams{}
+
 	m.CreateDoramaMock = mIDoramaRepoMockCreateDorama{mock: m}
 	m.CreateDoramaMock.callArgs = []*IDoramaRepoMockCreateDoramaParams{}
 
@@ -72,6 +87,9 @@ func NewIDoramaRepoMock(t minimock.Tester) *IDoramaRepoMock {
 
 	m.GetListMock = mIDoramaRepoMockGetList{mock: m}
 
+	m.GetListByListIdMock = mIDoramaRepoMockGetListByListId{mock: m}
+	m.GetListByListIdMock.callArgs = []*IDoramaRepoMockGetListByListIdParams{}
+
 	m.GetListNameMock = mIDoramaRepoMockGetListName{mock: m}
 	m.GetListNameMock.callArgs = []*IDoramaRepoMockGetListNameParams{}
 
@@ -79,6 +97,222 @@ func NewIDoramaRepoMock(t minimock.Tester) *IDoramaRepoMock {
 	m.UpdateDoramaMock.callArgs = []*IDoramaRepoMockUpdateDoramaParams{}
 
 	return m
+}
+
+type mIDoramaRepoMockAddStaff struct {
+	mock               *IDoramaRepoMock
+	defaultExpectation *IDoramaRepoMockAddStaffExpectation
+	expectations       []*IDoramaRepoMockAddStaffExpectation
+
+	callArgs []*IDoramaRepoMockAddStaffParams
+	mutex    sync.RWMutex
+}
+
+// IDoramaRepoMockAddStaffExpectation specifies expectation struct of the IDoramaRepo.AddStaff
+type IDoramaRepoMockAddStaffExpectation struct {
+	mock    *IDoramaRepoMock
+	params  *IDoramaRepoMockAddStaffParams
+	results *IDoramaRepoMockAddStaffResults
+	Counter uint64
+}
+
+// IDoramaRepoMockAddStaffParams contains parameters of the IDoramaRepo.AddStaff
+type IDoramaRepoMockAddStaffParams struct {
+	idD int
+	idS int
+}
+
+// IDoramaRepoMockAddStaffResults contains results of the IDoramaRepo.AddStaff
+type IDoramaRepoMockAddStaffResults struct {
+	err error
+}
+
+// Expect sets up expected params for IDoramaRepo.AddStaff
+func (mmAddStaff *mIDoramaRepoMockAddStaff) Expect(idD int, idS int) *mIDoramaRepoMockAddStaff {
+	if mmAddStaff.mock.funcAddStaff != nil {
+		mmAddStaff.mock.t.Fatalf("IDoramaRepoMock.AddStaff mock is already set by Set")
+	}
+
+	if mmAddStaff.defaultExpectation == nil {
+		mmAddStaff.defaultExpectation = &IDoramaRepoMockAddStaffExpectation{}
+	}
+
+	mmAddStaff.defaultExpectation.params = &IDoramaRepoMockAddStaffParams{idD, idS}
+	for _, e := range mmAddStaff.expectations {
+		if minimock.Equal(e.params, mmAddStaff.defaultExpectation.params) {
+			mmAddStaff.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmAddStaff.defaultExpectation.params)
+		}
+	}
+
+	return mmAddStaff
+}
+
+// Inspect accepts an inspector function that has same arguments as the IDoramaRepo.AddStaff
+func (mmAddStaff *mIDoramaRepoMockAddStaff) Inspect(f func(idD int, idS int)) *mIDoramaRepoMockAddStaff {
+	if mmAddStaff.mock.inspectFuncAddStaff != nil {
+		mmAddStaff.mock.t.Fatalf("Inspect function is already set for IDoramaRepoMock.AddStaff")
+	}
+
+	mmAddStaff.mock.inspectFuncAddStaff = f
+
+	return mmAddStaff
+}
+
+// Return sets up results that will be returned by IDoramaRepo.AddStaff
+func (mmAddStaff *mIDoramaRepoMockAddStaff) Return(err error) *IDoramaRepoMock {
+	if mmAddStaff.mock.funcAddStaff != nil {
+		mmAddStaff.mock.t.Fatalf("IDoramaRepoMock.AddStaff mock is already set by Set")
+	}
+
+	if mmAddStaff.defaultExpectation == nil {
+		mmAddStaff.defaultExpectation = &IDoramaRepoMockAddStaffExpectation{mock: mmAddStaff.mock}
+	}
+	mmAddStaff.defaultExpectation.results = &IDoramaRepoMockAddStaffResults{err}
+	return mmAddStaff.mock
+}
+
+// Set uses given function f to mock the IDoramaRepo.AddStaff method
+func (mmAddStaff *mIDoramaRepoMockAddStaff) Set(f func(idD int, idS int) (err error)) *IDoramaRepoMock {
+	if mmAddStaff.defaultExpectation != nil {
+		mmAddStaff.mock.t.Fatalf("Default expectation is already set for the IDoramaRepo.AddStaff method")
+	}
+
+	if len(mmAddStaff.expectations) > 0 {
+		mmAddStaff.mock.t.Fatalf("Some expectations are already set for the IDoramaRepo.AddStaff method")
+	}
+
+	mmAddStaff.mock.funcAddStaff = f
+	return mmAddStaff.mock
+}
+
+// When sets expectation for the IDoramaRepo.AddStaff which will trigger the result defined by the following
+// Then helper
+func (mmAddStaff *mIDoramaRepoMockAddStaff) When(idD int, idS int) *IDoramaRepoMockAddStaffExpectation {
+	if mmAddStaff.mock.funcAddStaff != nil {
+		mmAddStaff.mock.t.Fatalf("IDoramaRepoMock.AddStaff mock is already set by Set")
+	}
+
+	expectation := &IDoramaRepoMockAddStaffExpectation{
+		mock:   mmAddStaff.mock,
+		params: &IDoramaRepoMockAddStaffParams{idD, idS},
+	}
+	mmAddStaff.expectations = append(mmAddStaff.expectations, expectation)
+	return expectation
+}
+
+// Then sets up IDoramaRepo.AddStaff return parameters for the expectation previously defined by the When method
+func (e *IDoramaRepoMockAddStaffExpectation) Then(err error) *IDoramaRepoMock {
+	e.results = &IDoramaRepoMockAddStaffResults{err}
+	return e.mock
+}
+
+// AddStaff implements repository.IDoramaRepo
+func (mmAddStaff *IDoramaRepoMock) AddStaff(idD int, idS int) (err error) {
+	mm_atomic.AddUint64(&mmAddStaff.beforeAddStaffCounter, 1)
+	defer mm_atomic.AddUint64(&mmAddStaff.afterAddStaffCounter, 1)
+
+	if mmAddStaff.inspectFuncAddStaff != nil {
+		mmAddStaff.inspectFuncAddStaff(idD, idS)
+	}
+
+	mm_params := &IDoramaRepoMockAddStaffParams{idD, idS}
+
+	// Record call args
+	mmAddStaff.AddStaffMock.mutex.Lock()
+	mmAddStaff.AddStaffMock.callArgs = append(mmAddStaff.AddStaffMock.callArgs, mm_params)
+	mmAddStaff.AddStaffMock.mutex.Unlock()
+
+	for _, e := range mmAddStaff.AddStaffMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmAddStaff.AddStaffMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmAddStaff.AddStaffMock.defaultExpectation.Counter, 1)
+		mm_want := mmAddStaff.AddStaffMock.defaultExpectation.params
+		mm_got := IDoramaRepoMockAddStaffParams{idD, idS}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmAddStaff.t.Errorf("IDoramaRepoMock.AddStaff got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmAddStaff.AddStaffMock.defaultExpectation.results
+		if mm_results == nil {
+			mmAddStaff.t.Fatal("No results are set for the IDoramaRepoMock.AddStaff")
+		}
+		return (*mm_results).err
+	}
+	if mmAddStaff.funcAddStaff != nil {
+		return mmAddStaff.funcAddStaff(idD, idS)
+	}
+	mmAddStaff.t.Fatalf("Unexpected call to IDoramaRepoMock.AddStaff. %v %v", idD, idS)
+	return
+}
+
+// AddStaffAfterCounter returns a count of finished IDoramaRepoMock.AddStaff invocations
+func (mmAddStaff *IDoramaRepoMock) AddStaffAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddStaff.afterAddStaffCounter)
+}
+
+// AddStaffBeforeCounter returns a count of IDoramaRepoMock.AddStaff invocations
+func (mmAddStaff *IDoramaRepoMock) AddStaffBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddStaff.beforeAddStaffCounter)
+}
+
+// Calls returns a list of arguments used in each call to IDoramaRepoMock.AddStaff.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmAddStaff *mIDoramaRepoMockAddStaff) Calls() []*IDoramaRepoMockAddStaffParams {
+	mmAddStaff.mutex.RLock()
+
+	argCopy := make([]*IDoramaRepoMockAddStaffParams, len(mmAddStaff.callArgs))
+	copy(argCopy, mmAddStaff.callArgs)
+
+	mmAddStaff.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockAddStaffDone returns true if the count of the AddStaff invocations corresponds
+// the number of defined expectations
+func (m *IDoramaRepoMock) MinimockAddStaffDone() bool {
+	for _, e := range m.AddStaffMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddStaffMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddStaffCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddStaff != nil && mm_atomic.LoadUint64(&m.afterAddStaffCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockAddStaffInspect logs each unmet expectation
+func (m *IDoramaRepoMock) MinimockAddStaffInspect() {
+	for _, e := range m.AddStaffMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to IDoramaRepoMock.AddStaff with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddStaffMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddStaffCounter) < 1 {
+		if m.AddStaffMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to IDoramaRepoMock.AddStaff")
+		} else {
+			m.t.Errorf("Expected call to IDoramaRepoMock.AddStaff with params: %#v", *m.AddStaffMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddStaff != nil && mm_atomic.LoadUint64(&m.afterAddStaffCounter) < 1 {
+		m.t.Error("Expected call to IDoramaRepoMock.AddStaff")
+	}
 }
 
 type mIDoramaRepoMockCreateDorama struct {
@@ -872,6 +1106,222 @@ func (m *IDoramaRepoMock) MinimockGetListInspect() {
 	}
 }
 
+type mIDoramaRepoMockGetListByListId struct {
+	mock               *IDoramaRepoMock
+	defaultExpectation *IDoramaRepoMockGetListByListIdExpectation
+	expectations       []*IDoramaRepoMockGetListByListIdExpectation
+
+	callArgs []*IDoramaRepoMockGetListByListIdParams
+	mutex    sync.RWMutex
+}
+
+// IDoramaRepoMockGetListByListIdExpectation specifies expectation struct of the IDoramaRepo.GetListByListId
+type IDoramaRepoMockGetListByListIdExpectation struct {
+	mock    *IDoramaRepoMock
+	params  *IDoramaRepoMockGetListByListIdParams
+	results *IDoramaRepoMockGetListByListIdResults
+	Counter uint64
+}
+
+// IDoramaRepoMockGetListByListIdParams contains parameters of the IDoramaRepo.GetListByListId
+type IDoramaRepoMockGetListByListIdParams struct {
+	idL int
+}
+
+// IDoramaRepoMockGetListByListIdResults contains results of the IDoramaRepo.GetListByListId
+type IDoramaRepoMockGetListByListIdResults struct {
+	da1 []model.Dorama
+	err error
+}
+
+// Expect sets up expected params for IDoramaRepo.GetListByListId
+func (mmGetListByListId *mIDoramaRepoMockGetListByListId) Expect(idL int) *mIDoramaRepoMockGetListByListId {
+	if mmGetListByListId.mock.funcGetListByListId != nil {
+		mmGetListByListId.mock.t.Fatalf("IDoramaRepoMock.GetListByListId mock is already set by Set")
+	}
+
+	if mmGetListByListId.defaultExpectation == nil {
+		mmGetListByListId.defaultExpectation = &IDoramaRepoMockGetListByListIdExpectation{}
+	}
+
+	mmGetListByListId.defaultExpectation.params = &IDoramaRepoMockGetListByListIdParams{idL}
+	for _, e := range mmGetListByListId.expectations {
+		if minimock.Equal(e.params, mmGetListByListId.defaultExpectation.params) {
+			mmGetListByListId.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetListByListId.defaultExpectation.params)
+		}
+	}
+
+	return mmGetListByListId
+}
+
+// Inspect accepts an inspector function that has same arguments as the IDoramaRepo.GetListByListId
+func (mmGetListByListId *mIDoramaRepoMockGetListByListId) Inspect(f func(idL int)) *mIDoramaRepoMockGetListByListId {
+	if mmGetListByListId.mock.inspectFuncGetListByListId != nil {
+		mmGetListByListId.mock.t.Fatalf("Inspect function is already set for IDoramaRepoMock.GetListByListId")
+	}
+
+	mmGetListByListId.mock.inspectFuncGetListByListId = f
+
+	return mmGetListByListId
+}
+
+// Return sets up results that will be returned by IDoramaRepo.GetListByListId
+func (mmGetListByListId *mIDoramaRepoMockGetListByListId) Return(da1 []model.Dorama, err error) *IDoramaRepoMock {
+	if mmGetListByListId.mock.funcGetListByListId != nil {
+		mmGetListByListId.mock.t.Fatalf("IDoramaRepoMock.GetListByListId mock is already set by Set")
+	}
+
+	if mmGetListByListId.defaultExpectation == nil {
+		mmGetListByListId.defaultExpectation = &IDoramaRepoMockGetListByListIdExpectation{mock: mmGetListByListId.mock}
+	}
+	mmGetListByListId.defaultExpectation.results = &IDoramaRepoMockGetListByListIdResults{da1, err}
+	return mmGetListByListId.mock
+}
+
+// Set uses given function f to mock the IDoramaRepo.GetListByListId method
+func (mmGetListByListId *mIDoramaRepoMockGetListByListId) Set(f func(idL int) (da1 []model.Dorama, err error)) *IDoramaRepoMock {
+	if mmGetListByListId.defaultExpectation != nil {
+		mmGetListByListId.mock.t.Fatalf("Default expectation is already set for the IDoramaRepo.GetListByListId method")
+	}
+
+	if len(mmGetListByListId.expectations) > 0 {
+		mmGetListByListId.mock.t.Fatalf("Some expectations are already set for the IDoramaRepo.GetListByListId method")
+	}
+
+	mmGetListByListId.mock.funcGetListByListId = f
+	return mmGetListByListId.mock
+}
+
+// When sets expectation for the IDoramaRepo.GetListByListId which will trigger the result defined by the following
+// Then helper
+func (mmGetListByListId *mIDoramaRepoMockGetListByListId) When(idL int) *IDoramaRepoMockGetListByListIdExpectation {
+	if mmGetListByListId.mock.funcGetListByListId != nil {
+		mmGetListByListId.mock.t.Fatalf("IDoramaRepoMock.GetListByListId mock is already set by Set")
+	}
+
+	expectation := &IDoramaRepoMockGetListByListIdExpectation{
+		mock:   mmGetListByListId.mock,
+		params: &IDoramaRepoMockGetListByListIdParams{idL},
+	}
+	mmGetListByListId.expectations = append(mmGetListByListId.expectations, expectation)
+	return expectation
+}
+
+// Then sets up IDoramaRepo.GetListByListId return parameters for the expectation previously defined by the When method
+func (e *IDoramaRepoMockGetListByListIdExpectation) Then(da1 []model.Dorama, err error) *IDoramaRepoMock {
+	e.results = &IDoramaRepoMockGetListByListIdResults{da1, err}
+	return e.mock
+}
+
+// GetListByListId implements repository.IDoramaRepo
+func (mmGetListByListId *IDoramaRepoMock) GetListByListId(idL int) (da1 []model.Dorama, err error) {
+	mm_atomic.AddUint64(&mmGetListByListId.beforeGetListByListIdCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetListByListId.afterGetListByListIdCounter, 1)
+
+	if mmGetListByListId.inspectFuncGetListByListId != nil {
+		mmGetListByListId.inspectFuncGetListByListId(idL)
+	}
+
+	mm_params := &IDoramaRepoMockGetListByListIdParams{idL}
+
+	// Record call args
+	mmGetListByListId.GetListByListIdMock.mutex.Lock()
+	mmGetListByListId.GetListByListIdMock.callArgs = append(mmGetListByListId.GetListByListIdMock.callArgs, mm_params)
+	mmGetListByListId.GetListByListIdMock.mutex.Unlock()
+
+	for _, e := range mmGetListByListId.GetListByListIdMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.da1, e.results.err
+		}
+	}
+
+	if mmGetListByListId.GetListByListIdMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetListByListId.GetListByListIdMock.defaultExpectation.Counter, 1)
+		mm_want := mmGetListByListId.GetListByListIdMock.defaultExpectation.params
+		mm_got := IDoramaRepoMockGetListByListIdParams{idL}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGetListByListId.t.Errorf("IDoramaRepoMock.GetListByListId got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmGetListByListId.GetListByListIdMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetListByListId.t.Fatal("No results are set for the IDoramaRepoMock.GetListByListId")
+		}
+		return (*mm_results).da1, (*mm_results).err
+	}
+	if mmGetListByListId.funcGetListByListId != nil {
+		return mmGetListByListId.funcGetListByListId(idL)
+	}
+	mmGetListByListId.t.Fatalf("Unexpected call to IDoramaRepoMock.GetListByListId. %v", idL)
+	return
+}
+
+// GetListByListIdAfterCounter returns a count of finished IDoramaRepoMock.GetListByListId invocations
+func (mmGetListByListId *IDoramaRepoMock) GetListByListIdAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetListByListId.afterGetListByListIdCounter)
+}
+
+// GetListByListIdBeforeCounter returns a count of IDoramaRepoMock.GetListByListId invocations
+func (mmGetListByListId *IDoramaRepoMock) GetListByListIdBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetListByListId.beforeGetListByListIdCounter)
+}
+
+// Calls returns a list of arguments used in each call to IDoramaRepoMock.GetListByListId.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmGetListByListId *mIDoramaRepoMockGetListByListId) Calls() []*IDoramaRepoMockGetListByListIdParams {
+	mmGetListByListId.mutex.RLock()
+
+	argCopy := make([]*IDoramaRepoMockGetListByListIdParams, len(mmGetListByListId.callArgs))
+	copy(argCopy, mmGetListByListId.callArgs)
+
+	mmGetListByListId.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockGetListByListIdDone returns true if the count of the GetListByListId invocations corresponds
+// the number of defined expectations
+func (m *IDoramaRepoMock) MinimockGetListByListIdDone() bool {
+	for _, e := range m.GetListByListIdMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetListByListIdMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetListByListIdCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetListByListId != nil && mm_atomic.LoadUint64(&m.afterGetListByListIdCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetListByListIdInspect logs each unmet expectation
+func (m *IDoramaRepoMock) MinimockGetListByListIdInspect() {
+	for _, e := range m.GetListByListIdMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to IDoramaRepoMock.GetListByListId with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetListByListIdMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetListByListIdCounter) < 1 {
+		if m.GetListByListIdMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to IDoramaRepoMock.GetListByListId")
+		} else {
+			m.t.Errorf("Expected call to IDoramaRepoMock.GetListByListId with params: %#v", *m.GetListByListIdMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetListByListId != nil && mm_atomic.LoadUint64(&m.afterGetListByListIdCounter) < 1 {
+		m.t.Error("Expected call to IDoramaRepoMock.GetListByListId")
+	}
+}
+
 type mIDoramaRepoMockGetListName struct {
 	mock               *IDoramaRepoMock
 	defaultExpectation *IDoramaRepoMockGetListNameExpectation
@@ -1306,6 +1756,8 @@ func (m *IDoramaRepoMock) MinimockUpdateDoramaInspect() {
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *IDoramaRepoMock) MinimockFinish() {
 	if !m.minimockDone() {
+		m.MinimockAddStaffInspect()
+
 		m.MinimockCreateDoramaInspect()
 
 		m.MinimockDeleteDoramaInspect()
@@ -1313,6 +1765,8 @@ func (m *IDoramaRepoMock) MinimockFinish() {
 		m.MinimockGetDoramaInspect()
 
 		m.MinimockGetListInspect()
+
+		m.MinimockGetListByListIdInspect()
 
 		m.MinimockGetListNameInspect()
 
@@ -1340,10 +1794,12 @@ func (m *IDoramaRepoMock) MinimockWait(timeout mm_time.Duration) {
 func (m *IDoramaRepoMock) minimockDone() bool {
 	done := true
 	return done &&
+		m.MinimockAddStaffDone() &&
 		m.MinimockCreateDoramaDone() &&
 		m.MinimockDeleteDoramaDone() &&
 		m.MinimockGetDoramaDone() &&
 		m.MinimockGetListDone() &&
+		m.MinimockGetListByListIdDone() &&
 		m.MinimockGetListNameDone() &&
 		m.MinimockUpdateDoramaDone()
 }
