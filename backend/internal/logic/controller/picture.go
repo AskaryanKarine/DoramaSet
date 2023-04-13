@@ -35,7 +35,6 @@ func (p *PictureController) CreatePicture(token string, record model.Picture, id
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	//TODO +adminAccessError
 	if !user.IsAdmin {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}

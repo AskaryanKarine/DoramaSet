@@ -42,7 +42,7 @@ func (d *DoramaController) CreateDorama(token string, record model.Dorama) error
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
 	}
-	// TODO +adminAccessError
+
 	if !user.IsAdmin {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
@@ -59,7 +59,7 @@ func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
 	}
-	// TODO +adminAccessError
+
 	if !user.IsAdmin {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}

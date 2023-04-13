@@ -43,7 +43,6 @@ func (s *StaffController) CreateStaff(token string, record model.Staff) error {
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	//TODO +adminAccessError
 	if !user.IsAdmin {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
@@ -61,7 +60,6 @@ func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	// TODO +adminAccessError
 	if !user.IsAdmin {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}

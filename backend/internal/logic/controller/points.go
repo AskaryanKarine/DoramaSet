@@ -64,7 +64,6 @@ func (p *PointsController) PurgePoint(username string, point int) error {
 		return fmt.Errorf("getUser: %w", err)
 	}
 
-	//TODO +balanceError
 	if user.Points < point {
 		err := errors.BalanceError{
 			Have: user.Points,
