@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -16,6 +17,9 @@ func (p PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
+	if len(res) == 0 {
+		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+	}
 	return res, nil
 }
 
@@ -24,6 +28,9 @@ func (p PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 	result := p.db.Table("dorama_set.staffpicture").Where("id_staff = ?", idStaff).Find(&res)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
+	}
+	if len(res) == 0 {
+		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
 	}
 	return res, nil
 }
@@ -57,8 +64,8 @@ func (p PictureRepo) CreatePicture(record model.Picture, id int, tbl string) (in
 	return m.Id, nil
 }
 
-func (p PictureRepo) DeletePicture(record model.Picture) error {
-	result := p.db.Table("dorama_set.picture").Where("id = ?", record.Id).Delete(&model.Picture{})
+func (p PictureRepo) DeletePicture(id int) error {
+	result := p.db.Table("dorama_set.picture").Where("id = ?", id).Delete(&model.Picture{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}

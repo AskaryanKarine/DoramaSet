@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
@@ -27,6 +28,10 @@ func (s SubscriptionRepo) GetList() ([]model.Subscription, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
+	if len(subs) == 0 {
+		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+	}
+
 	for _, s := range subs {
 		tmp := model.Subscription{
 			Id:          s.Id,
@@ -41,15 +46,12 @@ func (s SubscriptionRepo) GetList() ([]model.Subscription, error) {
 
 func (s SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) {
 	var sub *subModel
-	result := s.db.Table("dorama_set.subscription").Where("id = ?", id).Find(&sub)
+	result := s.db.Table("dorama_set.subscription").Where("id = ?", id).Take(&sub)
 
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	// todo вынести ошибку
-	if sub.Id == 0 {
-		return nil, fmt.Errorf("db: don't exists")
-	}
+
 	res := model.Subscription{
 		Id:          sub.Id,
 		Description: sub.Description,

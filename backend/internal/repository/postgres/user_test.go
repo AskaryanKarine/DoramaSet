@@ -18,7 +18,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 	type args struct {
 		record model.User
 	}
-
+	db := connect()
 	sr := SubscriptionRepo{db: db}
 	user := model.User{Username: "qwerty"}
 
@@ -45,7 +45,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 				t.Errorf("CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			_ = u.DeleteUser(user)
+			_ = u.DeleteUser(user.Username)
 		})
 	}
 }
@@ -57,8 +57,10 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 		listRepo repository.IListRepo
 	}
 	type args struct {
-		record model.User
+		user     model.User
+		username string
 	}
+	db := connect()
 	user := model.User{Username: "qwerty"}
 	sr := SubscriptionRepo{db: db}
 	tests := []struct {
@@ -70,7 +72,7 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 		{
 			name:    "success",
 			fields:  fields{db: db, subRepo: sr, listRepo: nil},
-			args:    args{record: user},
+			args:    args{user: user, username: user.Username},
 			wantErr: false,
 		},
 	}
@@ -80,8 +82,8 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 				db:      tt.fields.db,
 				subRepo: tt.fields.subRepo,
 			}
-			_ = u.CreateUser(tt.args.record)
-			if err := u.DeleteUser(tt.args.record); (err != nil) != tt.wantErr {
+			_ = u.CreateUser(tt.args.user)
+			if err := u.DeleteUser(tt.args.username); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -97,6 +99,7 @@ func TestUserRepo_GetUser(t *testing.T) {
 	type args struct {
 		username string
 	}
+	db := connect()
 	sr := SubscriptionRepo{db: db}
 	s, _ := sr.GetSubscriptionByPrice(0)
 	tm := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
@@ -140,7 +143,7 @@ func TestUserRepo_GetUser(t *testing.T) {
 			}
 		})
 	}
-	_ = UserRepo{db: db, subRepo: sr}.DeleteUser(user)
+	_ = UserRepo{db: db, subRepo: sr}.DeleteUser(user.Username)
 }
 
 func TestUserRepo_UpdateUser(t *testing.T) {
@@ -152,6 +155,7 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 	type args struct {
 		record model.User
 	}
+	db := connect()
 	sr := SubscriptionRepo{db: db}
 	s, _ := sr.GetSubscriptionByPrice(0)
 	tm := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
@@ -183,5 +187,5 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 			}
 		})
 	}
-	_ = UserRepo{db: db, subRepo: sr}.DeleteUser(user)
+	_ = UserRepo{db: db, subRepo: sr}.DeleteUser(user.Username)
 }

@@ -14,6 +14,7 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 	type args struct {
 		id int
 	}
+	db := connect()
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
@@ -54,8 +55,8 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 			}
 		})
 	}
-	_ = EpisodeRepo{db: db}.DeleteEpisode(model.Episode{Id: idE})
-	_ = dr.DeleteDorama(model.Dorama{Id: idD})
+	_ = EpisodeRepo{db: db}.DeleteEpisode(idE)
+	_ = dr.DeleteDorama(idD)
 }
 
 func TestEpisodeRepo_GetList(t *testing.T) {
@@ -65,6 +66,7 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 	type args struct {
 		idDorama int
 	}
+	db := connect()
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
@@ -105,8 +107,8 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 			}
 		})
 	}
-	_ = EpisodeRepo{db: db}.DeleteEpisode(model.Episode{Id: idE})
-	_ = dr.DeleteDorama(model.Dorama{Id: idD})
+	_ = EpisodeRepo{db: db}.DeleteEpisode(idE)
+	_ = dr.DeleteDorama(idD)
 }
 
 func TestEpisodeRepo_MarkEpisode(t *testing.T) {
@@ -117,6 +119,7 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 		idEp     int
 		username string
 	}
+	db := connect()
 	ur := UserRepo{db: db, subRepo: SubscriptionRepo{db: db}}
 	_ = ur.CreateUser(model.User{Username: "qwerty"})
 	dr := DoramaRepo{db: db}
@@ -145,8 +148,8 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 			}
 		})
 	}
-	_ = ur.DeleteUser(model.User{Username: "qwerty"})
-	_ = dr.DeleteDorama(model.Dorama{Id: idD, Status: "finish"})
+	_ = ur.DeleteUser("qwerty")
+	_ = dr.DeleteDorama(idD)
 }
 
 func TestEpisodeRepo_CreateEpisode(t *testing.T) {
@@ -157,6 +160,7 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 		episode model.Episode
 		idD     int
 	}
+	db := connect()
 	dr := DoramaRepo{db: db}
 	ep := model.Episode{}
 	id, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
@@ -185,10 +189,10 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			_ = e.DeleteEpisode(model.Episode{Id: got})
+			_ = e.DeleteEpisode(got)
 		})
 	}
-	_ = dr.DeleteDorama(model.Dorama{Id: id})
+	_ = dr.DeleteDorama(id)
 }
 
 func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
@@ -196,8 +200,9 @@ func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
 		db *gorm.DB
 	}
 	type args struct {
-		episode model.Episode
+		id int
 	}
+	db := connect()
 	dr := DoramaRepo{db: db}
 	ep := model.Episode{}
 	id, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
@@ -210,7 +215,7 @@ func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
 		{
 			name:    "success",
 			fields:  fields{db: db},
-			args:    args{ep},
+			args:    args{},
 			wantErr: false,
 		},
 	}
@@ -220,11 +225,11 @@ func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
 				db: tt.fields.db,
 			}
 			idE, _ := e.CreateEpisode(ep, id)
-			tt.args.episode.Id = idE
-			if err := e.DeleteEpisode(tt.args.episode); (err != nil) != tt.wantErr {
+			tt.args.id = idE
+			if err := e.DeleteEpisode(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
-	_ = dr.DeleteDorama(model.Dorama{Id: id})
+	_ = dr.DeleteDorama(id)
 }

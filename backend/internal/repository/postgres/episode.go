@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -28,24 +29,19 @@ func (e EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	// todo new error
 	if len(res) == 0 {
-		return nil, fmt.Errorf("db: dont exists")
+		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
 	}
 	return res, nil
 }
 
 func (e EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
 	var res *model.Episode
-	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Find(&res)
+	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Take(&res)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-
-	// todo new error
-	if res.Id < 1 {
-		return nil, fmt.Errorf("db: don't exists")
-	}
+	
 	return res, nil
 }
 
@@ -62,8 +58,8 @@ func (e EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) 
 	return m.ID, nil
 }
 
-func (e EpisodeRepo) DeleteEpisode(episode model.Episode) error {
-	result := e.db.Table("dorama_set.episode").Where("id = ?", episode.Id).Delete(&model.Episode{})
+func (e EpisodeRepo) DeleteEpisode(id int) error {
+	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Delete(&model.Episode{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}

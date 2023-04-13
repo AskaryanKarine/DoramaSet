@@ -18,12 +18,11 @@ func connect() *gorm.DB {
 	return pureDB
 }
 
-var db = connect()
-
 func TestSubscriptionRepo_GetList(t *testing.T) {
 	type fields struct {
 		db *gorm.DB
 	}
+	db := connect()
 	month := 720 * time.Hour
 	tests := []struct {
 		name    string
@@ -63,6 +62,7 @@ func TestSubscriptionRepo_GetSubscription(t *testing.T) {
 	type args struct {
 		id int
 	}
+	db := connect()
 	month := 720 * time.Hour
 	tests := []struct {
 		name    string
@@ -110,6 +110,7 @@ func TestSubscriptionRepo_GetSubscriptionByPrice(t *testing.T) {
 	type args struct {
 		price int
 	}
+	db := connect()
 	month := 720 * time.Hour
 	tests := []struct {
 		name    string
