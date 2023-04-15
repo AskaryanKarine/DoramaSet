@@ -22,7 +22,12 @@ type userModel struct {
 	Email            string
 	RegistrationDate time.Time
 	LastActive       time.Time
+	LastSubscribe    time.Time
 	Points           int
+}
+
+func NewUR(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.IListRepo) UserRepo {
+	return UserRepo{db, SR, LR}
 }
 
 func (u UserRepo) GetUser(username string) (*model.User, error) {
@@ -47,15 +52,16 @@ func (u UserRepo) GetUser(username string) (*model.User, error) {
 	}
 
 	res := model.User{
-		Username:   user.Username,
-		Password:   user.Password,
-		Email:      user.Email,
-		RegData:    user.RegistrationDate,
-		LastActive: user.LastActive,
-		Points:     user.Points,
-		IsAdmin:    user.IsAdmin,
-		Sub:        sub,
-		Collection: lists,
+		Username:      user.Username,
+		Password:      user.Password,
+		Email:         user.Email,
+		RegData:       user.RegistrationDate,
+		LastActive:    user.LastActive,
+		LastSubscribe: user.LastSubscribe,
+		Points:        user.Points,
+		IsAdmin:       user.IsAdmin,
+		Sub:           sub,
+		Collection:    lists,
 	}
 
 	return &res, nil
@@ -73,6 +79,7 @@ func (u UserRepo) CreateUser(record model.User) error {
 		Email:            record.Email,
 		RegistrationDate: record.RegData,
 		LastActive:       record.LastActive,
+		LastSubscribe:    record.LastSubscribe,
 		Points:           record.Points,
 		IsAdmin:          record.IsAdmin,
 		SubId:            freeSub.Id,
@@ -89,7 +96,7 @@ func (u UserRepo) CreateUser(record model.User) error {
 		CreatorName: record.Username,
 		Type:        "private",
 	})
-	
+
 	if err != nil {
 		return fmt.Errorf("createList: %w", err)
 	}
@@ -105,6 +112,7 @@ func (u UserRepo) UpdateUser(record model.User) error {
 		Email:            record.Email,
 		RegistrationDate: record.RegData,
 		LastActive:       record.LastActive,
+		LastSubscribe:    record.LastSubscribe,
 		Points:           record.Points,
 	}
 	result := u.db.Table("dorama_set.user").Save(&m)

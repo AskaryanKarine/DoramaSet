@@ -1,28 +1,25 @@
 package postgres
 
 import (
+	"DoramaSet/internal/container"
 	"DoramaSet/internal/logic/model"
-	"gorm.io/driver/postgres"
+	"context"
 	"gorm.io/gorm"
 	"reflect"
 	"testing"
 	"time"
 )
 
-func connect() *gorm.DB {
-	dsn := "host=localhost user=karine password=12346 dbname=DoramaSet sslmode=disable"
-	pureDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil
-	}
-	return pureDB
-}
-
 func TestSubscriptionRepo_GetList(t *testing.T) {
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	type fields struct {
 		db *gorm.DB
 	}
-	db := connect()
 	month := 720 * time.Hour
 	tests := []struct {
 		name    string
@@ -62,7 +59,12 @@ func TestSubscriptionRepo_GetSubscription(t *testing.T) {
 	type args struct {
 		id int
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	month := 720 * time.Hour
 	tests := []struct {
 		name    string
@@ -110,7 +112,12 @@ func TestSubscriptionRepo_GetSubscriptionByPrice(t *testing.T) {
 	type args struct {
 		price int
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	month := 720 * time.Hour
 	tests := []struct {
 		name    string

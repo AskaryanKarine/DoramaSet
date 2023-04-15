@@ -1,12 +1,20 @@
 package postgres
 
 import (
+	"DoramaSet/internal/container"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"gorm.io/gorm"
 	"testing"
 )
 
 func TestPictureRepo_CreatePicture(t *testing.T) {
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	type fields struct {
 		db *gorm.DB
 	}
@@ -15,7 +23,6 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 		id     int
 		tbl    string
 	}
-	db := connect()
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	tests := []struct {

@@ -1,8 +1,10 @@
 package postgres
 
 import (
+	"DoramaSet/internal/container"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"gorm.io/gorm"
 	"reflect"
 	"testing"
@@ -18,7 +20,12 @@ func TestUserRepo_CreateUser(t *testing.T) {
 	type args struct {
 		record model.User
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	sr := SubscriptionRepo{db: db}
 	user := model.User{Username: "qwerty"}
 
@@ -60,7 +67,12 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 		user     model.User
 		username string
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	user := model.User{Username: "qwerty"}
 	sr := SubscriptionRepo{db: db}
 	tests := []struct {
@@ -99,7 +111,12 @@ func TestUserRepo_GetUser(t *testing.T) {
 	type args struct {
 		username string
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	sr := SubscriptionRepo{db: db}
 	s, _ := sr.GetSubscriptionByPrice(0)
 	tm := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
@@ -155,7 +172,12 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 	type args struct {
 		record model.User
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	sr := SubscriptionRepo{db: db}
 	s, _ := sr.GetSubscriptionByPrice(0)
 	tm := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)

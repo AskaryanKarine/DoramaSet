@@ -1,7 +1,9 @@
 package postgres
 
 import (
+	"DoramaSet/internal/container"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"gorm.io/gorm"
 	"reflect"
 	"testing"
@@ -14,7 +16,11 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 	type args struct {
 		id int
 	}
-	db := connect()
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
@@ -60,13 +66,18 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 }
 
 func TestEpisodeRepo_GetList(t *testing.T) {
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	type fields struct {
 		db *gorm.DB
 	}
 	type args struct {
 		idDorama int
 	}
-	db := connect()
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
@@ -112,6 +123,12 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 }
 
 func TestEpisodeRepo_MarkEpisode(t *testing.T) {
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	type fields struct {
 		db *gorm.DB
 	}
@@ -119,9 +136,13 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 		idEp     int
 		username string
 	}
-	db := connect()
+
+	m := userModel{
+		Username: "qwerty",
+		SubId:    1,
+	}
 	ur := UserRepo{db: db, subRepo: SubscriptionRepo{db: db}}
-	_ = ur.CreateUser(model.User{Username: "qwerty"})
+	_ = db.Table("dorama_set.user").Create(&m)
 	dr := DoramaRepo{db: db}
 	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
@@ -153,6 +174,12 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 }
 
 func TestEpisodeRepo_CreateEpisode(t *testing.T) {
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	type fields struct {
 		db *gorm.DB
 	}
@@ -160,7 +187,6 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 		episode model.Episode
 		idD     int
 	}
-	db := connect()
 	dr := DoramaRepo{db: db}
 	ep := model.Episode{}
 	id, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
@@ -196,13 +222,18 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 }
 
 func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
+	dbContainer, db, err := container.SetupTestDatabase()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbContainer.Terminate(context.Background())
+
 	type fields struct {
 		db *gorm.DB
 	}
 	type args struct {
 		id int
 	}
-	db := connect()
 	dr := DoramaRepo{db: db}
 	ep := model.Episode{}
 	id, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
