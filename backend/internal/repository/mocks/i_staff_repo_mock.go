@@ -47,6 +47,12 @@ type IStaffRepoMock struct {
 	beforeGetListNameCounter uint64
 	GetListNameMock          mIStaffRepoMockGetListName
 
+	funcGetStaffById          func(id int) (sp1 *model.Staff, err error)
+	inspectFuncGetStaffById   func(id int)
+	afterGetStaffByIdCounter  uint64
+	beforeGetStaffByIdCounter uint64
+	GetStaffByIdMock          mIStaffRepoMockGetStaffById
+
 	funcUpdateStaff          func(record model.Staff) (err error)
 	inspectFuncUpdateStaff   func(record model.Staff)
 	afterUpdateStaffCounter  uint64
@@ -74,6 +80,9 @@ func NewIStaffRepoMock(t minimock.Tester) *IStaffRepoMock {
 
 	m.GetListNameMock = mIStaffRepoMockGetListName{mock: m}
 	m.GetListNameMock.callArgs = []*IStaffRepoMockGetListNameParams{}
+
+	m.GetStaffByIdMock = mIStaffRepoMockGetStaffById{mock: m}
+	m.GetStaffByIdMock.callArgs = []*IStaffRepoMockGetStaffByIdParams{}
 
 	m.UpdateStaffMock = mIStaffRepoMockUpdateStaff{mock: m}
 	m.UpdateStaffMock.callArgs = []*IStaffRepoMockUpdateStaffParams{}
@@ -1088,6 +1097,222 @@ func (m *IStaffRepoMock) MinimockGetListNameInspect() {
 	}
 }
 
+type mIStaffRepoMockGetStaffById struct {
+	mock               *IStaffRepoMock
+	defaultExpectation *IStaffRepoMockGetStaffByIdExpectation
+	expectations       []*IStaffRepoMockGetStaffByIdExpectation
+
+	callArgs []*IStaffRepoMockGetStaffByIdParams
+	mutex    sync.RWMutex
+}
+
+// IStaffRepoMockGetStaffByIdExpectation specifies expectation struct of the IStaffRepo.GetStaffById
+type IStaffRepoMockGetStaffByIdExpectation struct {
+	mock    *IStaffRepoMock
+	params  *IStaffRepoMockGetStaffByIdParams
+	results *IStaffRepoMockGetStaffByIdResults
+	Counter uint64
+}
+
+// IStaffRepoMockGetStaffByIdParams contains parameters of the IStaffRepo.GetStaffById
+type IStaffRepoMockGetStaffByIdParams struct {
+	id int
+}
+
+// IStaffRepoMockGetStaffByIdResults contains results of the IStaffRepo.GetStaffById
+type IStaffRepoMockGetStaffByIdResults struct {
+	sp1 *model.Staff
+	err error
+}
+
+// Expect sets up expected params for IStaffRepo.GetStaffById
+func (mmGetStaffById *mIStaffRepoMockGetStaffById) Expect(id int) *mIStaffRepoMockGetStaffById {
+	if mmGetStaffById.mock.funcGetStaffById != nil {
+		mmGetStaffById.mock.t.Fatalf("IStaffRepoMock.GetStaffById mock is already set by Set")
+	}
+
+	if mmGetStaffById.defaultExpectation == nil {
+		mmGetStaffById.defaultExpectation = &IStaffRepoMockGetStaffByIdExpectation{}
+	}
+
+	mmGetStaffById.defaultExpectation.params = &IStaffRepoMockGetStaffByIdParams{id}
+	for _, e := range mmGetStaffById.expectations {
+		if minimock.Equal(e.params, mmGetStaffById.defaultExpectation.params) {
+			mmGetStaffById.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetStaffById.defaultExpectation.params)
+		}
+	}
+
+	return mmGetStaffById
+}
+
+// Inspect accepts an inspector function that has same arguments as the IStaffRepo.GetStaffById
+func (mmGetStaffById *mIStaffRepoMockGetStaffById) Inspect(f func(id int)) *mIStaffRepoMockGetStaffById {
+	if mmGetStaffById.mock.inspectFuncGetStaffById != nil {
+		mmGetStaffById.mock.t.Fatalf("Inspect function is already set for IStaffRepoMock.GetStaffById")
+	}
+
+	mmGetStaffById.mock.inspectFuncGetStaffById = f
+
+	return mmGetStaffById
+}
+
+// Return sets up results that will be returned by IStaffRepo.GetStaffById
+func (mmGetStaffById *mIStaffRepoMockGetStaffById) Return(sp1 *model.Staff, err error) *IStaffRepoMock {
+	if mmGetStaffById.mock.funcGetStaffById != nil {
+		mmGetStaffById.mock.t.Fatalf("IStaffRepoMock.GetStaffById mock is already set by Set")
+	}
+
+	if mmGetStaffById.defaultExpectation == nil {
+		mmGetStaffById.defaultExpectation = &IStaffRepoMockGetStaffByIdExpectation{mock: mmGetStaffById.mock}
+	}
+	mmGetStaffById.defaultExpectation.results = &IStaffRepoMockGetStaffByIdResults{sp1, err}
+	return mmGetStaffById.mock
+}
+
+// Set uses given function f to mock the IStaffRepo.GetStaffById method
+func (mmGetStaffById *mIStaffRepoMockGetStaffById) Set(f func(id int) (sp1 *model.Staff, err error)) *IStaffRepoMock {
+	if mmGetStaffById.defaultExpectation != nil {
+		mmGetStaffById.mock.t.Fatalf("Default expectation is already set for the IStaffRepo.GetStaffById method")
+	}
+
+	if len(mmGetStaffById.expectations) > 0 {
+		mmGetStaffById.mock.t.Fatalf("Some expectations are already set for the IStaffRepo.GetStaffById method")
+	}
+
+	mmGetStaffById.mock.funcGetStaffById = f
+	return mmGetStaffById.mock
+}
+
+// When sets expectation for the IStaffRepo.GetStaffById which will trigger the result defined by the following
+// Then helper
+func (mmGetStaffById *mIStaffRepoMockGetStaffById) When(id int) *IStaffRepoMockGetStaffByIdExpectation {
+	if mmGetStaffById.mock.funcGetStaffById != nil {
+		mmGetStaffById.mock.t.Fatalf("IStaffRepoMock.GetStaffById mock is already set by Set")
+	}
+
+	expectation := &IStaffRepoMockGetStaffByIdExpectation{
+		mock:   mmGetStaffById.mock,
+		params: &IStaffRepoMockGetStaffByIdParams{id},
+	}
+	mmGetStaffById.expectations = append(mmGetStaffById.expectations, expectation)
+	return expectation
+}
+
+// Then sets up IStaffRepo.GetStaffById return parameters for the expectation previously defined by the When method
+func (e *IStaffRepoMockGetStaffByIdExpectation) Then(sp1 *model.Staff, err error) *IStaffRepoMock {
+	e.results = &IStaffRepoMockGetStaffByIdResults{sp1, err}
+	return e.mock
+}
+
+// GetStaffById implements repository.IStaffRepo
+func (mmGetStaffById *IStaffRepoMock) GetStaffById(id int) (sp1 *model.Staff, err error) {
+	mm_atomic.AddUint64(&mmGetStaffById.beforeGetStaffByIdCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetStaffById.afterGetStaffByIdCounter, 1)
+
+	if mmGetStaffById.inspectFuncGetStaffById != nil {
+		mmGetStaffById.inspectFuncGetStaffById(id)
+	}
+
+	mm_params := &IStaffRepoMockGetStaffByIdParams{id}
+
+	// Record call args
+	mmGetStaffById.GetStaffByIdMock.mutex.Lock()
+	mmGetStaffById.GetStaffByIdMock.callArgs = append(mmGetStaffById.GetStaffByIdMock.callArgs, mm_params)
+	mmGetStaffById.GetStaffByIdMock.mutex.Unlock()
+
+	for _, e := range mmGetStaffById.GetStaffByIdMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.sp1, e.results.err
+		}
+	}
+
+	if mmGetStaffById.GetStaffByIdMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetStaffById.GetStaffByIdMock.defaultExpectation.Counter, 1)
+		mm_want := mmGetStaffById.GetStaffByIdMock.defaultExpectation.params
+		mm_got := IStaffRepoMockGetStaffByIdParams{id}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGetStaffById.t.Errorf("IStaffRepoMock.GetStaffById got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmGetStaffById.GetStaffByIdMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetStaffById.t.Fatal("No results are set for the IStaffRepoMock.GetStaffById")
+		}
+		return (*mm_results).sp1, (*mm_results).err
+	}
+	if mmGetStaffById.funcGetStaffById != nil {
+		return mmGetStaffById.funcGetStaffById(id)
+	}
+	mmGetStaffById.t.Fatalf("Unexpected call to IStaffRepoMock.GetStaffById. %v", id)
+	return
+}
+
+// GetStaffByIdAfterCounter returns a count of finished IStaffRepoMock.GetStaffById invocations
+func (mmGetStaffById *IStaffRepoMock) GetStaffByIdAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetStaffById.afterGetStaffByIdCounter)
+}
+
+// GetStaffByIdBeforeCounter returns a count of IStaffRepoMock.GetStaffById invocations
+func (mmGetStaffById *IStaffRepoMock) GetStaffByIdBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetStaffById.beforeGetStaffByIdCounter)
+}
+
+// Calls returns a list of arguments used in each call to IStaffRepoMock.GetStaffById.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmGetStaffById *mIStaffRepoMockGetStaffById) Calls() []*IStaffRepoMockGetStaffByIdParams {
+	mmGetStaffById.mutex.RLock()
+
+	argCopy := make([]*IStaffRepoMockGetStaffByIdParams, len(mmGetStaffById.callArgs))
+	copy(argCopy, mmGetStaffById.callArgs)
+
+	mmGetStaffById.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockGetStaffByIdDone returns true if the count of the GetStaffById invocations corresponds
+// the number of defined expectations
+func (m *IStaffRepoMock) MinimockGetStaffByIdDone() bool {
+	for _, e := range m.GetStaffByIdMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetStaffByIdMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetStaffByIdCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetStaffById != nil && mm_atomic.LoadUint64(&m.afterGetStaffByIdCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetStaffByIdInspect logs each unmet expectation
+func (m *IStaffRepoMock) MinimockGetStaffByIdInspect() {
+	for _, e := range m.GetStaffByIdMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to IStaffRepoMock.GetStaffById with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetStaffByIdMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetStaffByIdCounter) < 1 {
+		if m.GetStaffByIdMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to IStaffRepoMock.GetStaffById")
+		} else {
+			m.t.Errorf("Expected call to IStaffRepoMock.GetStaffById with params: %#v", *m.GetStaffByIdMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetStaffById != nil && mm_atomic.LoadUint64(&m.afterGetStaffByIdCounter) < 1 {
+		m.t.Error("Expected call to IStaffRepoMock.GetStaffById")
+	}
+}
+
 type mIStaffRepoMockUpdateStaff struct {
 	mock               *IStaffRepoMock
 	defaultExpectation *IStaffRepoMockUpdateStaffExpectation
@@ -1316,6 +1541,8 @@ func (m *IStaffRepoMock) MinimockFinish() {
 
 		m.MinimockGetListNameInspect()
 
+		m.MinimockGetStaffByIdInspect()
+
 		m.MinimockUpdateStaffInspect()
 		m.t.FailNow()
 	}
@@ -1345,5 +1572,6 @@ func (m *IStaffRepoMock) minimockDone() bool {
 		m.MinimockGetListDone() &&
 		m.MinimockGetListDoramaDone() &&
 		m.MinimockGetListNameDone() &&
+		m.MinimockGetStaffByIdDone() &&
 		m.MinimockUpdateStaffDone()
 }
