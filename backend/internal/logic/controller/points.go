@@ -3,6 +3,7 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/errors"
+	"DoramaSet/internal/logic/model"
 	"fmt"
 	"time"
 )
@@ -36,11 +37,7 @@ func checkYear(date time.Time) bool {
 	return true
 }
 
-func (p *PointsController) EarnPointForLogin(username string) error {
-	user, err := p.repo.GetUser(username)
-	if err != nil {
-		return fmt.Errorf("getUser: %w", err)
-	}
+func (p *PointsController) EarnPointForLogin(user *model.User) error {
 	user.Points += everyDayPoint
 
 	if checkYear(user.RegData) {
@@ -51,19 +48,14 @@ func (p *PointsController) EarnPointForLogin(username string) error {
 		user.Points += longNoLoginPoint
 	}
 
-	err = p.repo.UpdateUser(*user)
+	err := p.repo.UpdateUser(*user)
 	if err != nil {
 		return fmt.Errorf("updateUser: %w", err)
 	}
 	return nil
 }
 
-func (p *PointsController) PurgePoint(username string, point int) error {
-	user, err := p.repo.GetUser(username)
-	if err != nil {
-		return fmt.Errorf("getUser: %w", err)
-	}
-
+func (p *PointsController) PurgePoint(user *model.User, point int) error {
 	if user.Points < point {
 		err := errors.BalanceError{
 			Have: user.Points,
@@ -74,20 +66,16 @@ func (p *PointsController) PurgePoint(username string, point int) error {
 
 	user.Points -= point
 
-	err = p.repo.UpdateUser(*user)
+	err := p.repo.UpdateUser(*user)
 	if err != nil {
 		return fmt.Errorf("updateUser: %w", err)
 	}
 	return nil
 }
 
-func (p *PointsController) EarnPoint(username string, point int) error {
-	user, err := p.repo.GetUser(username)
-	if err != nil {
-		return fmt.Errorf("getUser: %w", err)
-	}
+func (p *PointsController) EarnPoint(user *model.User, point int) error {
 	user.Points += point
-	err = p.repo.UpdateUser(*user)
+	err := p.repo.UpdateUser(*user)
 	if err != nil {
 		return fmt.Errorf("updateUser: %w", err)
 	}

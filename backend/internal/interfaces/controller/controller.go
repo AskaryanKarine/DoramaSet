@@ -35,9 +35,9 @@ type IPictureController interface {
 }
 
 type IPointsController interface {
-	EarnPointForLogin(username string) error
-	EarnPoint(username string, point int) error
-	PurgePoint(username string, point int) error
+	EarnPointForLogin(user *model.User) error
+	EarnPoint(user *model.User, point int) error
+	PurgePoint(user *model.User, point int) error
 }
 
 type IStaffController interface {

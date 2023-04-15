@@ -62,7 +62,7 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 		return "", fmt.Errorf("createUser: %w", err)
 	}
 
-	err = u.pc.EarnPointForLogin(newUser.Username)
+	err = u.pc.EarnPointForLogin(&newUser)
 	if err != nil {
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
@@ -90,7 +90,7 @@ func (u *UserController) Login(username, password string) (string, error) {
 		return "", fmt.Errorf("%w", errors.ErrorWrongLogin)
 	}
 
-	err = u.pc.EarnPointForLogin(username)
+	err = u.pc.EarnPointForLogin(user)
 	if err != nil {
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
@@ -129,7 +129,7 @@ func (u *UserController) UpdateActive(token string) error {
 		return fmt.Errorf("authToken: %w", err)
 	}
 	if !eqDate(user.LastActive, time.Now()) {
-		err = u.pc.EarnPointForLogin(user.Username)
+		err = u.pc.EarnPointForLogin(user)
 		if err != nil {
 			return fmt.Errorf("earnPointForLogin: %w", err)
 		}

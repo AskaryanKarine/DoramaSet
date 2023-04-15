@@ -5,6 +5,7 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"fmt"
+	"time"
 )
 
 type SubscriptionController struct {
@@ -41,12 +42,13 @@ func (s *SubscriptionController) SubscribeUser(token string, id int) error {
 		return fmt.Errorf("getSubscription: %w", err)
 	}
 
-	err = s.pc.PurgePoint(user.Username, sub.Cost)
+	err = s.pc.PurgePoint(user, sub.Cost)
 	if err != nil {
 		return fmt.Errorf("purgePoint: %w", err)
 	}
 
 	user.Sub = sub
+	user.LastSubscribe = time.Now()
 
 	err = s.urepo.UpdateUser(*user)
 	if err != nil {

@@ -18,7 +18,7 @@ func TestEarnPointForLogin(t *testing.T) {
 	testsTable := []struct {
 		name  string
 		fl    PointsController
-		arg   string
+		arg   model.User
 		isNeg bool
 	}{
 		{
@@ -26,23 +26,15 @@ func TestEarnPointForLogin(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{}, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   "",
+			arg:   model.User{},
 			isNeg: false,
-		},
-		{
-			name: "get user error",
-			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).UpdateUserMock.Return(nil),
-			},
-			arg:   "",
-			isNeg: true,
 		},
 		{
 			name: "update error",
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{}, nil).UpdateUserMock.Return(errors.New("error")),
 			},
-			arg:   "",
+			arg:   model.User{},
 			isNeg: true,
 		},
 		{
@@ -50,7 +42,7 @@ func TestEarnPointForLogin(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&userFev, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   "",
+			arg:   userFev,
 			isNeg: false,
 		},
 		{
@@ -58,7 +50,7 @@ func TestEarnPointForLogin(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&userReg, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   "",
+			arg:   userReg,
 			isNeg: false,
 		},
 		{
@@ -66,7 +58,7 @@ func TestEarnPointForLogin(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&userReg2, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   "",
+			arg:   userReg2,
 			isNeg: false,
 		},
 	}
@@ -76,7 +68,7 @@ func TestEarnPointForLogin(t *testing.T) {
 			dc := PointsController{
 				repo: testCase.fl.repo,
 			}
-			err := dc.EarnPointForLogin(testCase.arg)
+			err := dc.EarnPointForLogin(&testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("EarnPointForLogin() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -87,7 +79,7 @@ func TestEarnPointForLogin(t *testing.T) {
 func TestPurgePoint(t *testing.T) {
 	mc := minimock.NewController(t)
 	type argument struct {
-		username string
+		username model.User
 		point    int
 	}
 	testsTable := []struct {
@@ -101,23 +93,15 @@ func TestPurgePoint(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   argument{"", 1},
+			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: false,
-		},
-		{
-			name: "get user error",
-			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).UpdateUserMock.Return(nil),
-			},
-			arg:   argument{"", 1},
-			isNeg: true,
 		},
 		{
 			name: "update error",
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(errors.New("error")),
 			},
-			arg:   argument{"", 1},
+			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: true,
 		},
 		{
@@ -125,7 +109,7 @@ func TestPurgePoint(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{}, nil).UpdateUserMock.Return(errors.New("error")),
 			},
-			arg:   argument{"", 1},
+			arg:   argument{model.User{}, 1},
 			isNeg: true,
 		},
 	}
@@ -135,7 +119,7 @@ func TestPurgePoint(t *testing.T) {
 			dc := PointsController{
 				repo: testCase.fl.repo,
 			}
-			err := dc.PurgePoint(testCase.arg.username, testCase.arg.point)
+			err := dc.PurgePoint(&testCase.arg.username, testCase.arg.point)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("PurgePoint() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -146,7 +130,7 @@ func TestPurgePoint(t *testing.T) {
 func TestEarnPoint(t *testing.T) {
 	mc := minimock.NewController(t)
 	type argument struct {
-		username string
+		username model.User
 		point    int
 	}
 	testsTable := []struct {
@@ -160,23 +144,15 @@ func TestEarnPoint(t *testing.T) {
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   argument{"", 1},
+			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: false,
-		},
-		{
-			name: "get user error",
-			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).UpdateUserMock.Return(nil),
-			},
-			arg:   argument{"", 1},
-			isNeg: true,
 		},
 		{
 			name: "update error",
 			fl: PointsController{
 				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(errors.New("error")),
 			},
-			arg:   argument{"", 1},
+			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: true,
 		},
 	}
@@ -186,7 +162,7 @@ func TestEarnPoint(t *testing.T) {
 			dc := PointsController{
 				repo: testCase.fl.repo,
 			}
-			err := dc.EarnPoint(testCase.arg.username, testCase.arg.point)
+			err := dc.EarnPoint(&testCase.arg.username, testCase.arg.point)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("EarnPoint() error = %v, expect = %v", err, testCase.isNeg)
 			}
