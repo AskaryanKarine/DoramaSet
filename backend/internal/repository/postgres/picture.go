@@ -1,14 +1,18 @@
 package postgres
 
 import (
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 )
 
 type PictureRepo struct {
 	db *gorm.DB
+}
+
+func NewPR(db *gorm.DB) PictureRepo {
+	return PictureRepo{db}
 }
 
 func (p PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
@@ -18,7 +22,7 @@ func (p PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 	if len(res) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 	return res, nil
 }
@@ -30,7 +34,7 @@ func (p PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 	if len(res) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 	return res, nil
 }

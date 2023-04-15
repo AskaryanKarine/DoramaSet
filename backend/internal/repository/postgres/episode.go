@@ -1,8 +1,8 @@
 package postgres
 
 import (
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -23,6 +23,10 @@ type markEpisode struct {
 	IdEpisode int
 }
 
+func NewER(db *gorm.DB) EpisodeRepo {
+	return EpisodeRepo{db}
+}
+
 func (e EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 	var res []model.Episode
 	result := e.db.Table("dorama_set.episode").Where("id_dorama = ?", idDorama).Find(&res)
@@ -30,7 +34,7 @@ func (e EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 	if len(res) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 	return res, nil
 }
@@ -41,7 +45,7 @@ func (e EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	
+
 	return res, nil
 }
 

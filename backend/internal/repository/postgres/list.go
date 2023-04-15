@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -21,22 +21,23 @@ type listModel struct {
 	Description string
 }
 
+func NewLR(db *gorm.DB, DR repository.IDoramaRepo) ListRepo {
+	return ListRepo{db, DR}
+}
+
 func (l ListRepo) GetUserLists(username string) ([]model.List, error) {
 	var (
 		resDB []listModel
 		res   []model.List
 	)
-	result := l.db.Raw(`
-select l.* 
-from dorama_set.userlist ul 
-    join dorama_set.list l on l.id = ul.id_list 
-where ul.username = ?`,
-		username).Scan(&resDB)
+	result := l.db.Table("dorama_set.list l").Select("l.*").
+		Joins("join dorama_set.userlist ul on l.id = ul.id_list").
+		Where("ul.name = ?", username).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, nil
 	}
 
 	for _, r := range resDB {
@@ -67,7 +68,7 @@ func (l ListRepo) GetPublicLists() ([]model.List, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 	for _, r := range resDB {
 		dorama, err := l.doramaRepo.GetListByListId(r.ID)
@@ -179,12 +180,11 @@ func (l ListRepo) GetFavList(username string) ([]model.List, error) {
 		res   []model.List
 		resDB []listModel
 	)
-	result := l.db.Raw(`
-select l.* 
-from dorama_set.userlist ul 
-	join dorama_set.list l on l.id = ul.id_list 
-where ul.username = ? and ul.username != l.name_creator`,
-		username).Scan(&resDB)
+	result := l.db.Table("dorama_set.list l").Select("l.*").
+		Joins("join dorama_set.list l on l.id = ul.id_list").
+		Where("ul.username = ? and ul.username != l.name_creator", username).
+		Find(&resDB)
+
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}

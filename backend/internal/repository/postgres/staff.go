@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
@@ -34,7 +34,7 @@ func (s StaffRepo) GetList() ([]model.Staff, error) {
 	}
 
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 
 	for _, r := range resDB {
@@ -67,7 +67,7 @@ func (s StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	}
 
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 
 	for _, r := range resDB {
@@ -116,13 +116,15 @@ func (s StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 		resDB []staffModel
 		res   []model.Staff
 	)
-	result := s.db.Raw("select s.* from dorama_set.staff s join dorama_set.doramastaff d on s.id = d.id_staff where id_dorama = ?", idDorama).Scan(&resDB)
+	result := s.db.Table("dorama_set.staff s").Select("s.*").
+		Joins("join dorama_set.doramastaff d on s.id = d.id_staff").
+		Where("id_dorama = ?", idDorama).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 
 	for _, r := range resDB {

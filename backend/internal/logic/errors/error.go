@@ -31,9 +31,10 @@ func (p PasswordLenError) Error() string {
 }
 
 var (
-	ErrorAdminAccess   = errors.New("low level of access")
-	ErrorCreatorAccess = errors.New("no access right")
-	ErrorInvalidEmail  = errors.New("invalid email")
-	ErrorWrongLogin    = errors.New("wrong login or password")
-	ErrorUserExist     = errors.New("user already exists")
+	ErrorAdminAccess    = errors.New("low level of access")
+	ErrorCreatorAccess  = errors.New("no access right")
+	ErrorInvalidEmail   = errors.New("invalid email")
+	ErrorWrongLogin     = errors.New("wrong login or password")
+	ErrorUserExist      = errors.New("user already exists")
+	ErrorDontExistsInDB = errors.New("don't exists in db")
 )

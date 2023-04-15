@@ -2,8 +2,8 @@ package postgres
 
 import (
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -23,6 +23,10 @@ type doramaModel struct {
 	Genre       string
 }
 
+func NewDR(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo) DoramaRepo {
+	return DoramaRepo{db, PR, ER}
+}
+
 func (d DoramaRepo) GetList() ([]model.Dorama, error) {
 	var (
 		resDB []doramaModel
@@ -34,7 +38,7 @@ func (d DoramaRepo) GetList() ([]model.Dorama, error) {
 	}
 
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 
 	for _, r := range resDB {
@@ -71,7 +75,7 @@ func (d DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	}
 
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 
 	for _, r := range resDB {
@@ -187,9 +191,7 @@ func (d DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
-	}
+
 	for _, r := range resDB {
 		ep, err := d.epRepo.GetList(r.ID)
 		if err != nil {

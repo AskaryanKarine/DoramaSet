@@ -1,8 +1,8 @@
 package postgres
 
 import (
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
-	"DoramaSet/internal/repository/db_erorrs"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
@@ -19,6 +19,10 @@ type subModel struct {
 	Duration    int
 }
 
+func NewSR(db *gorm.DB) SubscriptionRepo {
+	return SubscriptionRepo{db}
+}
+
 func (s SubscriptionRepo) GetList() ([]model.Subscription, error) {
 	var subs []subModel
 	var resSubs []model.Subscription
@@ -29,7 +33,7 @@ func (s SubscriptionRepo) GetList() ([]model.Subscription, error) {
 	}
 
 	if len(subs) == 0 {
-		return nil, fmt.Errorf("db: %w", db_erorrs.ErrorDontExistsInDB)
+		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
 	}
 
 	for _, s := range subs {
