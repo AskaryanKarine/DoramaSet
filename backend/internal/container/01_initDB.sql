@@ -3,10 +3,10 @@ drop schema if exists dorama_set cascade;
 create schema if not exists dorama_set;
 
 create table if not exists dorama_set.Subscription (
-    id serial primary key,
-    cost int not null ,
-    description text not null,
-    duration int not null
+   id serial primary key,
+   cost int not null ,
+   description text not null,
+   duration int not null
 );
 
 create table if not exists dorama_set.User (
@@ -23,29 +23,29 @@ create table if not exists dorama_set.User (
 );
 
 create table if not exists dorama_set.List (
-    id serial primary key,
-    name_creator text not null,
-    foreign key (name_creator) references dorama_set.User(username) on delete cascade,
-    name_list text not null,
-    type text not null,
-    description text not null
+   id serial primary key,
+   name_creator text not null,
+   foreign key (name_creator) references dorama_set.User(username) on delete cascade,
+   name_list text not null,
+   type text not null,
+   description text not null
 );
 
 create table if not exists dorama_set.Dorama (
-    id serial primary key,
-    name text not null,
-    description text not null,
-    release_year int not null,
-    status text not null,
-    genre text not null
+     id serial primary key,
+     name text not null,
+     description text not null,
+     release_year int not null,
+     status text not null,
+     genre text not null
 );
 
 create table if not exists dorama_set.Episode (
-    id serial primary key,
-    id_dorama int not null,
-    foreign key (id_dorama) references dorama_set.Dorama(id) on delete cascade,
-    num_season int not null,
-    num_episode int not null
+      id serial primary key,
+      id_dorama int not null,
+      foreign key (id_dorama) references dorama_set.Dorama(id) on delete cascade,
+      num_season int not null,
+      num_episode int not null
 );
 
 create table if not exists dorama_set.Staff (
@@ -82,11 +82,11 @@ create table if not exists dorama_set.UserEpisode (
 );
 
 create table if not exists dorama_set.DoramaStaff (
-    id_dorama int not null,
-    id_staff int not null,
-    primary key (id_dorama, id_staff),
-    foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
-    foreign key (id_staff) references dorama_set.staff(id) on delete cascade
+      id_dorama int not null,
+      id_staff int not null,
+      primary key (id_dorama, id_staff),
+      foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
+      foreign key (id_staff) references dorama_set.staff(id) on delete cascade
 );
 
 create table if not exists dorama_set.DoramaPicture (
@@ -98,11 +98,11 @@ create table if not exists dorama_set.DoramaPicture (
 );
 
 create table if not exists dorama_set.ListDorama (
-    id_dorama int not null,
-    id_list int not null,
-    primary key (id_dorama, id_list),
-    foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
-    foreign key (id_list) references dorama_set.list(id) on delete cascade
+     id_dorama int not null,
+     id_list int not null,
+     primary key (id_dorama, id_list),
+     foreign key (id_dorama) references dorama_set.dorama(id) on delete cascade,
+     foreign key (id_list) references dorama_set.list(id) on delete cascade
 );
 
 create table if not exists dorama_set.StaffPicture (
