@@ -38,7 +38,7 @@ func SetupTestDatabase() (testcontainers.Container, *gorm.DB, error) {
 		return nil, nil, fmt.Errorf("gorm open: %w", err)
 	}
 
-	text, err := os.ReadFile("./internal/container/01_initDB.sql")
+	text, err := os.ReadFile("./internal/container/01_create.sql")
 	if err != nil {
 		return nil, nil, fmt.Errorf("read file: %w", err)
 	}
