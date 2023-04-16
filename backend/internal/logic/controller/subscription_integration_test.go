@@ -7,6 +7,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/postgres"
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -40,7 +41,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 		fields  fields
 		args    args
 		wantErr bool
-		check   func(user repository.IUserRepo) bool
+		check   func(user repository.IUserRepo) error
 	}{
 		{
 			name: "subscribe user",
@@ -52,15 +53,15 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 			},
 			args:    args{token: token, id: 2},
 			wantErr: false,
-			check: func(userRepo repository.IUserRepo) bool {
+			check: func(userRepo repository.IUserRepo) error {
 				user, err := userRepo.GetUser("test")
 				if err != nil {
-					return false
+					return err
 				}
 				if user.Sub.Id != 2 {
-					return false
+					return errors.New("error")
 				}
-				return true
+				return nil
 			},
 		},
 	}
@@ -75,8 +76,8 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 			if err := s.SubscribeUser(tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if f := tt.check(urepo); !f {
-				t.Errorf("SubscribeUserIntegration() error = %v, expected %v", f, true)
+			if err := tt.check(urepo); (err != nil) != tt.wantErr {
+				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

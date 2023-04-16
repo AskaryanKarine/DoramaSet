@@ -7,6 +7,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/postgres"
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -37,7 +38,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 		fields  fields
 		args    args
 		wantErr bool
-		check   func(ur repository.IUserRepo) bool
+		check   func(ur repository.IUserRepo) error
 	}{
 		{
 			name: "earn point",
@@ -48,16 +49,16 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 			},
 			args:    args{token: getToken(model.User{Username: "test"}, "qwerty")},
 			wantErr: false,
-			check: func(ur repository.IUserRepo) bool {
+			check: func(ur repository.IUserRepo) error {
 				user, err := ur.GetUser("test")
 				if err != nil {
-					return false
+					return err
 				}
 				fmt.Println(user.Points, user.LastActive)
 				if user.Points != 105 {
-					return false
+					return errors.New("error")
 				}
-				return true
+				return nil
 			},
 		},
 	}
@@ -71,8 +72,8 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 			if err := u.UpdateActive(tt.args.token); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateActiveIntegrate() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if f := tt.check(urepo); !f {
-				t.Errorf("UpdateActiveIntegrate() error = %v, expected %v", f, true)
+			if err := tt.check(urepo); (err != nil) != tt.wantErr {
+				t.Errorf("UpdateActiveIntegrate() error = %v, expected %v", err, tt.wantErr)
 			}
 		})
 	}
