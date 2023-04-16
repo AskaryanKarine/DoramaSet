@@ -32,7 +32,7 @@ func NewUR(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.IListRepo
 
 func (u UserRepo) GetUser(username string) (*model.User, error) {
 	var user *userModel
-	result := u.db.Table("dorama_set.user").Where("username = ?", username).Find(&user)
+	result := u.db.Table("dorama_set.user").Where("username = ?", username).Take(&user)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}

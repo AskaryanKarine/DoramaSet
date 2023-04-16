@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 	"gorm.io/gorm"
@@ -34,7 +33,7 @@ func (e EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 	if len(res) == 0 {
-		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
+		return nil, nil
 	}
 	return res, nil
 }
@@ -55,7 +54,9 @@ func (e EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) 
 		NumSeason:  episode.NumSeason,
 		NumEpisode: episode.NumEpisode,
 	}
-	result := e.db.Table("dorama_set.episode").Create(&m)
+	result := e.db.Table("dorama_set.episode").
+		Omit("id").
+		Create(&m)
 	if result.Error != nil {
 		return -1, fmt.Errorf("db: %w", result.Error)
 	}

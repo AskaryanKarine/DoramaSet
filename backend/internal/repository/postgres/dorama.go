@@ -38,7 +38,7 @@ func (d DoramaRepo) GetList() ([]model.Dorama, error) {
 	}
 
 	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
+		return nil, nil
 	}
 
 	for _, r := range resDB {
