@@ -53,13 +53,11 @@ create table if not exists dorama_set.Staff (
     name text not null,
     birthday date not null,
     gender text not null,
-    bio text not null,
     type text not null
 );
 
 create table if not exists dorama_set.Picture (
     id serial primary key,
-    description text not null,
     URL text not null
 );
 

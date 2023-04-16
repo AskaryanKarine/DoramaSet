@@ -40,7 +40,7 @@ func (p PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 }
 
 func (p PictureRepo) CreatePicture(record model.Picture, id int, tbl string) (int, error) {
-	m := model.Picture{Description: record.Description, URL: record.URL}
+	m := model.Picture{URL: record.URL}
 	result := p.db.Table("dorama_set.picture").Create(&m)
 	if result.Error != nil {
 		return -1, fmt.Errorf("db: %w", result.Error)

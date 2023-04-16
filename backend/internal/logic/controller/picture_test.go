@@ -12,9 +12,8 @@ import (
 
 var resultPicArray = []model.Picture{
 	{
-		Id:          1,
-		URL:         "qwerty",
-		Description: "qwerty",
+		Id:  1,
+		URL: "qwerty",
 	},
 }
 
