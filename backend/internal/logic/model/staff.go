@@ -8,6 +8,5 @@ type Staff struct {
 	Birthday time.Time
 	Type     string
 	Gender   string
-	Bio      string
 	Photo    []Picture
 }

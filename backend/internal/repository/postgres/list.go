@@ -154,7 +154,7 @@ func (l ListRepo) AddToList(idL, idD int) error {
 }
 
 func (l ListRepo) DelFromList(idL, idD int) error {
-	result := l.db.Table("dorama_set.listdorama").Where("id_list = ?", idL).Delete(&struct {
+	result := l.db.Table("dorama_set.listdorama").Where("id_list = ? and id_dorama = ?", idL, idD).Delete(&struct {
 		IdDorama, IdList int
 	}{})
 	if result.Error != nil {

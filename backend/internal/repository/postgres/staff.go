@@ -19,7 +19,6 @@ type staffModel struct {
 	Name     string
 	Birthday time.Time
 	Gender   string
-	Bio      string
 	Type     string
 }
 
@@ -48,7 +47,6 @@ func (s StaffRepo) GetList() ([]model.Staff, error) {
 			Birthday: r.Birthday,
 			Type:     r.Type,
 			Gender:   r.Gender,
-			Bio:      r.Bio,
 			Photo:    staff,
 		}
 		res = append(res, tmp)
@@ -81,7 +79,6 @@ func (s StaffRepo) GetListName(name string) ([]model.Staff, error) {
 			Birthday: r.Birthday,
 			Type:     r.Type,
 			Gender:   r.Gender,
-			Bio:      r.Bio,
 			Photo:    staff,
 		}
 		res = append(res, tmp)
@@ -105,7 +102,6 @@ func (s StaffRepo) GetStaffById(id int) (*model.Staff, error) {
 		Name:     resDB.Name,
 		Birthday: resDB.Birthday,
 		Type:     resDB.Type,
-		Bio:      resDB.Bio,
 		Photo:    staff,
 	}
 	return &res, nil
@@ -138,7 +134,6 @@ func (s StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 			Birthday: r.Birthday,
 			Type:     r.Type,
 			Gender:   r.Gender,
-			Bio:      r.Bio,
 			Photo:    staff,
 		}
 		res = append(res, tmp)
@@ -151,7 +146,6 @@ func (s StaffRepo) CreateStaff(record model.Staff) (int, error) {
 		Name:     record.Name,
 		Birthday: record.Birthday,
 		Gender:   record.Gender,
-		Bio:      record.Bio,
 		Type:     record.Type,
 	}
 	result := s.db.Table("dorama_set.staff").Create(&m)
@@ -166,7 +160,6 @@ func (s StaffRepo) UpdateStaff(record model.Staff) error {
 		Name:     record.Name,
 		Birthday: record.Birthday,
 		Gender:   record.Gender,
-		Bio:      record.Bio,
 		Type:     record.Type,
 	}
 	result := s.db.Table("dorama_set.staff").Save(&m)
