@@ -31,7 +31,7 @@ func TestSubscriptionRepo_GetList(t *testing.T) {
 			name:   "success",
 			fields: fields{db},
 			want: []model.Subscription{{1, "free", 0, month},
-				{2, "standart subs", 100, month}},
+				{2, "not free", 50, month}},
 			wantErr: false,
 		},
 	}

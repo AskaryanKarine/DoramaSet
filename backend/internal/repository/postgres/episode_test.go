@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/container"
 	"DoramaSet/internal/logic/model"
 	"context"
+	"errors"
 	"gorm.io/gorm"
 	"reflect"
 	"testing"
@@ -21,9 +22,6 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer dbContainer.Terminate(context.Background())
-	dr := DoramaRepo{db: db}
-	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
-	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
 	tests := []struct {
 		name    string
 		fields  fields
@@ -34,8 +32,8 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 		{
 			name:    "success",
 			fields:  fields{db},
-			args:    args{idE},
-			want:    &model.Episode{Id: idE, NumSeason: 0, NumEpisode: 0},
+			args:    args{1},
+			want:    &model.Episode{Id: 1, NumSeason: 1, NumEpisode: 1},
 			wantErr: false,
 		},
 		{
@@ -61,8 +59,6 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 			}
 		})
 	}
-	_ = EpisodeRepo{db: db}.DeleteEpisode(idE)
-	_ = dr.DeleteDorama(idD)
 }
 
 func TestEpisodeRepo_GetList(t *testing.T) {
@@ -78,9 +74,6 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 	type args struct {
 		idDorama int
 	}
-	dr := DoramaRepo{db: db}
-	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
-	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
 	tests := []struct {
 		name    string
 		fields  fields
@@ -91,8 +84,8 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 		{
 			name:    "success",
 			fields:  fields{db},
-			args:    args{idD},
-			want:    []model.Episode{{idE, 0, 0}},
+			args:    args{1},
+			want:    []model.Episode{{1, 1, 1}},
 			wantErr: false,
 		},
 		{
@@ -118,8 +111,6 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 			}
 		})
 	}
-	_ = EpisodeRepo{db: db}.DeleteEpisode(idE)
-	_ = dr.DeleteDorama(idD)
 }
 
 func TestEpisodeRepo_MarkEpisode(t *testing.T) {
@@ -136,27 +127,23 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 		idEp     int
 		username string
 	}
-
-	m := userModel{
-		Username: "qwerty",
-		SubId:    1,
-	}
-	ur := UserRepo{db: db, subRepo: SubscriptionRepo{db: db}}
-	_ = db.Table("dorama_set.user").Create(&m)
-	dr := DoramaRepo{db: db}
-	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
-	idE, _ := EpisodeRepo{db: db}.CreateEpisode(model.Episode{}, idD)
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		wantErr bool
+		check   func(id int, username string) error
 	}{
 		{
 			name:    "success",
 			fields:  fields{db: db},
-			args:    args{idEp: idE, username: "qwerty"},
+			args:    args{idEp: 1, username: "test"},
 			wantErr: false,
+			check: func(id int, username string) error {
+				res := db.Table("dorama_set.userepisode").
+					Where("id_episode = ? and username = ?", id, username).Take(&episodeModel{})
+				return res.Error
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -167,10 +154,11 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 			if err := e.MarkEpisode(tt.args.idEp, tt.args.username); (err != nil) != tt.wantErr {
 				t.Errorf("MarkEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			if err := tt.check(tt.args.idEp, tt.args.username); (err != nil) != tt.wantErr {
+				t.Errorf("MarkEpisode() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
-	_ = ur.DeleteUser("qwerty")
-	_ = dr.DeleteDorama(idD)
 }
 
 func TestEpisodeRepo_CreateEpisode(t *testing.T) {
@@ -187,22 +175,34 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 		episode model.Episode
 		idD     int
 	}
-	dr := DoramaRepo{db: db}
-	ep := model.Episode{}
-	id, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
+	ep := model.Episode{Id: 2, NumEpisode: 2, NumSeason: 1}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		want    int
 		wantErr bool
+		check   func(id int) error
 	}{
 		{
 			name:    "success",
 			fields:  fields{db},
-			args:    args{episode: ep, idD: id},
+			args:    args{episode: ep, idD: 1},
 			want:    0,
 			wantErr: false,
+			check: func(id int) error {
+				var m episodeModel
+				res := db.Table("dorama_set.episode").
+					Where("id = ?", id).Take(&m)
+				if res.Error != nil {
+					return res.Error
+				}
+				ep1 := episodeModel{ID: id, NumSeason: ep.NumSeason, NumEpisode: ep.NumEpisode, IdDorama: 1}
+				if !reflect.DeepEqual(m, ep1) {
+					return errors.New("error")
+				}
+				return nil
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -213,12 +213,12 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 			got, err := e.CreateEpisode(tt.args.episode, tt.args.idD)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
-				return
 			}
-			_ = e.DeleteEpisode(got)
+			if err := tt.check(got); (err != nil) != tt.wantErr {
+				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
-	_ = dr.DeleteDorama(id)
 }
 
 func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
@@ -234,20 +234,22 @@ func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
 	type args struct {
 		id int
 	}
-	dr := DoramaRepo{db: db}
-	ep := model.Episode{}
-	id, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		wantErr bool
+		check   func(id int) error
 	}{
 		{
 			name:    "success",
 			fields:  fields{db: db},
-			args:    args{},
+			args:    args{1},
 			wantErr: false,
+			check: func(id int) error {
+				res := db.Table("dorama_set.episode").Where("id = ?", id).Take(&episodeModel{})
+				return res.Error
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -255,12 +257,12 @@ func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
 			e := EpisodeRepo{
 				db: tt.fields.db,
 			}
-			idE, _ := e.CreateEpisode(ep, id)
-			tt.args.id = idE
 			if err := e.DeleteEpisode(tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			if err := tt.check(tt.args.id); (err != nil) != !tt.wantErr {
+				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, !tt.wantErr)
+			}
 		})
 	}
-	_ = dr.DeleteDorama(id)
 }

@@ -23,19 +23,28 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 		id     int
 		tbl    string
 	}
-	dr := DoramaRepo{db: db}
-	idD, _ := dr.CreateDorama(model.Dorama{Status: "finish"})
+	pic := model.Picture{URL: "test", Description: "test"}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		wantErr bool
+		check   func(id int) error
 	}{
 		{
 			name:    "success in doramapicture",
 			fields:  fields{db: db},
-			args:    args{record: model.Picture{}, id: idD, tbl: "dorama"},
+			args:    args{record: pic, id: 1, tbl: "dorama"},
 			wantErr: false,
+			check: func(id int) error {
+				res := db.Table("dorama_set.picture").Where("id = ?", id).Take(&model.Picture{})
+				if res.Error != nil {
+					return res.Error
+				}
+				res = db.Table("dorama_set.doramapicture").
+					Where("id_dorama = ? and id_picture = ?", 1, id).Take(&model.Picture{})
+				return res.Error
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -48,7 +57,9 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 				t.Errorf("CreatePicture() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			_ = p.DeletePicture(got)
+			if err := tt.check(got); (err != nil) != tt.wantErr {
+				t.Errorf("CreatePicture() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
 }

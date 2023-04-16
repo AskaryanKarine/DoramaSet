@@ -5,6 +5,7 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"context"
+	"errors"
 	"gorm.io/gorm"
 	"reflect"
 	"testing"
@@ -27,6 +28,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 	defer dbContainer.Terminate(context.Background())
 
 	sr := SubscriptionRepo{db: db}
+	lr := ListRepo{db: db}
 	user := model.User{Username: "qwerty"}
 
 	tests := []struct {
@@ -34,25 +36,33 @@ func TestUserRepo_CreateUser(t *testing.T) {
 		fields  fields
 		args    args
 		wantErr bool
+		check   func(username string) error
 	}{
 		{
 			name:    "success",
-			fields:  fields{db: db, subRepo: sr, listRepo: nil},
+			fields:  fields{db: db, subRepo: sr, listRepo: lr},
 			args:    args{record: user},
 			wantErr: false,
+			check: func(username string) error {
+				res := db.Table("dorama_set.user").
+					Where("username = ?", username).Take(&userModel{})
+				return res.Error
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := UserRepo{
-				db:      tt.fields.db,
-				subRepo: tt.fields.subRepo,
+				db:       tt.fields.db,
+				subRepo:  tt.fields.subRepo,
+				listRepo: tt.fields.listRepo,
 			}
 			if err := u.CreateUser(tt.args.record); (err != nil) != tt.wantErr {
 				t.Errorf("CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
-
-			_ = u.DeleteUser(user.Username)
+			if err := tt.check(tt.args.record.Username); (err != nil) != tt.wantErr {
+				t.Errorf("CreateUser() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
 }
@@ -73,19 +83,25 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 	}
 	defer dbContainer.Terminate(context.Background())
 
-	user := model.User{Username: "qwerty"}
+	user := model.User{Username: "test"}
 	sr := SubscriptionRepo{db: db}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		wantErr bool
+		check   func(id string) error
 	}{
 		{
 			name:    "success",
 			fields:  fields{db: db, subRepo: sr, listRepo: nil},
 			args:    args{user: user, username: user.Username},
 			wantErr: false,
+			check: func(id string) error {
+				res := db.Table("dorama_set.user").
+					Where("username = ?", id).Take(&userModel{})
+				return res.Error
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -94,9 +110,11 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 				db:      tt.fields.db,
 				subRepo: tt.fields.subRepo,
 			}
-			_ = u.CreateUser(tt.args.user)
 			if err := u.DeleteUser(tt.args.username); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err := tt.check(tt.args.username); (err != nil) != !tt.wantErr {
+				t.Errorf("DeleteUser() error = %v, wantErr %v", err, !tt.wantErr)
 			}
 		})
 	}
@@ -118,10 +136,23 @@ func TestUserRepo_GetUser(t *testing.T) {
 	defer dbContainer.Terminate(context.Background())
 
 	sr := SubscriptionRepo{db: db}
+	lr := ListRepo{db: db}
 	s, _ := sr.GetSubscriptionByPrice(0)
-	tm := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
-	user := model.User{Username: "qwerty", RegData: tm, LastActive: tm, Sub: s}
-	_ = UserRepo{db: db, subRepo: sr}.CreateUser(user)
+	tm := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	user := model.User{
+		Username:      "test1",
+		Password:      "qwerty",
+		Email:         "qwerty@gmail.com",
+		RegData:       tm,
+		LastActive:    tm,
+		LastSubscribe: tm,
+		Sub:           s,
+		Collection:    nil,
+		Points:        100,
+		IsAdmin:       false,
+	}
+
 	tests := []struct {
 		name    string
 		fields  fields
@@ -131,24 +162,25 @@ func TestUserRepo_GetUser(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			fields:  fields{db: db, subRepo: sr, listRepo: nil},
-			args:    args{username: "qwerty"},
+			fields:  fields{db: db, subRepo: sr, listRepo: lr},
+			args:    args{username: "test1"},
 			want:    &user,
 			wantErr: false,
 		},
 		{
 			name:    "don't exists",
-			fields:  fields{db: db, subRepo: sr, listRepo: nil},
+			fields:  fields{db: db, subRepo: sr, listRepo: lr},
 			args:    args{username: "qerty"},
 			want:    nil,
-			wantErr: false,
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := UserRepo{
-				db:      tt.fields.db,
-				subRepo: tt.fields.subRepo,
+				db:       tt.fields.db,
+				subRepo:  tt.fields.subRepo,
+				listRepo: tt.fields.listRepo,
 			}
 			got, err := u.GetUser(tt.args.username)
 			if (err != nil) != tt.wantErr {
@@ -160,7 +192,6 @@ func TestUserRepo_GetUser(t *testing.T) {
 			}
 		})
 	}
-	_ = UserRepo{db: db, subRepo: sr}.DeleteUser(user.Username)
 }
 
 func TestUserRepo_UpdateUser(t *testing.T) {
@@ -180,22 +211,43 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 
 	sr := SubscriptionRepo{db: db}
 	s, _ := sr.GetSubscriptionByPrice(0)
-	tm := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
-	user := model.User{Username: "qwerty", RegData: tm, LastActive: tm, Sub: s, Points: 0}
-	_ = UserRepo{db: db, subRepo: sr}.CreateUser(user)
-	newUser := user
-	newUser.Points += 20
+	tm := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
+	user := model.User{
+		Username:      "test1",
+		Password:      "qwerty",
+		Email:         "qwerty@gmail.com",
+		RegData:       tm,
+		LastActive:    tm,
+		LastSubscribe: tm,
+		Sub:           s,
+		Collection:    nil,
+		Points:        120,
+		IsAdmin:       false,
+	}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
 		wantErr bool
+		check   func(username string) error
 	}{
 		{
 			name:    "success",
 			fields:  fields{db: db, subRepo: sr, listRepo: nil},
-			args:    args{record: newUser},
+			args:    args{record: user},
 			wantErr: false,
+			check: func(username string) error {
+				var u userModel
+				res := db.Table("dorama_set.user").
+					Where("username = ?", username).Take(&u)
+				if res.Error != nil {
+					return res.Error
+				}
+				if u.Points != user.Points {
+					return errors.New("error")
+				}
+				return nil
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -207,7 +259,9 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 			if err := u.UpdateUser(tt.args.record); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			if err := tt.check(tt.args.record.Username); (err != nil) != tt.wantErr {
+				t.Errorf("UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
+			}
 		})
 	}
-	_ = UserRepo{db: db, subRepo: sr}.DeleteUser(user.Username)
 }
