@@ -22,7 +22,11 @@ type staffModel struct {
 	Type     string
 }
 
-func (s StaffRepo) GetList() ([]model.Staff, error) {
+func NewStaffRepo(db *gorm.DB, pr repository.IPictureRepo) *StaffRepo {
+	return &StaffRepo{db: db, picRepo: pr}
+}
+
+func (s *StaffRepo) GetList() ([]model.Staff, error) {
 	var (
 		resDB []staffModel
 		res   []model.Staff
@@ -54,7 +58,7 @@ func (s StaffRepo) GetList() ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s StaffRepo) GetListName(name string) ([]model.Staff, error) {
+func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	var (
 		resDB []staffModel
 		res   []model.Staff
@@ -86,7 +90,7 @@ func (s StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s StaffRepo) GetStaffById(id int) (*model.Staff, error) {
+func (s *StaffRepo) GetStaffById(id int) (*model.Staff, error) {
 	var resDB staffModel
 
 	result := s.db.Table("dorama_set.staff").Where("id = ?", id).Take(&resDB)
@@ -107,7 +111,7 @@ func (s StaffRepo) GetStaffById(id int) (*model.Staff, error) {
 	return &res, nil
 }
 
-func (s StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
+func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	var (
 		resDB []staffModel
 		res   []model.Staff
@@ -141,7 +145,7 @@ func (s StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s StaffRepo) CreateStaff(record model.Staff) (int, error) {
+func (s *StaffRepo) CreateStaff(record model.Staff) (int, error) {
 	m := staffModel{
 		Name:     record.Name,
 		Birthday: record.Birthday,
@@ -155,7 +159,7 @@ func (s StaffRepo) CreateStaff(record model.Staff) (int, error) {
 	return m.ID, nil
 }
 
-func (s StaffRepo) UpdateStaff(record model.Staff) error {
+func (s *StaffRepo) UpdateStaff(record model.Staff) error {
 	m := staffModel{
 		Name:     record.Name,
 		Birthday: record.Birthday,
@@ -169,7 +173,7 @@ func (s StaffRepo) UpdateStaff(record model.Staff) error {
 	return nil
 }
 
-func (s StaffRepo) DeleteStaff(id int) error {
+func (s *StaffRepo) DeleteStaff(id int) error {
 	result := s.db.Table("dorama_set.staff").Where("id = ?", id).Delete(&staffModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)

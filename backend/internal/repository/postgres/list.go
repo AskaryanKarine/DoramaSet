@@ -21,11 +21,11 @@ type listModel struct {
 	Description string
 }
 
-func NewLR(db *gorm.DB, DR repository.IDoramaRepo) ListRepo {
-	return ListRepo{db, DR}
+func NewListRepo(db *gorm.DB, DR repository.IDoramaRepo) *ListRepo {
+	return &ListRepo{db, DR}
 }
 
-func (l ListRepo) GetUserLists(username string) ([]model.List, error) {
+func (l *ListRepo) GetUserLists(username string) ([]model.List, error) {
 	var (
 		resDB []listModel
 		res   []model.List
@@ -58,7 +58,7 @@ func (l ListRepo) GetUserLists(username string) ([]model.List, error) {
 	return res, nil
 }
 
-func (l ListRepo) GetPublicLists() ([]model.List, error) {
+func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 	var (
 		resDB []listModel
 		res   []model.List
@@ -88,7 +88,7 @@ func (l ListRepo) GetPublicLists() ([]model.List, error) {
 	return res, nil
 }
 
-func (l ListRepo) GetListId(id int) (*model.List, error) {
+func (l *ListRepo) GetListId(id int) (*model.List, error) {
 	var (
 		resDB listModel
 		res   model.List
@@ -112,7 +112,7 @@ func (l ListRepo) GetListId(id int) (*model.List, error) {
 	return &res, nil
 }
 
-func (l ListRepo) CreateList(list model.List) (int, error) {
+func (l *ListRepo) CreateList(list model.List) (int, error) {
 	m := listModel{
 		NameCreator: list.CreatorName,
 		NameList:    list.Name,
@@ -134,7 +134,7 @@ func (l ListRepo) CreateList(list model.List) (int, error) {
 	return m.ID, nil
 }
 
-func (l ListRepo) DelList(id int) error {
+func (l *ListRepo) DelList(id int) error {
 	result := l.db.Table("dorama_set.list").Where("id = ?", id).Delete(&listModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
@@ -142,7 +142,7 @@ func (l ListRepo) DelList(id int) error {
 	return nil
 }
 
-func (l ListRepo) AddToList(idL, idD int) error {
+func (l *ListRepo) AddToList(idL, idD int) error {
 	m := struct {
 		IdDorama, IdList int
 	}{idD, idL}
@@ -153,7 +153,7 @@ func (l ListRepo) AddToList(idL, idD int) error {
 	return nil
 }
 
-func (l ListRepo) DelFromList(idL, idD int) error {
+func (l *ListRepo) DelFromList(idL, idD int) error {
 	result := l.db.Table("dorama_set.listdorama").Where("id_list = ? and id_dorama = ?", idL, idD).Delete(&struct {
 		IdDorama, IdList int
 	}{})
@@ -163,7 +163,7 @@ func (l ListRepo) DelFromList(idL, idD int) error {
 	return nil
 }
 
-func (l ListRepo) AddToFav(idL int, username string) error {
+func (l *ListRepo) AddToFav(idL int, username string) error {
 	m := struct {
 		Username string
 		IdList   int
@@ -175,7 +175,7 @@ func (l ListRepo) AddToFav(idL int, username string) error {
 	return nil
 }
 
-func (l ListRepo) GetFavList(username string) ([]model.List, error) {
+func (l *ListRepo) GetFavList(username string) ([]model.List, error) {
 	var (
 		res   []model.List
 		resDB []listModel

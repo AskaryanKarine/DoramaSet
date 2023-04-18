@@ -26,11 +26,11 @@ type userModel struct {
 	Points           int
 }
 
-func NewUR(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.IListRepo) UserRepo {
-	return UserRepo{db, SR, LR}
+func NewUserRepo(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.IListRepo) *UserRepo {
+	return &UserRepo{db, SR, LR}
 }
 
-func (u UserRepo) GetUser(username string) (*model.User, error) {
+func (u *UserRepo) GetUser(username string) (*model.User, error) {
 	var user *userModel
 	result := u.db.Table("dorama_set.user").Where("username = ?", username).Take(&user)
 	if result.Error != nil {
@@ -67,7 +67,7 @@ func (u UserRepo) GetUser(username string) (*model.User, error) {
 	return &res, nil
 }
 
-func (u UserRepo) CreateUser(record model.User) error {
+func (u *UserRepo) CreateUser(record model.User) error {
 	freeSub, err := u.subRepo.GetSubscriptionByPrice(0)
 	if err != nil {
 		return fmt.Errorf("getSubByPrice: %w", err)
@@ -103,7 +103,7 @@ func (u UserRepo) CreateUser(record model.User) error {
 	return nil
 }
 
-func (u UserRepo) UpdateUser(record model.User) error {
+func (u *UserRepo) UpdateUser(record model.User) error {
 	m := userModel{
 		Username:         record.Username,
 		IsAdmin:          record.IsAdmin,
@@ -122,7 +122,7 @@ func (u UserRepo) UpdateUser(record model.User) error {
 	return nil
 }
 
-func (u UserRepo) DeleteUser(username string) error {
+func (u *UserRepo) DeleteUser(username string) error {
 	result := u.db.Table("dorama_set.user").Where("username = ?", username).Delete(&userModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)

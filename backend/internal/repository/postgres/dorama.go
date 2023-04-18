@@ -23,11 +23,11 @@ type doramaModel struct {
 	Genre       string
 }
 
-func NewDR(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo) DoramaRepo {
-	return DoramaRepo{db, PR, ER}
+func NewDoramaRepo(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo) *DoramaRepo {
+	return &DoramaRepo{db, PR, ER}
 }
 
-func (d DoramaRepo) GetList() ([]model.Dorama, error) {
+func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 	var (
 		resDB []doramaModel
 		res   []model.Dorama
@@ -64,7 +64,7 @@ func (d DoramaRepo) GetList() ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
+func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	var (
 		resDB []doramaModel
 		res   []model.Dorama
@@ -101,7 +101,7 @@ func (d DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
+func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 	var (
 		resDB doramaModel
 		res   model.Dorama
@@ -132,7 +132,7 @@ func (d DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 	return &res, nil
 }
 
-func (d DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
+func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
 	m := doramaModel{
 		Name:        dorama.Name,
 		Description: dorama.Description,
@@ -147,7 +147,7 @@ func (d DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
 	return m.ID, nil
 }
 
-func (d DoramaRepo) UpdateDorama(dorama model.Dorama) error {
+func (d *DoramaRepo) UpdateDorama(dorama model.Dorama) error {
 	m := doramaModel{
 		ID:          dorama.Id,
 		Name:        dorama.Name,
@@ -163,7 +163,7 @@ func (d DoramaRepo) UpdateDorama(dorama model.Dorama) error {
 	return nil
 }
 
-func (d DoramaRepo) DeleteDorama(id int) error {
+func (d *DoramaRepo) DeleteDorama(id int) error {
 	result := d.db.Table("dorama_set.dorama").Where("id = ?", id).Delete(&doramaModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
@@ -171,7 +171,7 @@ func (d DoramaRepo) DeleteDorama(id int) error {
 	return nil
 }
 
-func (d DoramaRepo) AddStaff(idD, idS int) error {
+func (d *DoramaRepo) AddStaff(idD, idS int) error {
 	m := struct {
 		IdDorama, IdStaff int
 	}{idD, idS}
@@ -182,7 +182,7 @@ func (d DoramaRepo) AddStaff(idD, idS int) error {
 	return nil
 }
 
-func (d DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
+func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
 	var (
 		resDB []doramaModel
 		res   []model.Dorama

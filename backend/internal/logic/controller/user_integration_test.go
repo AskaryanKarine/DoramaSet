@@ -18,12 +18,12 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer dbContainer.Terminate(context.Background())
-	repo := postgres.NewSR(db)
-	pr := postgres.NewPR(db)
-	er := postgres.NewER(db)
-	dr := postgres.NewDR(db, pr, er)
-	lr := postgres.NewLR(db, dr)
-	urepo := postgres.NewUR(db, repo, lr)
+	repo := postgres.NewSubscriptionRepo(db)
+	pr := postgres.NewPictureRepo(db)
+	er := postgres.NewEpisodeRepo(db)
+	dr := postgres.NewDoramaRepo(db, pr, er)
+	lr := postgres.NewListRepo(db, dr)
+	urepo := postgres.NewUserRepo(db, repo, lr)
 	pointC := PointsController{urepo}
 	type fields struct {
 		repo      repository.IUserRepo

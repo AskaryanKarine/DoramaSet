@@ -11,11 +11,11 @@ type PictureRepo struct {
 	db *gorm.DB
 }
 
-func NewPR(db *gorm.DB) PictureRepo {
-	return PictureRepo{db}
+func NewPictureRepo(db *gorm.DB) *PictureRepo {
+	return &PictureRepo{db}
 }
 
-func (p PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
+func (p *PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
 	var res []model.Picture
 	result := p.db.Table("dorama_set.doramapicture").Where("id_dorama = ?", idDorama).Find(&res)
 	if result.Error != nil {
@@ -27,7 +27,7 @@ func (p PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
+func (p *PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 	var res []model.Picture
 	result := p.db.Table("dorama_set.staffpicture").Where("id_staff = ?", idStaff).Find(&res)
 	if result.Error != nil {
@@ -39,7 +39,7 @@ func (p PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p PictureRepo) CreatePicture(record model.Picture, id int, tbl string) (int, error) {
+func (p *PictureRepo) CreatePicture(record model.Picture, id int, tbl string) (int, error) {
 	m := model.Picture{URL: record.URL}
 	result := p.db.Table("dorama_set.picture").Create(&m)
 	if result.Error != nil {
@@ -68,7 +68,7 @@ func (p PictureRepo) CreatePicture(record model.Picture, id int, tbl string) (in
 	return m.Id, nil
 }
 
-func (p PictureRepo) DeletePicture(id int) error {
+func (p *PictureRepo) DeletePicture(id int) error {
 	result := p.db.Table("dorama_set.picture").Where("id = ?", id).Delete(&model.Picture{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)

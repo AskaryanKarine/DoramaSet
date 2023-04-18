@@ -23,7 +23,7 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 		id     int
 		tbl    string
 	}
-	pic := model.Picture{URL: "test", Description: "test"}
+	pic := model.Picture{URL: "test"}
 	tests := []struct {
 		name    string
 		fields  fields

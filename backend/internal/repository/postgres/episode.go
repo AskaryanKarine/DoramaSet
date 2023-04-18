@@ -22,11 +22,11 @@ type markEpisode struct {
 	IdEpisode int
 }
 
-func NewER(db *gorm.DB) EpisodeRepo {
-	return EpisodeRepo{db}
+func NewEpisodeRepo(db *gorm.DB) *EpisodeRepo {
+	return &EpisodeRepo{db}
 }
 
-func (e EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
+func (e *EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 	var res []model.Episode
 	result := e.db.Table("dorama_set.episode").Where("id_dorama = ?", idDorama).Find(&res)
 	if result.Error != nil {
@@ -38,7 +38,7 @@ func (e EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 	return res, nil
 }
 
-func (e EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
+func (e *EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
 	var res *model.Episode
 	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Take(&res)
 	if result.Error != nil {
@@ -48,7 +48,7 @@ func (e EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
 	return res, nil
 }
 
-func (e EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) {
+func (e *EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) {
 	m := episodeModel{
 		IdDorama:   idD,
 		NumSeason:  episode.NumSeason,
@@ -63,7 +63,7 @@ func (e EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) 
 	return m.ID, nil
 }
 
-func (e EpisodeRepo) DeleteEpisode(id int) error {
+func (e *EpisodeRepo) DeleteEpisode(id int) error {
 	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Delete(&model.Episode{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
@@ -71,7 +71,7 @@ func (e EpisodeRepo) DeleteEpisode(id int) error {
 	return nil
 }
 
-func (e EpisodeRepo) MarkEpisode(idEp int, username string) error {
+func (e *EpisodeRepo) MarkEpisode(idEp int, username string) error {
 	m := markEpisode{Username: username, IdEpisode: idEp}
 	result := e.db.Table("dorama_set.userepisode").Create(&m)
 	if result.Error != nil {
