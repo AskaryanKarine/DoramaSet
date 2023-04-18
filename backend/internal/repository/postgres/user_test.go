@@ -40,7 +40,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			fields:  fields{db: db, subRepo: sr, listRepo: lr},
+			fields:  fields{db: db, subRepo: &sr, listRepo: &lr},
 			args:    args{record: user},
 			wantErr: false,
 			check: func(username string) error {
@@ -94,7 +94,7 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			fields:  fields{db: db, subRepo: sr, listRepo: nil},
+			fields:  fields{db: db, subRepo: &sr, listRepo: nil},
 			args:    args{user: user, username: user.Username},
 			wantErr: false,
 			check: func(id string) error {
@@ -162,14 +162,14 @@ func TestUserRepo_GetUser(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			fields:  fields{db: db, subRepo: sr, listRepo: lr},
+			fields:  fields{db: db, subRepo: &sr, listRepo: &lr},
 			args:    args{username: "test1"},
 			want:    &user,
 			wantErr: false,
 		},
 		{
 			name:    "don't exists",
-			fields:  fields{db: db, subRepo: sr, listRepo: lr},
+			fields:  fields{db: db, subRepo: &sr, listRepo: &lr},
 			args:    args{username: "qerty"},
 			want:    nil,
 			wantErr: true,
@@ -233,7 +233,7 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			fields:  fields{db: db, subRepo: sr, listRepo: nil},
+			fields:  fields{db: db, subRepo: &sr, listRepo: nil},
 			args:    args{record: user},
 			wantErr: false,
 			check: func(username string) error {
