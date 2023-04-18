@@ -13,6 +13,13 @@ type PictureController struct {
 	uc   controller.IUserController
 }
 
+func NewPictureController(PRepo repository.IPictureRepo, uc controller.IUserController) *PictureController {
+	return &PictureController{
+		repo: PRepo,
+		uc:   uc,
+	}
+}
+
 func (p *PictureController) GetListByDorama(idD int) ([]model.Picture, error) {
 	res, err := p.repo.GetListDorama(idD)
 	if err != nil {

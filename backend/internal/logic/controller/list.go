@@ -55,6 +55,16 @@ func (l *ListController) GetListById(id int) (*model.List, error) {
 	if err != nil {
 		return nil, fmt.Errorf("getListById: %w", err)
 	}
+	if res.Type != "public" {
+		user, err := l.uc.AuthByToken(token)
+		if err != nil {
+			return nil, fmt.Errorf("auth: %w", err)
+		}
+		if user.Username != res.CreatorName {
+			return nil, fmt.Errorf("%w", errors.ErrorCreatorAccess)
+		}
+	}
+
 	return res, nil
 }
 
@@ -87,7 +97,7 @@ func (l *ListController) DelFromList(token string, idL, idD int) error {
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
 	}
-	list, err := l.GetListById(idL)
+	list, err := l.GetListById(token, idL)
 	if err != nil {
 		return fmt.Errorf("getListById: %w", err)
 	}

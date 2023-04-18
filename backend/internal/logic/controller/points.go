@@ -19,6 +19,12 @@ const (
 	longNoLoginHours = 4400.0
 )
 
+func NewPointController(URepo repository.IUserRepo) *PointsController {
+	return &PointsController{
+		repo: URepo,
+	}
+}
+
 func checkYear(date time.Time) bool {
 	today := time.Now()
 

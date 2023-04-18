@@ -13,6 +13,13 @@ type StaffController struct {
 	uc   controller.IUserController
 }
 
+func NewStaffController(SRepo repository.IStaffRepo, uc controller.IUserController) *StaffController {
+	return &StaffController{
+		repo: SRepo,
+		uc:   uc,
+	}
+}
+
 func (s *StaffController) GetList() ([]model.Staff, error) {
 	res, err := s.repo.GetList()
 	if err != nil {

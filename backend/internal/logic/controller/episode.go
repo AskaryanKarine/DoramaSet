@@ -12,6 +12,13 @@ type EpisodeController struct {
 	uc   controller.IUserController
 }
 
+func NewEpisodeController(ERepo repository.IEpisodeRepo, uc controller.IUserController) *EpisodeController {
+	return &EpisodeController{
+		repo: ERepo,
+		uc:   uc,
+	}
+}
+
 func (e *EpisodeController) GetEpisodeList(idD int) ([]model.Episode, error) {
 	res, err := e.repo.GetList(idD)
 	if err != nil {

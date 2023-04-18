@@ -19,6 +19,14 @@ type UserController struct {
 	secretKey string
 }
 
+func NewUserController(UR repository.IUserRepo, pc controller.IPointsController, secretKey string) *UserController {
+	return &UserController{
+		repo:      UR,
+		pc:        pc,
+		secretKey: secretKey,
+	}
+}
+
 const (
 	loginLen        = 5
 	passwordLen     = 8

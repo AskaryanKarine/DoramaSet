@@ -15,6 +15,16 @@ type SubscriptionController struct {
 	uc    controller.IUserController
 }
 
+func NewSubscriptionController(SR repository.ISubscriptionRepo, UR repository.IUserRepo,
+	pc controller.IPointsController, uc controller.IUserController) *SubscriptionController {
+	return &SubscriptionController{
+		repo:  SR,
+		urepo: UR,
+		pc:    pc,
+		uc:    uc,
+	}
+}
+
 func (s *SubscriptionController) GetAll() ([]model.Subscription, error) {
 	res, err := s.repo.GetList()
 	if err != nil {

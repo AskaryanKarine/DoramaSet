@@ -13,6 +13,10 @@ type DoramaController struct {
 	uc   controller.IUserController
 }
 
+func NewDoramaController(DRepo repository.IDoramaRepo, uc controller.IUserController) *DoramaController {
+	return &DoramaController{repo: DRepo, uc: uc}
+}
+
 func (d *DoramaController) GetAll() ([]model.Dorama, error) {
 	res, err := d.repo.GetList()
 	if err != nil {
