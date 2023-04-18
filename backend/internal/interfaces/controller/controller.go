@@ -5,7 +5,7 @@ import "DoramaSet/internal/logic/model"
 type IDoramaController interface {
 	GetAll() ([]model.Dorama, error)
 	GetByName(name string) ([]model.Dorama, error)
-	GetById(id int) (model.Dorama, error)
+	GetById(id int) (*model.Dorama, error)
 	CreateDorama(token string, record model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
 }
@@ -20,7 +20,7 @@ type IListController interface {
 	CreateList(token string, record model.List) error
 	GetUserLists(token string) ([]model.List, error)
 	GetPublicLists() ([]model.List, error)
-	DetListById(id int) (*model.List, error)
+	GetListById(token string, id int) (*model.List, error)
 	AddToList(token string, idL, idD int) error
 	DelFromList(token string, idL, idD int) error
 	DelList(token string, idL int) error
@@ -30,7 +30,7 @@ type IListController interface {
 
 type IPictureController interface {
 	GetListByDorama(idD int) ([]model.Picture, error)
-	GetListByStaff(idS int) ([]model.Staff, error)
+	GetListByStaff(idS int) ([]model.Picture, error)
 	CreatePicture(token string, record model.Picture, idT int, table string) error
 }
 
@@ -44,6 +44,7 @@ type IStaffController interface {
 	GetList() ([]model.Staff, error)
 	GetListByName(name string) ([]model.Staff, error)
 	GetListByDorama(idD int) ([]model.Staff, error)
+	GetStaffById(id int) (*model.Staff, error)
 	CreateStaff(token string, record model.Staff) error
 	UpdateStaff(token string, record model.Staff) error
 }

@@ -76,3 +76,11 @@ func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
 	}
 	return nil
 }
+
+func (s *StaffController) GetStaffById(id int) (*model.Staff, error) {
+	res, err := s.repo.GetStaffById(id)
+	if err != nil {
+		return nil, fmt.Errorf("getStaffById: %w", err)
+	}
+	return res, nil
+}

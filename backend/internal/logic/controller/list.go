@@ -14,6 +14,14 @@ type ListController struct {
 	uc    controller.IUserController
 }
 
+func NewListController(LRepo repository.IListRepo, DRepo repository.IDoramaRepo, uc controller.IUserController) *ListController {
+	return &ListController{
+		repo:  LRepo,
+		drepo: DRepo,
+		uc:    uc,
+	}
+}
+
 func (l *ListController) CreateList(token string, record model.List) error {
 	user, err := l.uc.AuthByToken(token)
 	if err != nil {
@@ -50,7 +58,7 @@ func (l *ListController) GetPublicLists() ([]model.List, error) {
 	return res, nil
 }
 
-func (l *ListController) GetListById(id int) (*model.List, error) {
+func (l *ListController) GetListById(token string, id int) (*model.List, error) {
 	res, err := l.repo.GetListId(id)
 	if err != nil {
 		return nil, fmt.Errorf("getListById: %w", err)
@@ -128,7 +136,7 @@ func (l *ListController) DelList(token string, idL int) error {
 		return fmt.Errorf("getListId: %w", err)
 	}
 
-	//TODO +creatorAccessError
+	// TODO +creatorAccessError
 	if user.Username != list.CreatorName {
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}

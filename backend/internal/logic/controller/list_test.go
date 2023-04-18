@@ -16,7 +16,7 @@ var resultArrayList = []model.List{
 		Name:        "qwerty",
 		Description: "qwerty",
 		CreatorName: "qwerty",
-		Type:        "qwerty",
+		Type:        "public",
 		Doramas:     nil,
 	},
 }
@@ -202,10 +202,14 @@ func TestGetPublicLists(t *testing.T) {
 func TestGetListById(t *testing.T) {
 	mc := minimock.NewController(t)
 
+	type argument struct {
+		token string
+		id    int
+	}
 	testsTable := []struct {
 		name   string
 		fl     ListController
-		arg    int
+		arg    argument
 		result *model.List
 		isNeg  bool
 	}{
@@ -214,9 +218,9 @@ func TestGetListById(t *testing.T) {
 			fl: ListController{
 				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&resultArrayList[0], nil),
 				drepo: nil,
-				uc:    nil,
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, nil),
 			},
-			arg:    1,
+			arg:    argument{"", 1},
 			isNeg:  false,
 			result: &resultArrayList[0],
 		},
@@ -227,7 +231,40 @@ func TestGetListById(t *testing.T) {
 				drepo: nil,
 				uc:    nil,
 			},
-			arg:    1,
+			arg:    argument{"", 1},
+			result: nil,
+			isNeg:  true,
+		},
+		{
+			name: "get private list",
+			fl: ListController{
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: "private", CreatorName: "qwerty"}, nil),
+				drepo: nil,
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, nil),
+			},
+			arg:    argument{"", 1},
+			result: &model.List{Type: "private", CreatorName: "qwerty"},
+			isNeg:  false,
+		},
+		{
+			name: "auth error",
+			fl: ListController{
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: "private", CreatorName: "qwerty"}, nil),
+				drepo: nil,
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, errors.New("error")),
+			},
+			arg:    argument{"", 1},
+			result: nil,
+			isNeg:  true,
+		},
+		{
+			name: "access error",
+			fl: ListController{
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: "private", CreatorName: "qwerty"}, nil),
+				drepo: nil,
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwe"}, nil),
+			},
+			arg:    argument{"", 1},
 			result: nil,
 			isNeg:  true,
 		},
@@ -240,7 +277,7 @@ func TestGetListById(t *testing.T) {
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
 			}
-			res, err := dc.GetListById(testCase.arg)
+			res, err := dc.GetListById(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetListById() error = %v, expect = %v", err, testCase.isNeg)
 			}
