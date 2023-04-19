@@ -51,8 +51,8 @@ create table if not exists dorama_set.Episode (
 create table if not exists dorama_set.Staff (
     id serial primary key,
     name text not null,
-    birthday date not null,
-    gender text not null,
+    birthday date,
+    gender text,
     type text not null
 );
 
