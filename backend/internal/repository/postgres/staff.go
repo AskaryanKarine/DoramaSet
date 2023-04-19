@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"fmt"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -63,7 +64,8 @@ func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
 		resDB []staffModel
 		res   []model.Staff
 	)
-	result := s.db.Table("dorama_set.staff").Where("name = ?", name).Find(&resDB)
+	like := "%" + strings.TrimRight(name, "\r\n") + "%"
+	result := s.db.Table("dorama_set.staff").Where("name like ?", like).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -161,6 +163,7 @@ func (s *StaffRepo) CreateStaff(record model.Staff) (int, error) {
 
 func (s *StaffRepo) UpdateStaff(record model.Staff) error {
 	m := staffModel{
+		ID:       record.Id,
 		Name:     record.Name,
 		Birthday: record.Birthday,
 		Gender:   record.Gender,

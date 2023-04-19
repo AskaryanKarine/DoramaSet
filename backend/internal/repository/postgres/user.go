@@ -32,12 +32,12 @@ func NewUserRepo(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.ILi
 
 func (u *UserRepo) GetUser(username string) (*model.User, error) {
 	var user *userModel
-	result := u.db.Table("dorama_set.user").Where("username = ?", username).Take(&user)
+	result := u.db.Table("dorama_set.user").Where("username = ?", username).Find(&user)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
-	if user == nil {
+	if user.Username == "" {
 		return nil, nil
 	}
 
@@ -67,7 +67,7 @@ func (u *UserRepo) GetUser(username string) (*model.User, error) {
 	return &res, nil
 }
 
-func (u *UserRepo) CreateUser(record model.User) error {
+func (u *UserRepo) CreateUser(record *model.User) error {
 	freeSub, err := u.subRepo.GetSubscriptionByPrice(0)
 	if err != nil {
 		return fmt.Errorf("getSubByPrice: %w", err)
@@ -84,7 +84,7 @@ func (u *UserRepo) CreateUser(record model.User) error {
 		IsAdmin:          record.IsAdmin,
 		SubId:            freeSub.Id,
 	}
-
+	record.Sub = freeSub
 	result := u.db.Table("dorama_set.user").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)

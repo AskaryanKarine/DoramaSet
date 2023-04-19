@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"fmt"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type DoramaRepo struct {
@@ -69,7 +70,8 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 		resDB []doramaModel
 		res   []model.Dorama
 	)
-	result := d.db.Table("dorama_set.dorama").Where("name like %?%", name).Find(&resDB)
+	likeStr := "%" + strings.TrimRight(name, "\r\n") + "%"
+	result := d.db.Table("dorama_set.dorama").Where("name like ?", likeStr).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -123,6 +125,7 @@ func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 		Id:          resDB.ID,
 		Name:        resDB.Name,
 		Description: resDB.Description,
+		Status:      resDB.Status,
 		Genre:       resDB.Genre,
 		ReleaseYear: resDB.ReleaseYear,
 		Episodes:    ep,
@@ -138,7 +141,7 @@ func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
 		Description: dorama.Description,
 		ReleaseYear: dorama.ReleaseYear,
 		Status:      dorama.Status,
-		Genre:       dorama.Status,
+		Genre:       dorama.Genre,
 	}
 	result := d.db.Table("dorama_set.dorama").Create(&m)
 	if result.Error != nil {
@@ -184,8 +187,11 @@ func (d *DoramaRepo) AddStaff(idD, idS int) error {
 
 func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
 	var (
-		resDB []doramaModel
-		res   []model.Dorama
+		resDB []struct {
+			IdDorama int
+			IdList   int
+		}
+		res []model.Dorama
 	)
 	result := d.db.Table("dorama_set.listdorama").Where("id_list = ?", idL).Find(&resDB)
 	if result.Error != nil {
@@ -193,25 +199,11 @@ func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		ep, err := d.epRepo.GetList(r.ID)
+		dorama, err := d.GetDorama(r.IdDorama)
 		if err != nil {
-			return nil, fmt.Errorf("getListEp: %w", err)
+			return nil, fmt.Errorf("getDorama: %w", err)
 		}
-		photo, err := d.picRepo.GetListDorama(r.ID)
-		if err != nil {
-			return nil, fmt.Errorf("getListDorama: %w", err)
-		}
-		tmp := model.Dorama{
-			Id:          r.ID,
-			Name:        r.Name,
-			Genre:       r.Genre,
-			Status:      r.Status,
-			Description: r.Description,
-			ReleaseYear: r.ReleaseYear,
-			Episodes:    ep,
-			Posters:     photo,
-		}
-		res = append(res, tmp)
+		res = append(res, *dorama)
 	}
 	return res, nil
 }

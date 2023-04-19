@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 	"gorm.io/gorm"
@@ -16,26 +15,51 @@ func NewPictureRepo(db *gorm.DB) *PictureRepo {
 }
 
 func (p *PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
-	var res []model.Picture
-	result := p.db.Table("dorama_set.doramapicture").Where("id_dorama = ?", idDorama).Find(&res)
+	var (
+		res   []model.Picture
+		resDB []struct {
+			IdDorama  int
+			IdPicture int
+		}
+	)
+
+	result := p.db.Table("dorama_set.doramapicture").Where("id_dorama = ?", idDorama).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	if len(res) == 0 {
-		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
+	for _, r := range resDB {
+		var tmp model.Picture
+		result := p.db.Table("dorama_set.picture").Where("id = ?", r.IdPicture).Take(&tmp)
+		if result.Error != nil {
+			return nil, fmt.Errorf("db: %w", result.Error)
+		}
+		res = append(res, tmp)
 	}
+
 	return res, nil
 }
 
 func (p *PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
-	var res []model.Picture
-	result := p.db.Table("dorama_set.staffpicture").Where("id_staff = ?", idStaff).Find(&res)
+	var (
+		res   []model.Picture
+		resDB []struct {
+			IdDorama  int
+			IdPicture int
+		}
+	)
+	result := p.db.Table("dorama_set.staffpicture").Where("id_staff = ?", idStaff).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	if len(res) == 0 {
-		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
+	for _, r := range resDB {
+		var tmp model.Picture
+		result := p.db.Table("dorama_set.picture").Where("id = ?", r.IdPicture).Take(&tmp)
+		if result.Error != nil {
+			return nil, fmt.Errorf("db: %w", result.Error)
+		}
+		res = append(res, tmp)
 	}
+
 	return res, nil
 }
 

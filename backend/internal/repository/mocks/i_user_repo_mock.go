@@ -17,8 +17,8 @@ import (
 type IUserRepoMock struct {
 	t minimock.Tester
 
-	funcCreateUser          func(record model.User) (err error)
-	inspectFuncCreateUser   func(record model.User)
+	funcCreateUser          func(record *model.User) (err error)
+	inspectFuncCreateUser   func(record *model.User)
 	afterCreateUserCounter  uint64
 	beforeCreateUserCounter uint64
 	CreateUserMock          mIUserRepoMockCreateUser
@@ -83,7 +83,7 @@ type IUserRepoMockCreateUserExpectation struct {
 
 // IUserRepoMockCreateUserParams contains parameters of the IUserRepo.CreateUser
 type IUserRepoMockCreateUserParams struct {
-	record model.User
+	record *model.User
 }
 
 // IUserRepoMockCreateUserResults contains results of the IUserRepo.CreateUser
@@ -92,7 +92,7 @@ type IUserRepoMockCreateUserResults struct {
 }
 
 // Expect sets up expected params for IUserRepo.CreateUser
-func (mmCreateUser *mIUserRepoMockCreateUser) Expect(record model.User) *mIUserRepoMockCreateUser {
+func (mmCreateUser *mIUserRepoMockCreateUser) Expect(record *model.User) *mIUserRepoMockCreateUser {
 	if mmCreateUser.mock.funcCreateUser != nil {
 		mmCreateUser.mock.t.Fatalf("IUserRepoMock.CreateUser mock is already set by Set")
 	}
@@ -112,7 +112,7 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Expect(record model.User) *mIUserR
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserRepo.CreateUser
-func (mmCreateUser *mIUserRepoMockCreateUser) Inspect(f func(record model.User)) *mIUserRepoMockCreateUser {
+func (mmCreateUser *mIUserRepoMockCreateUser) Inspect(f func(record *model.User)) *mIUserRepoMockCreateUser {
 	if mmCreateUser.mock.inspectFuncCreateUser != nil {
 		mmCreateUser.mock.t.Fatalf("Inspect function is already set for IUserRepoMock.CreateUser")
 	}
@@ -136,7 +136,7 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Return(err error) *IUserRepoMock {
 }
 
 // Set uses given function f to mock the IUserRepo.CreateUser method
-func (mmCreateUser *mIUserRepoMockCreateUser) Set(f func(record model.User) (err error)) *IUserRepoMock {
+func (mmCreateUser *mIUserRepoMockCreateUser) Set(f func(record *model.User) (err error)) *IUserRepoMock {
 	if mmCreateUser.defaultExpectation != nil {
 		mmCreateUser.mock.t.Fatalf("Default expectation is already set for the IUserRepo.CreateUser method")
 	}
@@ -151,7 +151,7 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Set(f func(record model.User) (err
 
 // When sets expectation for the IUserRepo.CreateUser which will trigger the result defined by the following
 // Then helper
-func (mmCreateUser *mIUserRepoMockCreateUser) When(record model.User) *IUserRepoMockCreateUserExpectation {
+func (mmCreateUser *mIUserRepoMockCreateUser) When(record *model.User) *IUserRepoMockCreateUserExpectation {
 	if mmCreateUser.mock.funcCreateUser != nil {
 		mmCreateUser.mock.t.Fatalf("IUserRepoMock.CreateUser mock is already set by Set")
 	}
@@ -171,7 +171,7 @@ func (e *IUserRepoMockCreateUserExpectation) Then(err error) *IUserRepoMock {
 }
 
 // CreateUser implements repository.IUserRepo
-func (mmCreateUser *IUserRepoMock) CreateUser(record model.User) (err error) {
+func (mmCreateUser *IUserRepoMock) CreateUser(record *model.User) (err error) {
 	mm_atomic.AddUint64(&mmCreateUser.beforeCreateUserCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreateUser.afterCreateUserCounter, 1)
 

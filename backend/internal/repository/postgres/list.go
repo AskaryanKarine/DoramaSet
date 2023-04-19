@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
@@ -63,7 +64,7 @@ func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 		resDB []listModel
 		res   []model.List
 	)
-	result := l.db.Table("dorama_set.list").Where("type = public").Find(&resDB)
+	result := l.db.Table("dorama_set.list l").Where("l.type = ?", constant.PublicType).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -93,7 +94,7 @@ func (l *ListRepo) GetListId(id int) (*model.List, error) {
 		resDB listModel
 		res   model.List
 	)
-	result := l.db.Table("dorama_set.list").Where("id = ?", id).Find(&resDB)
+	result := l.db.Table("dorama_set.list").Where("id = ?", id).Take(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -168,6 +169,13 @@ func (l *ListRepo) AddToFav(idL int, username string) error {
 		Username string
 		IdList   int
 	}{username, idL}
+	list, err := l.GetListId(idL)
+	if err != nil {
+		return fmt.Errorf("degListId: %w", err)
+	}
+	if list.Type != constant.PublicType {
+		return fmt.Errorf("db: %w", errors.ErrorPublic)
+	}
 	result := l.db.Table("dorama_set.userlist").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
@@ -181,7 +189,7 @@ func (l *ListRepo) GetFavList(username string) ([]model.List, error) {
 		resDB []listModel
 	)
 	result := l.db.Table("dorama_set.list l").Select("l.*").
-		Joins("join dorama_set.list l on l.id = ul.id_list").
+		Joins("join dorama_set.userlist ul on l.id = ul.id_list").
 		Where("ul.username = ? and ul.username != l.name_creator", username).
 		Find(&resDB)
 

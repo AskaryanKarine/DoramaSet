@@ -57,7 +57,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 				subRepo:  tt.fields.subRepo,
 				listRepo: tt.fields.listRepo,
 			}
-			if err := u.CreateUser(tt.args.record); (err != nil) != tt.wantErr {
+			if err := u.CreateUser(&tt.args.record); (err != nil) != tt.wantErr {
 				t.Errorf("CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(tt.args.record.Username); (err != nil) != tt.wantErr {
