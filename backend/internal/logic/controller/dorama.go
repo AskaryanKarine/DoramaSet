@@ -74,3 +74,11 @@ func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error
 	}
 	return nil
 }
+
+func (d *DoramaController) AddStaffToDorama(idD, idS int) error {
+	err := d.repo.AddStaff(idD, idS)
+	if err != nil {
+		return fmt.Errorf("addStaff: %w", err)
+	}
+	return nil
+}

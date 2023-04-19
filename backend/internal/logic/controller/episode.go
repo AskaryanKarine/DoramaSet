@@ -46,3 +46,11 @@ func (e *EpisodeController) MarkWatchingEpisode(token string, idEp int) error {
 	}
 	return nil
 }
+
+func (e *EpisodeController) CreateEpisode(record model.Episode, idD int) error {
+	_, err := e.repo.CreateEpisode(record, idD)
+	if err != nil {
+		return fmt.Errorf("createEpisode: %w", err)
+	}
+	return nil
+}

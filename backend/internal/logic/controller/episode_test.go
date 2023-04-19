@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -171,6 +173,61 @@ func TestMarkWathingEpisode(t *testing.T) {
 			err := dc.MarkWatchingEpisode(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("MarkWatchingEpisode(): error = %v, expect = %v", err, testCase.isNeg)
+			}
+		})
+	}
+}
+
+func TestEpisodeController_CreateEpisode(t *testing.T) {
+	mc := minimock.NewController(t)
+
+	type fields struct {
+		repo repository.IEpisodeRepo
+		uc   controller.IUserController
+	}
+	type args struct {
+		record model.Episode
+		idD    int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "successful result",
+			fields: fields{
+				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(1, nil),
+				uc:   nil,
+			},
+			args: args{
+				record: model.Episode{},
+				idD:    1,
+			},
+			wantErr: false,
+		},
+		{
+			name: "create error",
+			fields: fields{
+				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(-1, errors.New("error")),
+				uc:   nil,
+			},
+			args: args{
+				record: model.Episode{},
+				idD:    1,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &EpisodeController{
+				repo: tt.fields.repo,
+				uc:   tt.fields.uc,
+			}
+			if err := e.CreateEpisode(tt.args.record, tt.args.idD); (err != nil) != tt.wantErr {
+				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

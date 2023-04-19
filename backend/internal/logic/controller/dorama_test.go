@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -335,6 +337,55 @@ func TestUpdateDorama(t *testing.T) {
 			err := dc.UpdateDorama(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("UpdateDorama() error: %v, expect: %v", err, test.isNeg)
+			}
+		})
+	}
+}
+
+func TestDoramaController_AddStaffToDorama(t *testing.T) {
+	mc := minimock.NewController(t)
+
+	type fields struct {
+		repo repository.IDoramaRepo
+		uc   controller.IUserController
+	}
+	type args struct {
+		idD int
+		idS int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "successful result",
+			fields: fields{
+				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(nil),
+				uc:   nil,
+			},
+			args:    args{1, 1},
+			wantErr: false,
+		},
+		{
+			name: "add error",
+			fields: fields{
+				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(errors.New("error")),
+				uc:   nil,
+			},
+			args:    args{1, 1},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := &DoramaController{
+				repo: tt.fields.repo,
+				uc:   tt.fields.uc,
+			}
+			if err := d.AddStaffToDorama(tt.args.idD, tt.args.idS); (err != nil) != tt.wantErr {
+				t.Errorf("AddStaffToDorama() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
