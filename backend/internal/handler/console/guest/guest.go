@@ -18,7 +18,7 @@ func New(uc controller.IUserController) *Guest {
 
 func (g *Guest) Registration() (string, bool, error) {
 	var newUser model.User
-
+	fmt.Printf("Регистрация\n")
 	fmt.Print("Введите имя пользователя: ")
 	if _, err := fmt.Scan(&newUser.Username); err != nil {
 		return "", false, err
@@ -43,6 +43,7 @@ func (g *Guest) Registration() (string, bool, error) {
 func (g *Guest) Login() (string, bool, error) {
 	var username, password string
 
+	fmt.Printf("Вход в систему\n")
 	fmt.Print("Введите имя пользователя: ")
 	if _, err := fmt.Scan(&username); err != nil {
 		return "", false, err
@@ -61,6 +62,6 @@ func (g *Guest) Login() (string, bool, error) {
 		return "", false, err
 	}
 
-	fmt.Printf("Авторизация успешна!")
+	fmt.Println("Авторизация успешна!")
 	return token, user.IsAdmin, nil
 }

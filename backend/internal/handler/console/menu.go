@@ -1,8 +1,10 @@
-package handler
+package console
 
 import (
-	"DoramaSet/internal/handler/general"
-	"DoramaSet/internal/handler/guest"
+	"DoramaSet/internal/handler/console/admin"
+	"DoramaSet/internal/handler/console/general"
+	"DoramaSet/internal/handler/console/guest"
+	"DoramaSet/internal/handler/console/user"
 	"DoramaSet/internal/logic/controller"
 	postgres2 "DoramaSet/internal/repository/postgres"
 	"fmt"
@@ -24,6 +26,8 @@ type guestHandler struct {
 type App struct {
 	generalOptions []handler
 	guestOptions   []guestHandler
+	adminOptions   []handler
+	userOptions    []handler
 	token          string
 	admin          bool
 }
@@ -43,14 +47,16 @@ func NewApp(dsn, secretKey string) (*App, error) {
 	pc := controller.NewPointController(uRepo)
 	uc := controller.NewUserController(uRepo, pc, secretKey)
 	dc := controller.NewDoramaController(dRepo, uc)
-	// ec := controller.NewEpisodeController(eRepo, uc)
+	ec := controller.NewEpisodeController(eRepo, uc)
 	lc := controller.NewListController(lRepo, dRepo, uc)
-	// picC := controller.NewPictureController(picRepo, uc)
+	picC := controller.NewPictureController(picRepo, uc)
 	staffC := controller.NewStaffController(staffRepo, uc)
-	// subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc)
+	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc)
 
 	generalOp := general.New(dc, staffC, lc)
 	guestOp := guest.New(uc)
+	adminOp := admin.New(dc, staffC, picC, ec)
+	userOp := user.New(lc, ec, subC, uc, pc)
 
 	a := App{
 		token: "",
@@ -83,12 +89,16 @@ func NewApp(dsn, secretKey string) (*App, error) {
 			f:    generalOp.GetStaffByName,
 		},
 		{
+			name: "Получить информацию о участниках конкретной дорамы",
+			f:    generalOp.GetStaffByDorama,
+		},
+		{
 			name: "Получить информацию о публичных списках",
-			f:    generalOp.GetStaffById,
+			f:    generalOp.GetPublicList,
 		},
 		{
 			name: "Получить информацию о конкретном списке",
-			f:    generalOp.GetStaffByName,
+			f:    generalOp.GetListById,
 		},
 	}
 
@@ -103,28 +113,108 @@ func NewApp(dsn, secretKey string) (*App, error) {
 		},
 	}
 
+	a.adminOptions = []handler{
+		{
+			name: "Добавить новую дораму",
+			f:    adminOp.CreateDorama,
+		},
+		{
+			name: "Добавить нового работника съемочной группы",
+			f:    adminOp.CreateStaff,
+		},
+		{
+			name: "Добавить новый постер/фото",
+			f:    adminOp.CreatePicture,
+		},
+		{
+			name: "Добавить новый эпизод",
+			f:    adminOp.CreateEpisode,
+		},
+		{
+			name: "Обновить данные дорамы",
+			f:    adminOp.UpdateDorama,
+		},
+		{
+			name: "Обновить данные стафа",
+			f:    adminOp.UpdateStaff,
+		},
+	}
+
+	a.userOptions = []handler{
+		{
+			name: "Посмотреть мои списки",
+			f:    userOp.GetMyList,
+		},
+		{
+			name: "Создать список",
+			f:    userOp.CreateList,
+		},
+		{
+			name: "Добавить дораму в список",
+			f:    userOp.AddToList,
+		},
+		{
+			name: "Добавить дораму из списка",
+			f:    userOp.DelFromList,
+		},
+		{
+			name: "Посмотреть мои избранные списки",
+			f:    userOp.GetMyFav,
+		},
+		{
+			name: "Добавить список в избранное",
+			f:    userOp.AddToFav,
+		},
+		{
+			name: "Отметить просмотренный эпизод",
+			f:    userOp.MarkEpisode,
+		},
+		{
+			name: "Посмотреть все подписки",
+			f:    userOp.GetAllSub,
+		},
+		{
+			name: "Оформить подписку",
+			f:    userOp.Subscribe,
+		},
+		{
+			name: "Отметить подписку",
+			f:    userOp.Unsubscribe,
+		},
+		{
+			name: "Пополнить баланс",
+			f:    userOp.TopUpBalance,
+		},
+	}
 	return &a, nil
 }
 
-func (a *App) printMenu() int {
-	fmt.Println("Меню:")
-	var i, cnt int
-	for i = 0; i < len(a.generalOptions); i++ {
-		fmt.Printf("%d.\t %s\n", i+1, a.generalOptions[i].name)
+func printOptions(i *int, hand []handler) {
+	for j := 0; j < len(hand); j++ {
+		fmt.Printf("%d.\t %s\n", (*i)+1, hand[j].name)
+		*i++
 	}
+}
+
+func (a *App) printMenu() int {
+	fmt.Println("\nМеню:")
+	var i, cnt int
+	printOptions(&i, a.generalOptions)
 	cnt += len(a.generalOptions)
 	if len(a.token) == 0 {
 		for j := 0; j < len(a.guestOptions); j++ {
-			i += j
 			fmt.Printf("%d.\t %s\n", i+1, a.guestOptions[j].name)
+			i += 1
 		}
 		cnt += len(a.guestOptions)
 	}
 	if len(a.token) > 0 && a.admin {
-		// админский хендлер
+		printOptions(&i, a.adminOptions)
+		cnt += len(a.adminOptions)
 	}
 	if len(a.token) > 0 && !a.admin {
-		// обычный пользовательский хендлер
+		printOptions(&i, a.userOptions)
+		cnt += len(a.userOptions)
 	}
 	fmt.Printf("------\n0.\tВыход\n")
 	return cnt + 1
@@ -140,6 +230,7 @@ func (a *App) Run() {
 			fmt.Println(err)
 			continue
 		}
+		_, _ = fmt.Scanf("\n")
 		if option < 0 || option >= cnt {
 			fmt.Println("Ошибка: некорректный пункт меню")
 			continue
@@ -149,27 +240,35 @@ func (a *App) Run() {
 			os.Exit(0)
 		}
 
-		if option < len(a.generalOptions) {
-			if err := a.generalOptions[option].f(a.token); err != nil {
-				fmt.Println("Ошибка: %w\n", err)
-				continue
+		if option <= len(a.generalOptions) {
+			if err := a.generalOptions[option-1].f(a.token); err != nil {
+				fmt.Printf("Ошибка: %s\n", err)
 			}
+			continue
 		}
+		opRole := option - len(a.generalOptions)
 		if a.token == "" {
-			opGuest := option - len(a.generalOptions)
-			token, admin, err := a.guestOptions[opGuest].f()
+
+			token, access, err := a.guestOptions[opRole-1].f()
 			if err != nil {
-				fmt.Println("Ошибка: %w\n", err)
+				fmt.Printf("Ошибка: %s\n", err)
 				continue
 			}
 			a.token = token
-			a.admin = admin
+			a.admin = access
+			continue
 		}
 		if a.token != "" && a.admin {
-
+			if err := a.adminOptions[opRole-1].f(a.token); err != nil {
+				fmt.Printf("Ошибка: %s\n", err)
+			}
+			continue
 		}
 		if a.token != "" && !a.admin {
-
+			if err := a.userOptions[opRole-1].f(a.token); err != nil {
+				fmt.Printf("Ошибка: %s\n", err)
+			}
+			continue
 		}
 	}
 }
