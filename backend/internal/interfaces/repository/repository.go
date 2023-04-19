@@ -58,7 +58,7 @@ type ISubscriptionRepo interface {
 
 type IUserRepo interface {
 	GetUser(username string) (*model.User, error)
-	CreateUser(record model.User) error
+	CreateUser(record *model.User) error
 	UpdateUser(record model.User) error
 	DeleteUser(username string) error
 }

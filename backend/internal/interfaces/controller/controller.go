@@ -8,12 +8,14 @@ type IDoramaController interface {
 	GetById(id int) (*model.Dorama, error)
 	CreateDorama(token string, record model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
+	AddStaffToDorama(idD, idS int) error
 }
 
 type IEpisodeController interface {
 	GetEpisodeList(idD int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
 	MarkWatchingEpisode(token string, idEp int) error
+	CreateEpisode(record model.Episode, idD int) error
 }
 
 type IListController interface {
