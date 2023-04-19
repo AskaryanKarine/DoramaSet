@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -16,7 +17,7 @@ var resultArrayList = []model.List{
 		Name:        "qwerty",
 		Description: "qwerty",
 		CreatorName: "qwerty",
-		Type:        "public",
+		Type:        constant.PublicType,
 		Doramas:     nil,
 	},
 }

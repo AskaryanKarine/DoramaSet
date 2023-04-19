@@ -3,6 +3,7 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
@@ -27,32 +28,26 @@ func NewUserController(UR repository.IUserRepo, pc controller.IPointsController,
 	}
 }
 
-const (
-	loginLen        = 5
-	passwordLen     = 8
-	tokenExpiration = time.Hour * 700
-)
-
 func (u *UserController) Registration(newUser model.User) (string, error) {
 	res, err := u.repo.GetUser(newUser.Username)
 	if err != nil {
 		return "", fmt.Errorf("getUser: %w", err)
 	}
-	// TODO +userExistError
+
 	if res != nil {
 		return "", fmt.Errorf("%w", errors.ErrorUserExist)
 	}
-	// TODO +loginLenError
-	if len(newUser.Username) < loginLen {
-		err := errors.LoginLenError{LoginLen: loginLen}
+
+	if len(newUser.Username) < constant.LoginLen {
+		err := errors.LoginLenError{LoginLen: constant.LoginLen}
 		return "", fmt.Errorf("%w", err)
 	}
-	// TODO +passwordLenError
-	if len(newUser.Password) < passwordLen {
-		err := errors.PasswordLenError{PasswordLen: passwordLen}
+
+	if len(newUser.Password) < constant.PasswordLen {
+		err := errors.PasswordLenError{PasswordLen: constant.PasswordLen}
 		return "", fmt.Errorf("%w", err)
 	}
-	// TODO +invalidEmailError
+
 	_, err = mail.ParseAddress(newUser.Email)
 	if err != nil {
 		return "", fmt.Errorf("%w", errors.ErrorInvalidEmail)
@@ -60,12 +55,13 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 
 	newUser.RegData = time.Now()
 	newUser.LastActive = time.Now().Add(-time.Hour * 24)
+	newUser.LastSubscribe = time.Now()
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
 	newUser.Password = string(hash)
 
-	err = u.repo.CreateUser(newUser)
+	err = u.repo.CreateUser(&newUser)
 	if err != nil {
 		return "", fmt.Errorf("createUser: %w", err)
 	}
@@ -75,8 +71,14 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
+	newUser.LastActive = time.Now()
+	err = u.repo.UpdateUser(newUser)
+	if err != nil {
+		return "", fmt.Errorf("updateUser: %w", err)
+	}
+
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExpiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(constant.TokenExpiration)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ID:        newUser.Username,
 	}
@@ -92,31 +94,25 @@ func (u *UserController) Login(username, password string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("getUser: %w", err)
 	}
-	// TODO +wrongLoginError
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return "", fmt.Errorf("%w", errors.ErrorWrongLogin)
 	}
 
-	err = u.pc.EarnPointForLogin(user)
-	if err != nil {
-		return "", fmt.Errorf("earnPointForLogin: %w", err)
-	}
-
-	user.LastActive = time.Now()
-	err = u.repo.UpdateUser(*user)
-	if err != nil {
-		return "", fmt.Errorf("updateUser: %w", err)
-	}
-
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExpiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(constant.TokenExpiration)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ID:        user.Username,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, _ := token.SignedString([]byte(u.secretKey))
+
+	err = u.UpdateActive(ss)
+	if err != nil {
+		return "", fmt.Errorf("updateActite: %w", err)
+	}
 
 	return ss, nil
 }

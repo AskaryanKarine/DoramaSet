@@ -37,4 +37,5 @@ var (
 	ErrorWrongLogin     = errors.New("wrong login or password")
 	ErrorUserExist      = errors.New("user already exists")
 	ErrorDontExistsInDB = errors.New("don't exists in db")
+	ErrorPublic         = errors.New("doesn't public list")
 )

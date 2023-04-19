@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -15,7 +16,7 @@ import (
 
 func getToken(newUser model.User, secretKey string) string {
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExpiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(constant.TokenExpiration)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ID:        newUser.Username,
 	}
@@ -56,7 +57,7 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
+				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil).UpdateUserMock.Return(nil),
 				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey: secretKey,
 			},
@@ -218,17 +219,6 @@ func TestLoginUser(t *testing.T) {
 				secretKey: secretKey,
 			},
 			arg:    argument{"123456789", "123456"},
-			result: "",
-			isNeg:  true,
-		},
-		{
-			name: "earn error",
-			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
-				secretKey: secretKey,
-			},
-			arg:    argument{"123456789", "1"},
 			result: "",
 			isNeg:  true,
 		},

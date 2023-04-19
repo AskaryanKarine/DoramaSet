@@ -3,6 +3,7 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
@@ -63,7 +64,7 @@ func (l *ListController) GetListById(token string, id int) (*model.List, error) 
 	if err != nil {
 		return nil, fmt.Errorf("getListById: %w", err)
 	}
-	if res.Type != "public" {
+	if res.Type != constant.PublicType {
 		user, err := l.uc.AuthByToken(token)
 		if err != nil {
 			return nil, fmt.Errorf("auth: %w", err)
@@ -85,7 +86,7 @@ func (l *ListController) AddToList(token string, idL, idD int) error {
 	if err != nil {
 		return fmt.Errorf("getListId: %w", err)
 	}
-	// TODO +creatorAccessError
+
 	if user.Username != list.CreatorName {
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
@@ -109,7 +110,7 @@ func (l *ListController) DelFromList(token string, idL, idD int) error {
 	if err != nil {
 		return fmt.Errorf("getListById: %w", err)
 	}
-	// TODO +creatorAccessError
+
 	if user.Username != list.CreatorName {
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
@@ -136,7 +137,6 @@ func (l *ListController) DelList(token string, idL int) error {
 		return fmt.Errorf("getListId: %w", err)
 	}
 
-	// TODO +creatorAccessError
 	if user.Username != list.CreatorName {
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
