@@ -62,7 +62,7 @@ func TestRegistrationUser(t *testing.T) {
 				secretKey: secretKey,
 			},
 			arg:    correctUser,
-			result: getToken(correctUser, secretKey),
+			result: correctUser.Username,
 			isNeg:  false,
 		},
 		{
@@ -155,7 +155,11 @@ func TestRegistrationUser(t *testing.T) {
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Registration() error = %v, expect = %v", err, testCase.isNeg)
 			}
-			if !reflect.DeepEqual(res, testCase.result) {
+			var claims jwt.RegisteredClaims
+			_, err = jwt.ParseWithClaims(res, &claims, func(t *jwt.Token) (interface{}, error) {
+				return []byte(secretKey), nil
+			})
+			if (err != nil) != testCase.isNeg || !reflect.DeepEqual(claims.ID, testCase.result) {
 				t.Errorf("Registration(): got: %v, expect = %v", res, testCase.result)
 			}
 		})
@@ -197,7 +201,7 @@ func TestLoginUser(t *testing.T) {
 				secretKey: secretKey,
 			},
 			arg:    argument{"123456789", myString},
-			result: getToken(correctUser, secretKey),
+			result: correctUser.Username,
 			isNeg:  false,
 		},
 		{
@@ -246,7 +250,11 @@ func TestLoginUser(t *testing.T) {
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Login() error = %v, expect = %v", err, testCase.isNeg)
 			}
-			if !reflect.DeepEqual(res, testCase.result) {
+			var claims jwt.RegisteredClaims
+			_, err = jwt.ParseWithClaims(res, &claims, func(t *jwt.Token) (interface{}, error) {
+				return []byte(secretKey), nil
+			})
+			if (err != nil) != testCase.isNeg || !reflect.DeepEqual(res, testCase.result) {
 				t.Errorf("Login() got: %v, expect = %v", res, testCase.result)
 			}
 		})

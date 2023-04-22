@@ -36,7 +36,7 @@ func (p *PictureController) GetListByStaff(idS int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p *PictureController) CreatePicture(token string, record model.Picture, idT int, table string) error {
+func (p *PictureController) CreatePicture(token string, record model.Picture) error {
 	user, err := p.uc.AuthByToken(token)
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
@@ -46,7 +46,40 @@ func (p *PictureController) CreatePicture(token string, record model.Picture, id
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	_, err = p.repo.CreatePicture(record, idT, table)
+	_, err = p.repo.CreatePicture(record)
+	if err != nil {
+		return fmt.Errorf("createPicture: %w", err)
+	}
+	return nil
+}
+
+func (p *PictureController) AddPictureToStaff(token string, record model.Picture, id int) error {
+	user, err := p.uc.AuthByToken(token)
+	if err != nil {
+		return fmt.Errorf("authToken: %w", err)
+	}
+
+	if !user.IsAdmin {
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
+	}
+
+	err = p.repo.AddPictureToStaff(record, id)
+	if err != nil {
+		return fmt.Errorf("addPictureToStaff: %w", err)
+	}
+	return nil
+}
+func (p *PictureController) AddPictureToDorama(token string, record model.Picture, id int) error {
+	user, err := p.uc.AuthByToken(token)
+	if err != nil {
+		return fmt.Errorf("authToken: %w", err)
+	}
+
+	if !user.IsAdmin {
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
+	}
+
+	err = p.repo.AddPictureToDorama(record, id)
 	if err != nil {
 		return fmt.Errorf("createPicture: %w", err)
 	}

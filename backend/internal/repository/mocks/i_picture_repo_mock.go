@@ -17,8 +17,20 @@ import (
 type IPictureRepoMock struct {
 	t minimock.Tester
 
-	funcCreatePicture          func(record model.Picture, id int, tbl string) (i1 int, err error)
-	inspectFuncCreatePicture   func(record model.Picture, id int, tbl string)
+	funcAddPictureToDorama          func(record model.Picture, id int) (err error)
+	inspectFuncAddPictureToDorama   func(record model.Picture, id int)
+	afterAddPictureToDoramaCounter  uint64
+	beforeAddPictureToDoramaCounter uint64
+	AddPictureToDoramaMock          mIPictureRepoMockAddPictureToDorama
+
+	funcAddPictureToStaff          func(record model.Picture, id int) (err error)
+	inspectFuncAddPictureToStaff   func(record model.Picture, id int)
+	afterAddPictureToStaffCounter  uint64
+	beforeAddPictureToStaffCounter uint64
+	AddPictureToStaffMock          mIPictureRepoMockAddPictureToStaff
+
+	funcCreatePicture          func(record model.Picture) (i1 int, err error)
+	inspectFuncCreatePicture   func(record model.Picture)
 	afterCreatePictureCounter  uint64
 	beforeCreatePictureCounter uint64
 	CreatePictureMock          mIPictureRepoMockCreatePicture
@@ -49,6 +61,12 @@ func NewIPictureRepoMock(t minimock.Tester) *IPictureRepoMock {
 		controller.RegisterMocker(m)
 	}
 
+	m.AddPictureToDoramaMock = mIPictureRepoMockAddPictureToDorama{mock: m}
+	m.AddPictureToDoramaMock.callArgs = []*IPictureRepoMockAddPictureToDoramaParams{}
+
+	m.AddPictureToStaffMock = mIPictureRepoMockAddPictureToStaff{mock: m}
+	m.AddPictureToStaffMock.callArgs = []*IPictureRepoMockAddPictureToStaffParams{}
+
 	m.CreatePictureMock = mIPictureRepoMockCreatePicture{mock: m}
 	m.CreatePictureMock.callArgs = []*IPictureRepoMockCreatePictureParams{}
 
@@ -62,6 +80,438 @@ func NewIPictureRepoMock(t minimock.Tester) *IPictureRepoMock {
 	m.GetListStaffMock.callArgs = []*IPictureRepoMockGetListStaffParams{}
 
 	return m
+}
+
+type mIPictureRepoMockAddPictureToDorama struct {
+	mock               *IPictureRepoMock
+	defaultExpectation *IPictureRepoMockAddPictureToDoramaExpectation
+	expectations       []*IPictureRepoMockAddPictureToDoramaExpectation
+
+	callArgs []*IPictureRepoMockAddPictureToDoramaParams
+	mutex    sync.RWMutex
+}
+
+// IPictureRepoMockAddPictureToDoramaExpectation specifies expectation struct of the IPictureRepo.AddPictureToDorama
+type IPictureRepoMockAddPictureToDoramaExpectation struct {
+	mock    *IPictureRepoMock
+	params  *IPictureRepoMockAddPictureToDoramaParams
+	results *IPictureRepoMockAddPictureToDoramaResults
+	Counter uint64
+}
+
+// IPictureRepoMockAddPictureToDoramaParams contains parameters of the IPictureRepo.AddPictureToDorama
+type IPictureRepoMockAddPictureToDoramaParams struct {
+	record model.Picture
+	id     int
+}
+
+// IPictureRepoMockAddPictureToDoramaResults contains results of the IPictureRepo.AddPictureToDorama
+type IPictureRepoMockAddPictureToDoramaResults struct {
+	err error
+}
+
+// Expect sets up expected params for IPictureRepo.AddPictureToDorama
+func (mmAddPictureToDorama *mIPictureRepoMockAddPictureToDorama) Expect(record model.Picture, id int) *mIPictureRepoMockAddPictureToDorama {
+	if mmAddPictureToDorama.mock.funcAddPictureToDorama != nil {
+		mmAddPictureToDorama.mock.t.Fatalf("IPictureRepoMock.AddPictureToDorama mock is already set by Set")
+	}
+
+	if mmAddPictureToDorama.defaultExpectation == nil {
+		mmAddPictureToDorama.defaultExpectation = &IPictureRepoMockAddPictureToDoramaExpectation{}
+	}
+
+	mmAddPictureToDorama.defaultExpectation.params = &IPictureRepoMockAddPictureToDoramaParams{record, id}
+	for _, e := range mmAddPictureToDorama.expectations {
+		if minimock.Equal(e.params, mmAddPictureToDorama.defaultExpectation.params) {
+			mmAddPictureToDorama.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmAddPictureToDorama.defaultExpectation.params)
+		}
+	}
+
+	return mmAddPictureToDorama
+}
+
+// Inspect accepts an inspector function that has same arguments as the IPictureRepo.AddPictureToDorama
+func (mmAddPictureToDorama *mIPictureRepoMockAddPictureToDorama) Inspect(f func(record model.Picture, id int)) *mIPictureRepoMockAddPictureToDorama {
+	if mmAddPictureToDorama.mock.inspectFuncAddPictureToDorama != nil {
+		mmAddPictureToDorama.mock.t.Fatalf("Inspect function is already set for IPictureRepoMock.AddPictureToDorama")
+	}
+
+	mmAddPictureToDorama.mock.inspectFuncAddPictureToDorama = f
+
+	return mmAddPictureToDorama
+}
+
+// Return sets up results that will be returned by IPictureRepo.AddPictureToDorama
+func (mmAddPictureToDorama *mIPictureRepoMockAddPictureToDorama) Return(err error) *IPictureRepoMock {
+	if mmAddPictureToDorama.mock.funcAddPictureToDorama != nil {
+		mmAddPictureToDorama.mock.t.Fatalf("IPictureRepoMock.AddPictureToDorama mock is already set by Set")
+	}
+
+	if mmAddPictureToDorama.defaultExpectation == nil {
+		mmAddPictureToDorama.defaultExpectation = &IPictureRepoMockAddPictureToDoramaExpectation{mock: mmAddPictureToDorama.mock}
+	}
+	mmAddPictureToDorama.defaultExpectation.results = &IPictureRepoMockAddPictureToDoramaResults{err}
+	return mmAddPictureToDorama.mock
+}
+
+// Set uses given function f to mock the IPictureRepo.AddPictureToDorama method
+func (mmAddPictureToDorama *mIPictureRepoMockAddPictureToDorama) Set(f func(record model.Picture, id int) (err error)) *IPictureRepoMock {
+	if mmAddPictureToDorama.defaultExpectation != nil {
+		mmAddPictureToDorama.mock.t.Fatalf("Default expectation is already set for the IPictureRepo.AddPictureToDorama method")
+	}
+
+	if len(mmAddPictureToDorama.expectations) > 0 {
+		mmAddPictureToDorama.mock.t.Fatalf("Some expectations are already set for the IPictureRepo.AddPictureToDorama method")
+	}
+
+	mmAddPictureToDorama.mock.funcAddPictureToDorama = f
+	return mmAddPictureToDorama.mock
+}
+
+// When sets expectation for the IPictureRepo.AddPictureToDorama which will trigger the result defined by the following
+// Then helper
+func (mmAddPictureToDorama *mIPictureRepoMockAddPictureToDorama) When(record model.Picture, id int) *IPictureRepoMockAddPictureToDoramaExpectation {
+	if mmAddPictureToDorama.mock.funcAddPictureToDorama != nil {
+		mmAddPictureToDorama.mock.t.Fatalf("IPictureRepoMock.AddPictureToDorama mock is already set by Set")
+	}
+
+	expectation := &IPictureRepoMockAddPictureToDoramaExpectation{
+		mock:   mmAddPictureToDorama.mock,
+		params: &IPictureRepoMockAddPictureToDoramaParams{record, id},
+	}
+	mmAddPictureToDorama.expectations = append(mmAddPictureToDorama.expectations, expectation)
+	return expectation
+}
+
+// Then sets up IPictureRepo.AddPictureToDorama return parameters for the expectation previously defined by the When method
+func (e *IPictureRepoMockAddPictureToDoramaExpectation) Then(err error) *IPictureRepoMock {
+	e.results = &IPictureRepoMockAddPictureToDoramaResults{err}
+	return e.mock
+}
+
+// AddPictureToDorama implements repository.IPictureRepo
+func (mmAddPictureToDorama *IPictureRepoMock) AddPictureToDorama(record model.Picture, id int) (err error) {
+	mm_atomic.AddUint64(&mmAddPictureToDorama.beforeAddPictureToDoramaCounter, 1)
+	defer mm_atomic.AddUint64(&mmAddPictureToDorama.afterAddPictureToDoramaCounter, 1)
+
+	if mmAddPictureToDorama.inspectFuncAddPictureToDorama != nil {
+		mmAddPictureToDorama.inspectFuncAddPictureToDorama(record, id)
+	}
+
+	mm_params := &IPictureRepoMockAddPictureToDoramaParams{record, id}
+
+	// Record call args
+	mmAddPictureToDorama.AddPictureToDoramaMock.mutex.Lock()
+	mmAddPictureToDorama.AddPictureToDoramaMock.callArgs = append(mmAddPictureToDorama.AddPictureToDoramaMock.callArgs, mm_params)
+	mmAddPictureToDorama.AddPictureToDoramaMock.mutex.Unlock()
+
+	for _, e := range mmAddPictureToDorama.AddPictureToDoramaMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmAddPictureToDorama.AddPictureToDoramaMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmAddPictureToDorama.AddPictureToDoramaMock.defaultExpectation.Counter, 1)
+		mm_want := mmAddPictureToDorama.AddPictureToDoramaMock.defaultExpectation.params
+		mm_got := IPictureRepoMockAddPictureToDoramaParams{record, id}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmAddPictureToDorama.t.Errorf("IPictureRepoMock.AddPictureToDorama got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmAddPictureToDorama.AddPictureToDoramaMock.defaultExpectation.results
+		if mm_results == nil {
+			mmAddPictureToDorama.t.Fatal("No results are set for the IPictureRepoMock.AddPictureToDorama")
+		}
+		return (*mm_results).err
+	}
+	if mmAddPictureToDorama.funcAddPictureToDorama != nil {
+		return mmAddPictureToDorama.funcAddPictureToDorama(record, id)
+	}
+	mmAddPictureToDorama.t.Fatalf("Unexpected call to IPictureRepoMock.AddPictureToDorama. %v %v", record, id)
+	return
+}
+
+// AddPictureToDoramaAfterCounter returns a count of finished IPictureRepoMock.AddPictureToDorama invocations
+func (mmAddPictureToDorama *IPictureRepoMock) AddPictureToDoramaAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddPictureToDorama.afterAddPictureToDoramaCounter)
+}
+
+// AddPictureToDoramaBeforeCounter returns a count of IPictureRepoMock.AddPictureToDorama invocations
+func (mmAddPictureToDorama *IPictureRepoMock) AddPictureToDoramaBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddPictureToDorama.beforeAddPictureToDoramaCounter)
+}
+
+// Calls returns a list of arguments used in each call to IPictureRepoMock.AddPictureToDorama.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmAddPictureToDorama *mIPictureRepoMockAddPictureToDorama) Calls() []*IPictureRepoMockAddPictureToDoramaParams {
+	mmAddPictureToDorama.mutex.RLock()
+
+	argCopy := make([]*IPictureRepoMockAddPictureToDoramaParams, len(mmAddPictureToDorama.callArgs))
+	copy(argCopy, mmAddPictureToDorama.callArgs)
+
+	mmAddPictureToDorama.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockAddPictureToDoramaDone returns true if the count of the AddPictureToDorama invocations corresponds
+// the number of defined expectations
+func (m *IPictureRepoMock) MinimockAddPictureToDoramaDone() bool {
+	for _, e := range m.AddPictureToDoramaMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddPictureToDoramaMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddPictureToDoramaCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddPictureToDorama != nil && mm_atomic.LoadUint64(&m.afterAddPictureToDoramaCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockAddPictureToDoramaInspect logs each unmet expectation
+func (m *IPictureRepoMock) MinimockAddPictureToDoramaInspect() {
+	for _, e := range m.AddPictureToDoramaMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to IPictureRepoMock.AddPictureToDorama with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddPictureToDoramaMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddPictureToDoramaCounter) < 1 {
+		if m.AddPictureToDoramaMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to IPictureRepoMock.AddPictureToDorama")
+		} else {
+			m.t.Errorf("Expected call to IPictureRepoMock.AddPictureToDorama with params: %#v", *m.AddPictureToDoramaMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddPictureToDorama != nil && mm_atomic.LoadUint64(&m.afterAddPictureToDoramaCounter) < 1 {
+		m.t.Error("Expected call to IPictureRepoMock.AddPictureToDorama")
+	}
+}
+
+type mIPictureRepoMockAddPictureToStaff struct {
+	mock               *IPictureRepoMock
+	defaultExpectation *IPictureRepoMockAddPictureToStaffExpectation
+	expectations       []*IPictureRepoMockAddPictureToStaffExpectation
+
+	callArgs []*IPictureRepoMockAddPictureToStaffParams
+	mutex    sync.RWMutex
+}
+
+// IPictureRepoMockAddPictureToStaffExpectation specifies expectation struct of the IPictureRepo.AddPictureToStaff
+type IPictureRepoMockAddPictureToStaffExpectation struct {
+	mock    *IPictureRepoMock
+	params  *IPictureRepoMockAddPictureToStaffParams
+	results *IPictureRepoMockAddPictureToStaffResults
+	Counter uint64
+}
+
+// IPictureRepoMockAddPictureToStaffParams contains parameters of the IPictureRepo.AddPictureToStaff
+type IPictureRepoMockAddPictureToStaffParams struct {
+	record model.Picture
+	id     int
+}
+
+// IPictureRepoMockAddPictureToStaffResults contains results of the IPictureRepo.AddPictureToStaff
+type IPictureRepoMockAddPictureToStaffResults struct {
+	err error
+}
+
+// Expect sets up expected params for IPictureRepo.AddPictureToStaff
+func (mmAddPictureToStaff *mIPictureRepoMockAddPictureToStaff) Expect(record model.Picture, id int) *mIPictureRepoMockAddPictureToStaff {
+	if mmAddPictureToStaff.mock.funcAddPictureToStaff != nil {
+		mmAddPictureToStaff.mock.t.Fatalf("IPictureRepoMock.AddPictureToStaff mock is already set by Set")
+	}
+
+	if mmAddPictureToStaff.defaultExpectation == nil {
+		mmAddPictureToStaff.defaultExpectation = &IPictureRepoMockAddPictureToStaffExpectation{}
+	}
+
+	mmAddPictureToStaff.defaultExpectation.params = &IPictureRepoMockAddPictureToStaffParams{record, id}
+	for _, e := range mmAddPictureToStaff.expectations {
+		if minimock.Equal(e.params, mmAddPictureToStaff.defaultExpectation.params) {
+			mmAddPictureToStaff.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmAddPictureToStaff.defaultExpectation.params)
+		}
+	}
+
+	return mmAddPictureToStaff
+}
+
+// Inspect accepts an inspector function that has same arguments as the IPictureRepo.AddPictureToStaff
+func (mmAddPictureToStaff *mIPictureRepoMockAddPictureToStaff) Inspect(f func(record model.Picture, id int)) *mIPictureRepoMockAddPictureToStaff {
+	if mmAddPictureToStaff.mock.inspectFuncAddPictureToStaff != nil {
+		mmAddPictureToStaff.mock.t.Fatalf("Inspect function is already set for IPictureRepoMock.AddPictureToStaff")
+	}
+
+	mmAddPictureToStaff.mock.inspectFuncAddPictureToStaff = f
+
+	return mmAddPictureToStaff
+}
+
+// Return sets up results that will be returned by IPictureRepo.AddPictureToStaff
+func (mmAddPictureToStaff *mIPictureRepoMockAddPictureToStaff) Return(err error) *IPictureRepoMock {
+	if mmAddPictureToStaff.mock.funcAddPictureToStaff != nil {
+		mmAddPictureToStaff.mock.t.Fatalf("IPictureRepoMock.AddPictureToStaff mock is already set by Set")
+	}
+
+	if mmAddPictureToStaff.defaultExpectation == nil {
+		mmAddPictureToStaff.defaultExpectation = &IPictureRepoMockAddPictureToStaffExpectation{mock: mmAddPictureToStaff.mock}
+	}
+	mmAddPictureToStaff.defaultExpectation.results = &IPictureRepoMockAddPictureToStaffResults{err}
+	return mmAddPictureToStaff.mock
+}
+
+// Set uses given function f to mock the IPictureRepo.AddPictureToStaff method
+func (mmAddPictureToStaff *mIPictureRepoMockAddPictureToStaff) Set(f func(record model.Picture, id int) (err error)) *IPictureRepoMock {
+	if mmAddPictureToStaff.defaultExpectation != nil {
+		mmAddPictureToStaff.mock.t.Fatalf("Default expectation is already set for the IPictureRepo.AddPictureToStaff method")
+	}
+
+	if len(mmAddPictureToStaff.expectations) > 0 {
+		mmAddPictureToStaff.mock.t.Fatalf("Some expectations are already set for the IPictureRepo.AddPictureToStaff method")
+	}
+
+	mmAddPictureToStaff.mock.funcAddPictureToStaff = f
+	return mmAddPictureToStaff.mock
+}
+
+// When sets expectation for the IPictureRepo.AddPictureToStaff which will trigger the result defined by the following
+// Then helper
+func (mmAddPictureToStaff *mIPictureRepoMockAddPictureToStaff) When(record model.Picture, id int) *IPictureRepoMockAddPictureToStaffExpectation {
+	if mmAddPictureToStaff.mock.funcAddPictureToStaff != nil {
+		mmAddPictureToStaff.mock.t.Fatalf("IPictureRepoMock.AddPictureToStaff mock is already set by Set")
+	}
+
+	expectation := &IPictureRepoMockAddPictureToStaffExpectation{
+		mock:   mmAddPictureToStaff.mock,
+		params: &IPictureRepoMockAddPictureToStaffParams{record, id},
+	}
+	mmAddPictureToStaff.expectations = append(mmAddPictureToStaff.expectations, expectation)
+	return expectation
+}
+
+// Then sets up IPictureRepo.AddPictureToStaff return parameters for the expectation previously defined by the When method
+func (e *IPictureRepoMockAddPictureToStaffExpectation) Then(err error) *IPictureRepoMock {
+	e.results = &IPictureRepoMockAddPictureToStaffResults{err}
+	return e.mock
+}
+
+// AddPictureToStaff implements repository.IPictureRepo
+func (mmAddPictureToStaff *IPictureRepoMock) AddPictureToStaff(record model.Picture, id int) (err error) {
+	mm_atomic.AddUint64(&mmAddPictureToStaff.beforeAddPictureToStaffCounter, 1)
+	defer mm_atomic.AddUint64(&mmAddPictureToStaff.afterAddPictureToStaffCounter, 1)
+
+	if mmAddPictureToStaff.inspectFuncAddPictureToStaff != nil {
+		mmAddPictureToStaff.inspectFuncAddPictureToStaff(record, id)
+	}
+
+	mm_params := &IPictureRepoMockAddPictureToStaffParams{record, id}
+
+	// Record call args
+	mmAddPictureToStaff.AddPictureToStaffMock.mutex.Lock()
+	mmAddPictureToStaff.AddPictureToStaffMock.callArgs = append(mmAddPictureToStaff.AddPictureToStaffMock.callArgs, mm_params)
+	mmAddPictureToStaff.AddPictureToStaffMock.mutex.Unlock()
+
+	for _, e := range mmAddPictureToStaff.AddPictureToStaffMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.err
+		}
+	}
+
+	if mmAddPictureToStaff.AddPictureToStaffMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmAddPictureToStaff.AddPictureToStaffMock.defaultExpectation.Counter, 1)
+		mm_want := mmAddPictureToStaff.AddPictureToStaffMock.defaultExpectation.params
+		mm_got := IPictureRepoMockAddPictureToStaffParams{record, id}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmAddPictureToStaff.t.Errorf("IPictureRepoMock.AddPictureToStaff got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmAddPictureToStaff.AddPictureToStaffMock.defaultExpectation.results
+		if mm_results == nil {
+			mmAddPictureToStaff.t.Fatal("No results are set for the IPictureRepoMock.AddPictureToStaff")
+		}
+		return (*mm_results).err
+	}
+	if mmAddPictureToStaff.funcAddPictureToStaff != nil {
+		return mmAddPictureToStaff.funcAddPictureToStaff(record, id)
+	}
+	mmAddPictureToStaff.t.Fatalf("Unexpected call to IPictureRepoMock.AddPictureToStaff. %v %v", record, id)
+	return
+}
+
+// AddPictureToStaffAfterCounter returns a count of finished IPictureRepoMock.AddPictureToStaff invocations
+func (mmAddPictureToStaff *IPictureRepoMock) AddPictureToStaffAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddPictureToStaff.afterAddPictureToStaffCounter)
+}
+
+// AddPictureToStaffBeforeCounter returns a count of IPictureRepoMock.AddPictureToStaff invocations
+func (mmAddPictureToStaff *IPictureRepoMock) AddPictureToStaffBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmAddPictureToStaff.beforeAddPictureToStaffCounter)
+}
+
+// Calls returns a list of arguments used in each call to IPictureRepoMock.AddPictureToStaff.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmAddPictureToStaff *mIPictureRepoMockAddPictureToStaff) Calls() []*IPictureRepoMockAddPictureToStaffParams {
+	mmAddPictureToStaff.mutex.RLock()
+
+	argCopy := make([]*IPictureRepoMockAddPictureToStaffParams, len(mmAddPictureToStaff.callArgs))
+	copy(argCopy, mmAddPictureToStaff.callArgs)
+
+	mmAddPictureToStaff.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockAddPictureToStaffDone returns true if the count of the AddPictureToStaff invocations corresponds
+// the number of defined expectations
+func (m *IPictureRepoMock) MinimockAddPictureToStaffDone() bool {
+	for _, e := range m.AddPictureToStaffMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddPictureToStaffMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddPictureToStaffCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddPictureToStaff != nil && mm_atomic.LoadUint64(&m.afterAddPictureToStaffCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockAddPictureToStaffInspect logs each unmet expectation
+func (m *IPictureRepoMock) MinimockAddPictureToStaffInspect() {
+	for _, e := range m.AddPictureToStaffMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to IPictureRepoMock.AddPictureToStaff with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.AddPictureToStaffMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterAddPictureToStaffCounter) < 1 {
+		if m.AddPictureToStaffMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to IPictureRepoMock.AddPictureToStaff")
+		} else {
+			m.t.Errorf("Expected call to IPictureRepoMock.AddPictureToStaff with params: %#v", *m.AddPictureToStaffMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcAddPictureToStaff != nil && mm_atomic.LoadUint64(&m.afterAddPictureToStaffCounter) < 1 {
+		m.t.Error("Expected call to IPictureRepoMock.AddPictureToStaff")
+	}
 }
 
 type mIPictureRepoMockCreatePicture struct {
@@ -84,8 +534,6 @@ type IPictureRepoMockCreatePictureExpectation struct {
 // IPictureRepoMockCreatePictureParams contains parameters of the IPictureRepo.CreatePicture
 type IPictureRepoMockCreatePictureParams struct {
 	record model.Picture
-	id     int
-	tbl    string
 }
 
 // IPictureRepoMockCreatePictureResults contains results of the IPictureRepo.CreatePicture
@@ -95,7 +543,7 @@ type IPictureRepoMockCreatePictureResults struct {
 }
 
 // Expect sets up expected params for IPictureRepo.CreatePicture
-func (mmCreatePicture *mIPictureRepoMockCreatePicture) Expect(record model.Picture, id int, tbl string) *mIPictureRepoMockCreatePicture {
+func (mmCreatePicture *mIPictureRepoMockCreatePicture) Expect(record model.Picture) *mIPictureRepoMockCreatePicture {
 	if mmCreatePicture.mock.funcCreatePicture != nil {
 		mmCreatePicture.mock.t.Fatalf("IPictureRepoMock.CreatePicture mock is already set by Set")
 	}
@@ -104,7 +552,7 @@ func (mmCreatePicture *mIPictureRepoMockCreatePicture) Expect(record model.Pictu
 		mmCreatePicture.defaultExpectation = &IPictureRepoMockCreatePictureExpectation{}
 	}
 
-	mmCreatePicture.defaultExpectation.params = &IPictureRepoMockCreatePictureParams{record, id, tbl}
+	mmCreatePicture.defaultExpectation.params = &IPictureRepoMockCreatePictureParams{record}
 	for _, e := range mmCreatePicture.expectations {
 		if minimock.Equal(e.params, mmCreatePicture.defaultExpectation.params) {
 			mmCreatePicture.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreatePicture.defaultExpectation.params)
@@ -115,7 +563,7 @@ func (mmCreatePicture *mIPictureRepoMockCreatePicture) Expect(record model.Pictu
 }
 
 // Inspect accepts an inspector function that has same arguments as the IPictureRepo.CreatePicture
-func (mmCreatePicture *mIPictureRepoMockCreatePicture) Inspect(f func(record model.Picture, id int, tbl string)) *mIPictureRepoMockCreatePicture {
+func (mmCreatePicture *mIPictureRepoMockCreatePicture) Inspect(f func(record model.Picture)) *mIPictureRepoMockCreatePicture {
 	if mmCreatePicture.mock.inspectFuncCreatePicture != nil {
 		mmCreatePicture.mock.t.Fatalf("Inspect function is already set for IPictureRepoMock.CreatePicture")
 	}
@@ -139,7 +587,7 @@ func (mmCreatePicture *mIPictureRepoMockCreatePicture) Return(i1 int, err error)
 }
 
 // Set uses given function f to mock the IPictureRepo.CreatePicture method
-func (mmCreatePicture *mIPictureRepoMockCreatePicture) Set(f func(record model.Picture, id int, tbl string) (i1 int, err error)) *IPictureRepoMock {
+func (mmCreatePicture *mIPictureRepoMockCreatePicture) Set(f func(record model.Picture) (i1 int, err error)) *IPictureRepoMock {
 	if mmCreatePicture.defaultExpectation != nil {
 		mmCreatePicture.mock.t.Fatalf("Default expectation is already set for the IPictureRepo.CreatePicture method")
 	}
@@ -154,14 +602,14 @@ func (mmCreatePicture *mIPictureRepoMockCreatePicture) Set(f func(record model.P
 
 // When sets expectation for the IPictureRepo.CreatePicture which will trigger the result defined by the following
 // Then helper
-func (mmCreatePicture *mIPictureRepoMockCreatePicture) When(record model.Picture, id int, tbl string) *IPictureRepoMockCreatePictureExpectation {
+func (mmCreatePicture *mIPictureRepoMockCreatePicture) When(record model.Picture) *IPictureRepoMockCreatePictureExpectation {
 	if mmCreatePicture.mock.funcCreatePicture != nil {
 		mmCreatePicture.mock.t.Fatalf("IPictureRepoMock.CreatePicture mock is already set by Set")
 	}
 
 	expectation := &IPictureRepoMockCreatePictureExpectation{
 		mock:   mmCreatePicture.mock,
-		params: &IPictureRepoMockCreatePictureParams{record, id, tbl},
+		params: &IPictureRepoMockCreatePictureParams{record},
 	}
 	mmCreatePicture.expectations = append(mmCreatePicture.expectations, expectation)
 	return expectation
@@ -174,15 +622,15 @@ func (e *IPictureRepoMockCreatePictureExpectation) Then(i1 int, err error) *IPic
 }
 
 // CreatePicture implements repository.IPictureRepo
-func (mmCreatePicture *IPictureRepoMock) CreatePicture(record model.Picture, id int, tbl string) (i1 int, err error) {
+func (mmCreatePicture *IPictureRepoMock) CreatePicture(record model.Picture) (i1 int, err error) {
 	mm_atomic.AddUint64(&mmCreatePicture.beforeCreatePictureCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreatePicture.afterCreatePictureCounter, 1)
 
 	if mmCreatePicture.inspectFuncCreatePicture != nil {
-		mmCreatePicture.inspectFuncCreatePicture(record, id, tbl)
+		mmCreatePicture.inspectFuncCreatePicture(record)
 	}
 
-	mm_params := &IPictureRepoMockCreatePictureParams{record, id, tbl}
+	mm_params := &IPictureRepoMockCreatePictureParams{record}
 
 	// Record call args
 	mmCreatePicture.CreatePictureMock.mutex.Lock()
@@ -199,7 +647,7 @@ func (mmCreatePicture *IPictureRepoMock) CreatePicture(record model.Picture, id 
 	if mmCreatePicture.CreatePictureMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCreatePicture.CreatePictureMock.defaultExpectation.Counter, 1)
 		mm_want := mmCreatePicture.CreatePictureMock.defaultExpectation.params
-		mm_got := IPictureRepoMockCreatePictureParams{record, id, tbl}
+		mm_got := IPictureRepoMockCreatePictureParams{record}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmCreatePicture.t.Errorf("IPictureRepoMock.CreatePicture got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -211,9 +659,9 @@ func (mmCreatePicture *IPictureRepoMock) CreatePicture(record model.Picture, id 
 		return (*mm_results).i1, (*mm_results).err
 	}
 	if mmCreatePicture.funcCreatePicture != nil {
-		return mmCreatePicture.funcCreatePicture(record, id, tbl)
+		return mmCreatePicture.funcCreatePicture(record)
 	}
-	mmCreatePicture.t.Fatalf("Unexpected call to IPictureRepoMock.CreatePicture. %v %v %v", record, id, tbl)
+	mmCreatePicture.t.Fatalf("Unexpected call to IPictureRepoMock.CreatePicture. %v", record)
 	return
 }
 
@@ -932,6 +1380,10 @@ func (m *IPictureRepoMock) MinimockGetListStaffInspect() {
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *IPictureRepoMock) MinimockFinish() {
 	if !m.minimockDone() {
+		m.MinimockAddPictureToDoramaInspect()
+
+		m.MinimockAddPictureToStaffInspect()
+
 		m.MinimockCreatePictureInspect()
 
 		m.MinimockDeletePictureInspect()
@@ -962,6 +1414,8 @@ func (m *IPictureRepoMock) MinimockWait(timeout mm_time.Duration) {
 func (m *IPictureRepoMock) minimockDone() bool {
 	done := true
 	return done &&
+		m.MinimockAddPictureToDoramaDone() &&
+		m.MinimockAddPictureToStaffDone() &&
 		m.MinimockCreatePictureDone() &&
 		m.MinimockDeletePictureDone() &&
 		m.MinimockGetListDoramaDone() &&
