@@ -33,7 +33,7 @@ type IListController interface {
 type IPictureController interface {
 	GetListByDorama(idD int) ([]model.Picture, error)
 	GetListByStaff(idS int) ([]model.Picture, error)
-	CreatePicture(token string, record model.Picture) error
+	CreatePicture(token string, record *model.Picture) error
 	AddPictureToStaff(token string, record model.Picture, id int) error
 	AddPictureToDorama(token string, record model.Picture, id int) error
 }

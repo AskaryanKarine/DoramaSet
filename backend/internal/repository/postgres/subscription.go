@@ -78,7 +78,7 @@ func (s *SubscriptionRepo) GetSubscriptionByPrice(price int) (*model.Subscriptio
 		Id:          sub.Id,
 		Description: sub.Description,
 		Cost:        sub.Cost,
-		Duration:    time.Duration(sub.Duration) * time.Second}
+		Duration:    sub.Duration * time.Second}
 
 	return &res, nil
 }

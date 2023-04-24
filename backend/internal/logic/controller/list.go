@@ -64,7 +64,7 @@ func (l *ListController) GetListById(token string, id int) (*model.List, error) 
 	if err != nil {
 		return nil, fmt.Errorf("getListById: %w", err)
 	}
-	if res.Type != constant.PublicType {
+	if res.Type != constant.PublicList {
 		user, err := l.uc.AuthByToken(token)
 		if err != nil {
 			return nil, fmt.Errorf("auth: %w", err)

@@ -51,7 +51,7 @@ func (l *ListRepo) GetUserLists(username string) ([]model.List, error) {
 			Name:        r.NameList,
 			Description: r.Description,
 			CreatorName: r.NameCreator,
-			Type:        r.Type,
+			Type:        constant.ListType[r.Type],
 			Doramas:     dorama,
 		}
 		res = append(res, tmp)
@@ -64,7 +64,8 @@ func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 		resDB []listModel
 		res   []model.List
 	)
-	result := l.db.Table("dorama_set.list l").Where("l.type = ?", constant.PublicType).Find(&resDB)
+	listType, _ := constant.GetTypeList(constant.PublicList)
+	result := l.db.Table("dorama_set.list l").Where("l.type = ?", listType).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -81,7 +82,7 @@ func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 			Name:        r.NameList,
 			Description: r.Description,
 			CreatorName: r.NameCreator,
-			Type:        r.Type,
+			Type:        constant.ListType[r.Type],
 			Doramas:     dorama,
 		}
 		res = append(res, tmp)
@@ -107,17 +108,21 @@ func (l *ListRepo) GetListId(id int) (*model.List, error) {
 		Name:        resDB.NameList,
 		Description: resDB.Description,
 		CreatorName: resDB.NameCreator,
-		Type:        resDB.Type,
+		Type:        constant.ListType[resDB.Type],
 		Doramas:     dorama,
 	}
 	return &res, nil
 }
 
 func (l *ListRepo) CreateList(list model.List) (int, error) {
+	key, err := constant.GetTypeList(list.Type)
+	if err != nil {
+		return -1, fmt.Errorf("getTypeList: %w", err)
+	}
 	m := listModel{
 		NameCreator: list.CreatorName,
 		NameList:    list.Name,
-		Type:        list.Type,
+		Type:        key,
 		Description: list.Description,
 	}
 	result := l.db.Table("dorama_set.list").Create(&m)
@@ -173,7 +178,7 @@ func (l *ListRepo) AddToFav(idL int, username string) error {
 	if err != nil {
 		return fmt.Errorf("degListId: %w", err)
 	}
-	if list.Type != constant.PublicType {
+	if list.Type != constant.PublicList {
 		return fmt.Errorf("db: %w", errors.ErrorPublic)
 	}
 	result := l.db.Table("dorama_set.userlist").Create(&m)
@@ -206,7 +211,7 @@ func (l *ListRepo) GetFavList(username string) ([]model.List, error) {
 			Name:        r.NameList,
 			Description: r.Description,
 			CreatorName: r.NameCreator,
-			Type:        r.Type,
+			Type:        constant.ListType[r.Type],
 			Doramas:     dorama,
 		}
 		res = append(res, tmp)

@@ -1,6 +1,9 @@
 package constant
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 const (
 	EveryDayPoint    = 5
@@ -10,5 +13,23 @@ const (
 	LoginLen         = 5
 	PasswordLen      = 8
 	TokenExpiration  = time.Hour * 700
-	PublicType       = "public"
 )
+
+const (
+	PublicList = iota
+	PrivateList
+)
+
+var ListType = map[string]int{
+	"public":  PublicList,
+	"private": PrivateList,
+}
+
+func GetTypeList(val int) (string, error) {
+	for k, v := range ListType {
+		if v == val {
+			return k, nil
+		}
+	}
+	return "", fmt.Errorf("value doesn't exist in map")
+}

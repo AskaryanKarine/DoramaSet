@@ -2,6 +2,7 @@ package user
 
 import (
 	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
 	"bufio"
 	"fmt"
@@ -48,7 +49,10 @@ func (u *User) GetMyList(token string) error {
 }
 
 func (u *User) CreateList(token string) error {
-	var list model.List
+	var (
+		list     model.List
+		typeList string
+	)
 	in := bufio.NewReader(os.Stdin)
 
 	fmt.Print("Введите название: ")
@@ -66,9 +70,11 @@ func (u *User) CreateList(token string) error {
 	list.Description = strings.TrimRight(line, "\r\n")
 
 	fmt.Print("Введите тип (private/public): ")
-	if _, err := fmt.Scan(&list.Type); err != nil {
+	if _, err := fmt.Scan(&typeList); err != nil {
 		return err
 	}
+	tl := constant.ListType[typeList]
+	list.Type = tl
 
 	err = u.lc.CreateList(token, list)
 	if err != nil {

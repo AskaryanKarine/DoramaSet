@@ -254,7 +254,7 @@ func TestLoginUser(t *testing.T) {
 			_, err = jwt.ParseWithClaims(res, &claims, func(t *jwt.Token) (interface{}, error) {
 				return []byte(secretKey), nil
 			})
-			if (err != nil) != testCase.isNeg || !reflect.DeepEqual(res, testCase.result) {
+			if (err != nil) != testCase.isNeg || !reflect.DeepEqual(claims.ID, testCase.result) {
 				t.Errorf("Login() got: %v, expect = %v", res, testCase.result)
 			}
 		})

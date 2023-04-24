@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -199,6 +201,144 @@ func TestCreatePicture(t *testing.T) {
 			err := dc.CreatePicture(test.arg.token, test.arg.picture)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreatePicture() error: %v, expect: %v", err, test.isNeg)
+			}
+		})
+	}
+}
+
+func TestPictureController_AddPictureToStaff(t *testing.T) {
+	mc := minimock.NewController(t)
+	adminUser := model.User{IsAdmin: true}
+	noadminUser := model.User{IsAdmin: false}
+	type fields struct {
+		repo repository.IPictureRepo
+		uc   controller.IUserController
+	}
+	type args struct {
+		token  string
+		record model.Picture
+		id     int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "successful result",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToStaffMock.Return(nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: false,
+		},
+		{
+			name: "add error",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToStaffMock.Return(errors.New("error")),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: true,
+		},
+		{
+			name: "admin error",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToStaffMock.Return(nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: true,
+		},
+		{
+			name: "auth error",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToStaffMock.Return(nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PictureController{
+				repo: tt.fields.repo,
+				uc:   tt.fields.uc,
+			}
+			if err := p.AddPictureToStaff(tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("AddPictureToStaff() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestPictureController_AddPictureToDorama(t *testing.T) {
+	mc := minimock.NewController(t)
+	adminUser := model.User{IsAdmin: true}
+	noadminUser := model.User{IsAdmin: false}
+	type fields struct {
+		repo repository.IPictureRepo
+		uc   controller.IUserController
+	}
+	type args struct {
+		token  string
+		record model.Picture
+		id     int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "successful result",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToDoramaMock.Return(nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: false,
+		},
+		{
+			name: "add error",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToDoramaMock.Return(errors.New("error")),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: true,
+		},
+		{
+			name: "admin error",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToDoramaMock.Return(nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: true,
+		},
+		{
+			name: "auth error",
+			fields: fields{
+				repo: mocks.NewIPictureRepoMock(mc).AddPictureToDoramaMock.Return(nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
+			},
+			args:    args{"", model.Picture{}, 1},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &PictureController{
+				repo: tt.fields.repo,
+				uc:   tt.fields.uc,
+			}
+			if err := p.AddPictureToDorama(tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("AddPictureToDorama() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

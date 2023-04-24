@@ -117,17 +117,11 @@ func (a *Admin) CreatePicture(token string) error {
 		return err
 	}
 	fmt.Print("Введите:\n 1 - постер\n 2 - фото стаффа\n")
-	var id int
-	if _, err := fmt.Scan(&id); err != nil {
+	var idType, id int
+	if _, err := fmt.Scan(&idType); err != nil {
 		return err
 	}
-	var table string
-	switch id {
-	case 1:
-		table = "dorama"
-	case 2:
-		table = "staff"
-	default:
+	if idType > 2 || idType < 1 {
 		return errors.New("invalid choice")
 	}
 	fmt.Print("Введите ID сущности, с которой связана фотография: ")
@@ -135,7 +129,16 @@ func (a *Admin) CreatePicture(token string) error {
 		return err
 	}
 
-	err := a.pc.CreatePicture(token, picture, id, table)
+	err := a.pc.CreatePicture(token, &picture)
+	if err != nil {
+		return err
+	}
+	switch idType {
+	case 1:
+		err = a.pc.AddPictureToDorama(token, picture, id)
+	case 2:
+		err = a.pc.AddPictureToStaff(token, picture, id)
+	}
 	if err != nil {
 		return err
 	}

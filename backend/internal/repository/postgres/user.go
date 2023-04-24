@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 	"gorm.io/gorm"
@@ -94,7 +95,7 @@ func (u *UserRepo) CreateUser(record *model.User) error {
 		Name:        fmt.Sprintf("Просмотры %s", record.Username),
 		Description: "",
 		CreatorName: record.Username,
-		Type:        "private",
+		Type:        constant.PrivateList,
 	})
 
 	if err != nil {
