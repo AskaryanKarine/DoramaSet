@@ -32,11 +32,18 @@ type App struct {
 	admin          bool
 }
 
-func NewApp(dsn, secretKey string) (*App, error) {
+func NewApp() (*App, error) {
+	cfg, err := initConfig()
+	if err != nil {
+		return nil, err
+	}
+	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"
+	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
+
 	picRepo := postgres2.NewPictureRepo(db)
 	eRepo := postgres2.NewEpisodeRepo(db)
 	dRepo := postgres2.NewDoramaRepo(db, picRepo, eRepo)
@@ -44,8 +51,10 @@ func NewApp(dsn, secretKey string) (*App, error) {
 	staffRepo := postgres2.NewStaffRepo(db, picRepo)
 	subRepo := postgres2.NewSubscriptionRepo(db)
 	uRepo := postgres2.NewUserRepo(db, subRepo, lRepo)
-	pc := controller.NewPointController(uRepo)
-	uc := controller.NewUserController(uRepo, pc, secretKey)
+
+	// todo user and point controller fix constructors
+	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint, cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours)
+	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey, cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours)
 	dc := controller.NewDoramaController(dRepo, uc)
 	ec := controller.NewEpisodeController(eRepo, uc)
 	lc := controller.NewListController(lRepo, dRepo, uc)

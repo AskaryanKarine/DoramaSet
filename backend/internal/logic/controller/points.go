@@ -16,9 +16,13 @@ type PointsController struct {
 	longNoLoginHours float64
 }
 
-func NewPointController(URepo repository.IUserRepo) *PointsController {
+func NewPointController(URepo repository.IUserRepo, dPoint, YPoint, lPoint int, lHours float64) *PointsController {
 	return &PointsController{
-		repo: URepo,
+		repo:             URepo,
+		everyDayPoint:    dPoint,
+		everyYearPoint:   YPoint,
+		longNoLoginPoint: lPoint,
+		longNoLoginHours: lHours,
 	}
 }
 

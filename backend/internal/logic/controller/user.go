@@ -22,11 +22,14 @@ type UserController struct {
 	tokenExpiration time.Duration
 }
 
-func NewUserController(UR repository.IUserRepo, pc controller.IPointsController, secretKey string) *UserController {
+func NewUserController(UR repository.IUserRepo, pc controller.IPointsController, secretKey string, loginLen, passwordLen, tokenExp int) *UserController {
 	return &UserController{
-		repo:      UR,
-		pc:        pc,
-		secretKey: secretKey,
+		repo:            UR,
+		pc:              pc,
+		secretKey:       secretKey,
+		loginLen:        loginLen,
+		passwordLen:     passwordLen,
+		tokenExpiration: time.Hour * time.Duration(tokenExp),
 	}
 }
 
