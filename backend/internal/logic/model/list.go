@@ -5,6 +5,6 @@ type List struct {
 	Name        string
 	Description string
 	CreatorName string
-	Type        string
+	Type        int
 	Doramas     []Dorama
 }

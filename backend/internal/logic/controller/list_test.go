@@ -17,7 +17,7 @@ var resultArrayList = []model.List{
 		Name:        "qwerty",
 		Description: "qwerty",
 		CreatorName: "qwerty",
-		Type:        constant.PublicType,
+		Type:        constant.PublicList,
 		Doramas:     nil,
 	},
 }
@@ -239,18 +239,18 @@ func TestGetListById(t *testing.T) {
 		{
 			name: "get private list",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: "private", CreatorName: "qwerty"}, nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: constant.PrivateList, CreatorName: "qwerty"}, nil),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, nil),
 			},
 			arg:    argument{"", 1},
-			result: &model.List{Type: "private", CreatorName: "qwerty"},
+			result: &model.List{Type: constant.PrivateList, CreatorName: "qwerty"},
 			isNeg:  false,
 		},
 		{
 			name: "auth error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: "private", CreatorName: "qwerty"}, nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: constant.PrivateList, CreatorName: "qwerty"}, nil),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, errors.New("error")),
 			},
@@ -261,7 +261,7 @@ func TestGetListById(t *testing.T) {
 		{
 			name: "access error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: "private", CreatorName: "qwerty"}, nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: constant.PrivateList, CreatorName: "qwerty"}, nil),
 				drepo: nil,
 				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwe"}, nil),
 			},

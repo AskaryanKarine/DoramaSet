@@ -36,7 +36,9 @@ type IListRepo interface {
 type IPictureRepo interface {
 	GetListDorama(idDorama int) ([]model.Picture, error)
 	GetListStaff(idStaff int) ([]model.Picture, error)
-	CreatePicture(record model.Picture, id int, tbl string) (int, error)
+	CreatePicture(record model.Picture) (int, error)
+	AddPictureToStaff(record model.Picture, id int) error
+	AddPictureToDorama(record model.Picture, id int) error
 	DeletePicture(id int) error
 }
 

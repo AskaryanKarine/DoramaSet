@@ -1,3 +1,5 @@
+//go:build integration
+
 package controller
 
 import (
@@ -9,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 )
 
 func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
@@ -17,15 +20,25 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer dbContainer.Terminate(context.Background())
+
+	tokenExpiration := time.Hour * 700
+
 	repo := postgres.NewSubscriptionRepo(db)
 	pr := postgres.NewPictureRepo(db)
 	er := postgres.NewEpisodeRepo(db)
 	dr := postgres.NewDoramaRepo(db, pr, er)
 	lr := postgres.NewListRepo(db, dr)
 	urepo := postgres.NewUserRepo(db, repo, lr)
-	pointC := PointsController{urepo}
+
+	pointC := PointsController{
+		repo:             urepo,
+		everyDayPoint:    5,
+		everyYearPoint:   10,
+		longNoLoginPoint: 50,
+		longNoLoginHours: 4400.0,
+	}
 	userC := UserController{repo: urepo, pc: &pointC, secretKey: "qwerty"}
-	token := getToken(model.User{Username: "test"}, "qwerty")
+	token := getToken(model.User{Username: "test"}, "qwerty", tokenExpiration)
 	type fields struct {
 		repo  repository.ISubscriptionRepo
 		urepo repository.IUserRepo

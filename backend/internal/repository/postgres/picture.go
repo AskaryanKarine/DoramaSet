@@ -63,33 +63,37 @@ func (p *PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p *PictureRepo) CreatePicture(record model.Picture, id int, tbl string) (int, error) {
+func (p *PictureRepo) CreatePicture(record model.Picture) (int, error) {
 	m := model.Picture{URL: record.URL}
 	result := p.db.Table("dorama_set.picture").Create(&m)
 	if result.Error != nil {
 		return -1, fmt.Errorf("db: %w", result.Error)
 	}
 
-	switch tbl {
-	case "dorama":
-		m1 := struct {
-			IdDorama  int
-			IdPicture int
-		}{id, m.Id}
-		result = p.db.Table("dorama_set.doramapicture").Create(&m1)
-	case "staff":
-		m1 := struct {
-			IdStaff   int
-			IdPicture int
-		}{id, m.Id}
-		result = p.db.Table("dorama_set.staffpicture").Create(&m1)
-	}
-
-	if result.Error != nil {
-		return -1, fmt.Errorf("db: %w", result.Error)
-	}
-
 	return m.Id, nil
+}
+
+func (p *PictureRepo) AddPictureToStaff(record model.Picture, id int) error {
+	m := struct {
+		IdStaff   int
+		IdPicture int
+	}{id, record.Id}
+	result := p.db.Table("dorama_set.staffpicture").Create(&m)
+	if result.Error != nil {
+		return fmt.Errorf("db: %w", result.Error)
+	}
+	return nil
+}
+func (p *PictureRepo) AddPictureToDorama(record model.Picture, id int) error {
+	m := struct {
+		IdDorama  int
+		IdPicture int
+	}{id, record.Id}
+	result := p.db.Table("dorama_set.doramapicture").Create(&m)
+	if result.Error != nil {
+		return fmt.Errorf("db: %w", result.Error)
+	}
+	return nil
 }
 
 func (p *PictureRepo) DeletePicture(id int) error {

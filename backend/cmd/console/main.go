@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	dsn := "host=localhost user=karine password=12346 dbname=DoramaSet sslmode=disable"
-	secretKey := "qwerty"
-	app, err := console.NewApp(dsn, secretKey)
+	app, err := console.NewApp()
 	if err != nil {
 		fmt.Printf("Ошибка инициализации приложения: %s\n", err)
 		os.Exit(1)

@@ -26,7 +26,6 @@ var resultArrayDorama = []model.Dorama{
 	},
 }
 
-// picture controller
 func TestGetAllDorama(t *testing.T) {
 	mc := minimock.NewController(t)
 	testsTable := []struct {
@@ -38,7 +37,7 @@ func TestGetAllDorama(t *testing.T) {
 		{
 			name: "successful result",
 			fl: DoramaController{
-				repo: mocks.NewIDoramaRepoMock(mc).GetListMock.Return(resultArrayDorama, nil), //GetDoramaMock.Return(res, nil),
+				repo: mocks.NewIDoramaRepoMock(mc).GetListMock.Return(resultArrayDorama, nil),
 				uc:   nil,
 			},
 			result: resultArrayDorama,
@@ -47,7 +46,7 @@ func TestGetAllDorama(t *testing.T) {
 		{
 			name: "error get list",
 			fl: DoramaController{
-				repo: mocks.NewIDoramaRepoMock(mc).GetListMock.Return(nil, errors.New("error")), //GetDoramaMock.Return(res, nil),
+				repo: mocks.NewIDoramaRepoMock(mc).GetListMock.Return(nil, errors.New("error")),
 				uc:   nil,
 			},
 			result: nil,

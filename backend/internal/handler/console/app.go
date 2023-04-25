@@ -8,8 +8,11 @@ import (
 	"DoramaSet/internal/logic/controller"
 	postgres2 "DoramaSet/internal/repository/postgres"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"io"
 	"os"
 )
 
@@ -30,13 +33,37 @@ type App struct {
 	userOptions    []handler
 	token          string
 	admin          bool
+	logFile        *os.File
 }
 
-func NewApp(dsn, secretKey string) (*App, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func NewApp() (*App, error) {
+	cfg, err := initConfig()
 	if err != nil {
 		return nil, err
 	}
+
+	f, err := os.OpenFile(cfg.Logger.FileName, os.O_CREATE|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+
+	log := logrus.Logger{
+		Out: io.Writer(f),
+		Formatter: &easy.Formatter{
+			TimestampFormat: "2006-01-02 15:04:05",
+			LogFormat:       "[%lvl%]: %time% - %msg%\n",
+		},
+		Level: logrus.Level(cfg.Logger.Level),
+	}
+
+	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"
+	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("DB can't connect: %s", err)
+		return nil, err
+	}
+
 	picRepo := postgres2.NewPictureRepo(db)
 	eRepo := postgres2.NewEpisodeRepo(db)
 	dRepo := postgres2.NewDoramaRepo(db, picRepo, eRepo)
@@ -44,14 +71,17 @@ func NewApp(dsn, secretKey string) (*App, error) {
 	staffRepo := postgres2.NewStaffRepo(db, picRepo)
 	subRepo := postgres2.NewSubscriptionRepo(db)
 	uRepo := postgres2.NewUserRepo(db, subRepo, lRepo)
-	pc := controller.NewPointController(uRepo)
-	uc := controller.NewUserController(uRepo, pc, secretKey)
-	dc := controller.NewDoramaController(dRepo, uc)
-	ec := controller.NewEpisodeController(eRepo, uc)
-	lc := controller.NewListController(lRepo, dRepo, uc)
-	picC := controller.NewPictureController(picRepo, uc)
-	staffC := controller.NewStaffController(staffRepo, uc)
-	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc)
+
+	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
+		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, &log)
+	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
+		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, &log)
+	dc := controller.NewDoramaController(dRepo, uc, &log)
+	ec := controller.NewEpisodeController(eRepo, uc, &log)
+	lc := controller.NewListController(lRepo, dRepo, uc, &log)
+	picC := controller.NewPictureController(picRepo, uc, &log)
+	staffC := controller.NewStaffController(staffRepo, uc, &log)
+	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, &log)
 
 	generalOp := general.New(dc, staffC, lc)
 	guestOp := guest.New(uc)
@@ -59,8 +89,9 @@ func NewApp(dsn, secretKey string) (*App, error) {
 	userOp := user.New(lc, ec, subC, uc, pc)
 
 	a := App{
-		token: "",
-		admin: false,
+		token:   "",
+		admin:   false,
+		logFile: f,
 	}
 
 	a.generalOptions = []handler{
@@ -237,6 +268,7 @@ func (a *App) Run() {
 		}
 		if option == 0 {
 			fmt.Println("Выход из программы")
+			_ = a.logFile.Close()
 			os.Exit(0)
 		}
 

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -14,9 +13,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func getToken(newUser model.User, secretKey string) string {
+func getToken(newUser model.User, secretKey string, tokenExp time.Duration) string {
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(constant.TokenExpiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExp)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ID:        newUser.Username,
 	}
@@ -28,6 +27,7 @@ func getToken(newUser model.User, secretKey string) string {
 }
 
 func TestRegistrationUser(t *testing.T) {
+	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
 	correctUser := model.User{
 		Username:   "123456789",
@@ -57,20 +57,26 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil).UpdateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil).UpdateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    correctUser,
-			result: getToken(correctUser, secretKey),
+			result: correctUser.Username,
 			isNeg:  false,
 		},
 		{
 			name: "exists user error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    correctUser,
 			result: "",
@@ -79,9 +85,12 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "get user error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    correctUser,
 			result: "",
@@ -90,9 +99,12 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "short login error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    shortLogin,
 			result: "",
@@ -101,9 +113,12 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "short password error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    shortPassword,
 			result: "",
@@ -112,9 +127,12 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "wrong email error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    wrongEmail,
 			result: "",
@@ -123,9 +141,12 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "create error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(errors.New("error")),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(errors.New("error")),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    correctUser,
 			result: "",
@@ -134,9 +155,26 @@ func TestRegistrationUser(t *testing.T) {
 		{
 			name: "earn error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			arg:    correctUser,
+			result: "",
+			isNeg:  true,
+		},
+		{
+			name: "update error",
+			fl: UserController{
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil).UpdateUserMock.Return(errors.New("error")),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    correctUser,
 			result: "",
@@ -147,22 +185,30 @@ func TestRegistrationUser(t *testing.T) {
 	for _, testCase := range testsTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := UserController{
-				repo:      testCase.fl.repo,
-				pc:        testCase.fl.pc,
-				secretKey: testCase.fl.secretKey,
+				repo:            testCase.fl.repo,
+				pc:              testCase.fl.pc,
+				secretKey:       testCase.fl.secretKey,
+				tokenExpiration: testCase.fl.tokenExpiration,
+				loginLen:        testCase.fl.loginLen,
+				passwordLen:     testCase.fl.passwordLen,
 			}
 			res, err := dc.Registration(testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Registration() error = %v, expect = %v", err, testCase.isNeg)
 			}
-			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("Registration(): got: %v, expect = %v", res, testCase.result)
+			var claims jwt.RegisteredClaims
+			_, err = jwt.ParseWithClaims(res, &claims, func(t *jwt.Token) (interface{}, error) {
+				return []byte(secretKey), nil
+			})
+			if (err != nil) != testCase.isNeg && claims.ID != testCase.result {
+				t.Errorf("Registration(): got: %v, expect = %v", claims.ID, testCase.result)
 			}
 		})
 	}
 }
 
 func TestLoginUser(t *testing.T) {
+	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
 	myString := "1"
 	hash, _ := bcrypt.GenerateFromPassword([]byte(myString), bcrypt.DefaultCost)
@@ -192,20 +238,26 @@ func TestLoginUser(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    argument{"123456789", myString},
-			result: getToken(correctUser, secretKey),
+			result: correctUser.Username,
 			isNeg:  false,
 		},
 		{
 			name: "wrong password error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    argument{"123456789", "123456"},
 			result: "",
@@ -214,9 +266,12 @@ func TestLoginUser(t *testing.T) {
 		{
 			name: "get user error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).UpdateUserMock.Return(nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, errors.New("error")).UpdateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    argument{"123456789", "123456"},
 			result: "",
@@ -225,9 +280,12 @@ func TestLoginUser(t *testing.T) {
 		{
 			name: "update error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(errors.New("error")),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(errors.New("error")),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
 			arg:    argument{"123456789", "1"},
 			result: "",
@@ -238,15 +296,22 @@ func TestLoginUser(t *testing.T) {
 	for _, testCase := range testsTable {
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := UserController{
-				repo:      testCase.fl.repo,
-				pc:        testCase.fl.pc,
-				secretKey: testCase.fl.secretKey,
+				repo:            testCase.fl.repo,
+				pc:              testCase.fl.pc,
+				secretKey:       testCase.fl.secretKey,
+				tokenExpiration: testCase.fl.tokenExpiration,
+				loginLen:        testCase.fl.loginLen,
+				passwordLen:     testCase.fl.passwordLen,
 			}
 			res, err := dc.Login(testCase.arg.login, testCase.arg.password)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Login() error = %v, expect = %v", err, testCase.isNeg)
 			}
-			if !reflect.DeepEqual(res, testCase.result) {
+			var claims jwt.RegisteredClaims
+			_, err = jwt.ParseWithClaims(res, &claims, func(t *jwt.Token) (interface{}, error) {
+				return []byte(secretKey), nil
+			})
+			if (err != nil) != testCase.isNeg || !reflect.DeepEqual(claims.ID, testCase.result) {
 				t.Errorf("Login() got: %v, expect = %v", res, testCase.result)
 			}
 		})
@@ -255,7 +320,7 @@ func TestLoginUser(t *testing.T) {
 
 func TestUpdateActive(t *testing.T) {
 	mc := minimock.NewController(t)
-
+	tokenExpiration := time.Hour * 700
 	correctUser := model.User{
 		Username:   "123456789",
 		Password:   "123456789",
@@ -279,51 +344,66 @@ func TestUpdateActive(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&correctUser, nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&correctUser, nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, secretKey),
+			arg:   getToken(correctUser, secretKey, tokenExpiration),
 			isNeg: false,
 		},
 		{
 			name: "auth error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(nil, errors.New("error")),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(nil, errors.New("error")),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, secretKey),
+			arg:   getToken(correctUser, secretKey, tokenExpiration),
 			isNeg: true,
 		},
 		{
 			name: "earn point for login error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&activeUser, nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&activeUser, nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(errors.New("error")),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, secretKey),
+			arg:   getToken(correctUser, secretKey, tokenExpiration),
 			isNeg: true,
 		},
 		{
 			name: "update points",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&activeUser, nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&activeUser, nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, secretKey),
+			arg:   getToken(correctUser, secretKey, tokenExpiration),
 			isNeg: false,
 		},
 		{
 			name: "update user error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&activeUser, nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&activeUser, nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, secretKey),
+			arg:   getToken(correctUser, secretKey, tokenExpiration),
 			isNeg: true,
 		},
 	}
@@ -344,6 +424,7 @@ func TestUpdateActive(t *testing.T) {
 }
 
 func TestAuthByToken(t *testing.T) {
+	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
 	correctUser := model.User{
 		Username:   "123456789",
@@ -367,33 +448,42 @@ func TestAuthByToken(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:    getToken(correctUser, secretKey),
+			arg:    getToken(correctUser, secretKey, tokenExpiration),
 			isNeg:  false,
 			result: &correctUser,
 		},
 		{
 			name: "update error",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(nil, errors.New("error")),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(nil, errors.New("error")),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:    getToken(correctUser, secretKey),
+			arg:    getToken(correctUser, secretKey, tokenExpiration),
 			isNeg:  true,
 			result: nil,
 		},
 		{
 			name: "invalid token",
 			fl: UserController{
-				repo:      mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&correctUser, nil),
-				pc:        mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
-				secretKey: secretKey,
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&correctUser, nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, "12345"),
+			arg:   getToken(correctUser, "12345", tokenExpiration),
 			isNeg: true,
 		},
 	}
