@@ -53,7 +53,7 @@ func NewApp() (*App, error) {
 			TimestampFormat: "2006-01-02 15:04:05",
 			LogFormat:       "[%lvl%]: %time% - %msg%\n",
 		},
-		Level: logrus.TraceLevel,
+		Level: logrus.Level(cfg.Logger.Level),
 	}
 
 	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"

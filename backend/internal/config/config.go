@@ -22,6 +22,7 @@ type appConfig struct {
 
 type loggerConfig struct {
 	FileName string
+	Level    int
 }
 
 type Config struct {
