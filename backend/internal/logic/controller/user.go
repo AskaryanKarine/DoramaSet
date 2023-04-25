@@ -3,7 +3,6 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
-	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
@@ -15,9 +14,12 @@ import (
 )
 
 type UserController struct {
-	repo      repository.IUserRepo
-	pc        controller.IPointsController
-	secretKey string
+	repo            repository.IUserRepo
+	pc              controller.IPointsController
+	secretKey       string
+	loginLen        int
+	passwordLen     int
+	tokenExpiration time.Duration
 }
 
 func NewUserController(UR repository.IUserRepo, pc controller.IPointsController, secretKey string) *UserController {
@@ -38,13 +40,13 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 		return "", fmt.Errorf("%w", errors.ErrorUserExist)
 	}
 
-	if len(newUser.Username) < constant.LoginLen {
-		err := errors.LoginLenError{LoginLen: constant.LoginLen}
+	if len(newUser.Username) < u.loginLen {
+		err := errors.LoginLenError{LoginLen: u.loginLen}
 		return "", fmt.Errorf("%w", err)
 	}
 
-	if len(newUser.Password) < constant.PasswordLen {
-		err := errors.PasswordLenError{PasswordLen: constant.PasswordLen}
+	if len(newUser.Password) < u.passwordLen {
+		err := errors.PasswordLenError{PasswordLen: u.passwordLen}
 		return "", fmt.Errorf("%w", err)
 	}
 
@@ -78,7 +80,7 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 	}
 
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(constant.TokenExpiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(u.tokenExpiration)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ID:        newUser.Username,
 	}
@@ -101,7 +103,7 @@ func (u *UserController) Login(username, password string) (string, error) {
 	}
 
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(constant.TokenExpiration)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(u.tokenExpiration)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 		ID:        user.Username,
 	}

@@ -198,7 +198,7 @@ func TestCreatePicture(t *testing.T) {
 				repo: test.field.repo,
 				uc:   test.field.uc,
 			}
-			err := dc.CreatePicture(test.arg.token, test.arg.picture)
+			err := dc.CreatePicture(test.arg.token, &test.arg.picture)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreatePicture() error: %v, expect: %v", err, test.isNeg)
 			}

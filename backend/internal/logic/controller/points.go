@@ -2,7 +2,6 @@ package controller
 
 import (
 	"DoramaSet/internal/interfaces/repository"
-	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
@@ -10,7 +9,11 @@ import (
 )
 
 type PointsController struct {
-	repo repository.IUserRepo
+	repo             repository.IUserRepo
+	everyDayPoint    int
+	everyYearPoint   int
+	longNoLoginPoint int
+	longNoLoginHours float64
 }
 
 func NewPointController(URepo repository.IUserRepo) *PointsController {
@@ -38,14 +41,14 @@ func checkYear(date time.Time) bool {
 }
 
 func (p *PointsController) EarnPointForLogin(user *model.User) error {
-	user.Points += constant.EveryDayPoint
+	user.Points += p.everyDayPoint
 
 	if checkYear(user.RegData) {
-		user.Points += constant.EveryYearPoint
+		user.Points += p.everyYearPoint
 	}
 
-	if time.Since(user.LastActive).Hours() > constant.LongNoLoginHours {
-		user.Points += constant.LongNoLoginPoint
+	if time.Since(user.LastActive).Hours() > p.longNoLoginHours {
+		user.Points += p.longNoLoginPoint
 	}
 
 	err := p.repo.UpdateUser(*user)

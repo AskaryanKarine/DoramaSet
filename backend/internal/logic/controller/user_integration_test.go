@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestUserController_UpdateActiveIntegrate(t *testing.T) {
@@ -20,13 +21,23 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer dbContainer.Terminate(context.Background())
+	tokenExpiration := time.Hour * 700
+
 	repo := postgres.NewSubscriptionRepo(db)
 	pr := postgres.NewPictureRepo(db)
 	er := postgres.NewEpisodeRepo(db)
 	dr := postgres.NewDoramaRepo(db, pr, er)
 	lr := postgres.NewListRepo(db, dr)
 	urepo := postgres.NewUserRepo(db, repo, lr)
-	pointC := PointsController{urepo}
+
+	pointC := PointsController{
+		repo:             urepo,
+		everyDayPoint:    5,
+		everyYearPoint:   10,
+		longNoLoginPoint: 50,
+		longNoLoginHours: 4400.0,
+	}
+
 	type fields struct {
 		repo      repository.IUserRepo
 		pc        controller.IPointsController
@@ -49,7 +60,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 				pc:        &pointC,
 				secretKey: "qwerty",
 			},
-			args:    args{token: getToken(model.User{Username: "test"}, "qwerty")},
+			args:    args{token: getToken(model.User{Username: "test"}, "qwerty", tokenExpiration)},
 			wantErr: false,
 			check: func(ur repository.IUserRepo) error {
 				user, err := ur.GetUser("test")
