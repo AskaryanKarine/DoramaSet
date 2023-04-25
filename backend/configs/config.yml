@@ -15,3 +15,6 @@ App:
   LoginLen: 5
   PasswordLen: 8
   TokenExpirationHours: 700
+
+Logger:
+  FileName: "log.txt"

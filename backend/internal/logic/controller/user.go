@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"net/mail"
 	"time"
 
@@ -20,9 +21,11 @@ type UserController struct {
 	loginLen        int
 	passwordLen     int
 	tokenExpiration time.Duration
+	log             *logrus.Logger
 }
 
-func NewUserController(UR repository.IUserRepo, pc controller.IPointsController, secretKey string, loginLen, passwordLen, tokenExp int) *UserController {
+func NewUserController(UR repository.IUserRepo, pc controller.IPointsController,
+	secretKey string, loginLen, passwordLen, tokenExp int, log *logrus.Logger) *UserController {
 	return &UserController{
 		repo:            UR,
 		pc:              pc,
@@ -30,31 +33,37 @@ func NewUserController(UR repository.IUserRepo, pc controller.IPointsController,
 		loginLen:        loginLen,
 		passwordLen:     passwordLen,
 		tokenExpiration: time.Hour * time.Duration(tokenExp),
+		log:             log,
 	}
 }
 
 func (u *UserController) Registration(newUser model.User) (string, error) {
 	res, err := u.repo.GetUser(newUser.Username)
 	if err != nil {
+		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("getUser: %w", err)
 	}
 
 	if res != nil {
+		u.log.Warnf("registation err %s, value %v", errors.ErrorUserExist, newUser)
 		return "", fmt.Errorf("%w", errors.ErrorUserExist)
 	}
 
 	if len(newUser.Username) < u.loginLen {
 		err := errors.LoginLenError{LoginLen: u.loginLen}
+		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("%w", err)
 	}
 
 	if len(newUser.Password) < u.passwordLen {
 		err := errors.PasswordLenError{PasswordLen: u.passwordLen}
+		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("%w", err)
 	}
 
 	_, err = mail.ParseAddress(newUser.Email)
 	if err != nil {
+		u.log.Warnf("registation err %s, value %v", errors.ErrorInvalidEmail, newUser)
 		return "", fmt.Errorf("%w", errors.ErrorInvalidEmail)
 	}
 
@@ -68,17 +77,20 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 
 	err = u.repo.CreateUser(&newUser)
 	if err != nil {
+		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("createUser: %w", err)
 	}
 
 	err = u.pc.EarnPointForLogin(&newUser)
 	if err != nil {
+		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
 	newUser.LastActive = time.Now()
 	err = u.repo.UpdateUser(newUser)
 	if err != nil {
+		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("updateUser: %w", err)
 	}
 
@@ -91,17 +103,20 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, _ := token.SignedString([]byte(u.secretKey))
 
+	u.log.Infof("registation user %s", newUser.Username)
 	return ss, nil
 }
 
 func (u *UserController) Login(username, password string) (string, error) {
 	user, err := u.repo.GetUser(username)
 	if err != nil {
+		u.log.Warnf("login err %s, value %s", err, username)
 		return "", fmt.Errorf("getUser: %w", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
+		u.log.Warnf("login err %s, value %s", err, username)
 		return "", fmt.Errorf("%w", errors.ErrorWrongLogin)
 	}
 
@@ -116,9 +131,10 @@ func (u *UserController) Login(username, password string) (string, error) {
 
 	err = u.UpdateActive(ss)
 	if err != nil {
+		u.log.Warnf("login err %s, value %s", err, username)
 		return "", fmt.Errorf("updateActite: %w", err)
 	}
-
+	u.log.Infof("login user %s", user.Username)
 	return ss, nil
 }
 
@@ -135,11 +151,13 @@ func eqDate(date1, date2 time.Time) bool {
 func (u *UserController) UpdateActive(token string) error {
 	user, err := u.AuthByToken(token)
 	if err != nil {
+		u.log.Warnf("update active user auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
 	}
 	if !eqDate(user.LastActive, time.Now()) {
 		err = u.pc.EarnPointForLogin(user)
 		if err != nil {
+			u.log.Warnf("update active user err %s, username %s", err, user.Username)
 			return fmt.Errorf("earnPointForLogin: %w", err)
 		}
 	}
@@ -147,8 +165,10 @@ func (u *UserController) UpdateActive(token string) error {
 	user.LastActive = time.Now()
 	err = u.repo.UpdateUser(*user)
 	if err != nil {
+		u.log.Warnf("update active user err %s, username %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
 	}
+	u.log.Infof("update active user %s", user.Username)
 	return nil
 }
 
@@ -159,13 +179,15 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 	})
 
 	if err != nil {
+		u.log.Warnf("auth by token err %s, username %s", err, claims.ID)
 		return nil, fmt.Errorf("AuthToken: %w", err)
 	}
 
 	user, err := u.repo.GetUser(claims.ID)
 	if err != nil {
+		u.log.Warnf("auth by token err %s, username %s", err, claims.ID)
 		return nil, fmt.Errorf("getUser: %w", err)
 	}
-
+	u.log.Infof("auth by token user %s", user.Username)
 	return user, nil
 }

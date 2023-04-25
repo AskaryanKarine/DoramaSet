@@ -8,8 +8,11 @@ import (
 	"DoramaSet/internal/logic/controller"
 	postgres2 "DoramaSet/internal/repository/postgres"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"io"
 	"os"
 )
 
@@ -37,10 +40,29 @@ func NewApp() (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	f, err := os.OpenFile(cfg.Logger.FileName, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	log := logrus.Logger{
+		Out: io.Writer(f),
+		Formatter: &easy.Formatter{
+			TimestampFormat: "2006-01-02 15:04:05",
+			LogFormat:       "[%lvl%]: %time% - %msg%\n",
+		},
+		Level: logrus.TraceLevel,
+	}
+
 	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"
 	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		log.Fatalf("DB can't connect: %s", err)
 		return nil, err
 	}
 
@@ -52,15 +74,16 @@ func NewApp() (*App, error) {
 	subRepo := postgres2.NewSubscriptionRepo(db)
 	uRepo := postgres2.NewUserRepo(db, subRepo, lRepo)
 
-	// todo user and point controller fix constructors
-	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint, cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours)
-	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey, cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours)
-	dc := controller.NewDoramaController(dRepo, uc)
-	ec := controller.NewEpisodeController(eRepo, uc)
-	lc := controller.NewListController(lRepo, dRepo, uc)
-	picC := controller.NewPictureController(picRepo, uc)
-	staffC := controller.NewStaffController(staffRepo, uc)
-	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc)
+	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
+		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, &log)
+	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
+		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, &log)
+	dc := controller.NewDoramaController(dRepo, uc, &log)
+	ec := controller.NewEpisodeController(eRepo, uc, &log)
+	lc := controller.NewListController(lRepo, dRepo, uc, &log)
+	picC := controller.NewPictureController(picRepo, uc, &log)
+	staffC := controller.NewStaffController(staffRepo, uc, &log)
+	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, &log)
 
 	generalOp := general.New(dc, staffC, lc)
 	guestOp := guest.New(uc)

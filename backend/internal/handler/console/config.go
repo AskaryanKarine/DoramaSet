@@ -10,7 +10,7 @@ import (
 
 var errorConfigRead = errors.New("can't read config file")
 
-var configPath = flag.String("config", "./config/config.yml", "config file path")
+var configPath = flag.String("config", "./configs/config.yml", "config file path")
 
 func initConfig() (*config.Config, error) {
 	var cfg config.Config

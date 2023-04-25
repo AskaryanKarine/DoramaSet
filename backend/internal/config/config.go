@@ -1,6 +1,6 @@
 package config
 
-type DB struct {
+type dbConfig struct {
 	Host     string
 	Username string
 	Password string
@@ -9,7 +9,7 @@ type DB struct {
 	Port     int
 }
 
-type App struct {
+type appConfig struct {
 	SecretKey            string
 	EveryDayPoint        int
 	EveryYearPoint       int
@@ -20,7 +20,12 @@ type App struct {
 	TokenExpirationHours int
 }
 
+type loggerConfig struct {
+	FileName string
+}
+
 type Config struct {
-	DB  DB
-	App App
+	DB     dbConfig
+	App    appConfig
+	Logger loggerConfig
 }

@@ -5,6 +5,7 @@ import (
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -14,15 +15,18 @@ type PointsController struct {
 	everyYearPoint   int
 	longNoLoginPoint int
 	longNoLoginHours float64
+	log              *logrus.Logger
 }
 
-func NewPointController(URepo repository.IUserRepo, dPoint, YPoint, lPoint int, lHours float64) *PointsController {
+func NewPointController(URepo repository.IUserRepo, dPoint, YPoint, lPoint int,
+	lHours float64, log *logrus.Logger) *PointsController {
 	return &PointsController{
 		repo:             URepo,
 		everyDayPoint:    dPoint,
 		everyYearPoint:   YPoint,
 		longNoLoginPoint: lPoint,
 		longNoLoginHours: lHours,
+		log:              log,
 	}
 }
 
@@ -57,8 +61,10 @@ func (p *PointsController) EarnPointForLogin(user *model.User) error {
 
 	err := p.repo.UpdateUser(*user)
 	if err != nil {
+		p.log.Warnf("earn point for login err %s username %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
 	}
+	p.log.Infof("earned point for login user %s", user.Username)
 	return nil
 }
 
@@ -68,6 +74,7 @@ func (p *PointsController) PurgePoint(user *model.User, point int) error {
 			Have: user.Points,
 			Want: point,
 		}
+		p.log.Warnf("purge point err %s, username %s", err, user.Username)
 		return fmt.Errorf("purgePoint: %w", err)
 	}
 
@@ -75,8 +82,10 @@ func (p *PointsController) PurgePoint(user *model.User, point int) error {
 
 	err := p.repo.UpdateUser(*user)
 	if err != nil {
+		p.log.Warnf("purge point err %s, username %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
 	}
+	p.log.Infof("purged point user %s, value %d", user.Username, point)
 	return nil
 }
 
@@ -84,7 +93,9 @@ func (p *PointsController) EarnPoint(user *model.User, point int) error {
 	user.Points += point
 	err := p.repo.UpdateUser(*user)
 	if err != nil {
+		p.log.Warnf("earn point err %s, username %s, value %d", err, user.Username, point)
 		return fmt.Errorf("updateUser: %w", err)
 	}
+	p.log.Infof("earned point user %s, value %d", user.Username, point)
 	return nil
 }
