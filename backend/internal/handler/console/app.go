@@ -33,6 +33,7 @@ type App struct {
 	userOptions    []handler
 	token          string
 	admin          bool
+	logFile        *os.File
 }
 
 func NewApp() (*App, error) {
@@ -41,13 +42,10 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	f, err := os.OpenFile(cfg.Logger.FileName, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	f, err := os.OpenFile(cfg.Logger.FileName, os.O_CREATE|os.O_APPEND, os.ModePerm)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = f.Close()
-	}()
 
 	log := logrus.Logger{
 		Out: io.Writer(f),
@@ -91,8 +89,9 @@ func NewApp() (*App, error) {
 	userOp := user.New(lc, ec, subC, uc, pc)
 
 	a := App{
-		token: "",
-		admin: false,
+		token:   "",
+		admin:   false,
+		logFile: f,
 	}
 
 	a.generalOptions = []handler{
@@ -269,6 +268,7 @@ func (a *App) Run() {
 		}
 		if option == 0 {
 			fmt.Println("Выход из программы")
+			_ = a.logFile.Close()
 			os.Exit(0)
 		}
 
