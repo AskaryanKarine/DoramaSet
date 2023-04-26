@@ -16,7 +16,7 @@ select setval('dorama_set.staff_id_seq', (select max(id) from dorama_set.staff))
 copy dorama_set.doramapicture from '/data/dorama-picture.csv' delimiter ',';
 copy dorama_set.staffpicture from '/data/staff-picture.csv' delimiter ',';
 copy dorama_set.doramastaff from '/data/dorama-staff.csv' delimiter ',';
-copy dorama_set."user" from '/data/admin.scv' delimiter ',';
+copy dorama_set."user" from '/data/admin.csv' delimiter ',';
 
 
 
