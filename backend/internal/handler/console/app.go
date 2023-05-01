@@ -1,6 +1,7 @@
 package console
 
 import (
+	"DoramaSet/internal/config"
 	"DoramaSet/internal/handler/console/admin"
 	"DoramaSet/internal/handler/console/general"
 	"DoramaSet/internal/handler/console/guest"
@@ -37,7 +38,7 @@ type App struct {
 }
 
 func NewApp() (*App, error) {
-	cfg, err := initConfig()
+	cfg, err := config.InitConfig()
 	if err != nil {
 		return nil, err
 	}
