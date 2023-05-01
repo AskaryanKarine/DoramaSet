@@ -11,7 +11,7 @@ var errorConfigRead = errors.New("can't read config file")
 
 var configPath = flag.String("config", "./configs/config.yml", "config file path")
 
-func InitConfig() (*Config, error) {
+func Init() (*Config, error) {
 	var cfg Config
 
 	flag.Parse()
