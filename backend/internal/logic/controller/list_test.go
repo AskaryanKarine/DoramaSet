@@ -5,6 +5,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
@@ -81,6 +82,7 @@ func TestCreateList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			err := dc.CreateList(testCase.arg.token, testCase.arg.record)
 			if (err != nil) != testCase.isNeg {
@@ -139,6 +141,7 @@ func TestGetUserList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			res, err := dc.GetUserLists(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -188,6 +191,7 @@ func TestGetPublicLists(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			res, err := dc.GetPublicLists()
 			if (err != nil) != testCase.isNeg {
@@ -277,6 +281,7 @@ func TestGetListById(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			res, err := dc.GetListById(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
@@ -340,6 +345,7 @@ func TestGetFavList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			res, err := dc.GetFavList(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -432,6 +438,7 @@ func TestAddToList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			err := dc.AddToList(testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
 			if (err != nil) != testCase.isNeg {
@@ -521,6 +528,7 @@ func TestDelFromList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			err := dc.DelFromList(testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
 			if (err != nil) != testCase.isNeg {
@@ -600,6 +608,7 @@ func TestDelList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			err := dc.DelList(testCase.arg.token, testCase.arg.id1)
 			if (err != nil) != testCase.isNeg {
@@ -669,6 +678,7 @@ func TestAddToFavList(t *testing.T) {
 				repo:  testCase.fl.repo,
 				drepo: testCase.fl.drepo,
 				uc:    testCase.fl.uc,
+				log:   &logrus.Logger{},
 			}
 			err := dc.AddToFav(testCase.arg.token, testCase.arg.id1)
 			if (err != nil) != testCase.isNeg {

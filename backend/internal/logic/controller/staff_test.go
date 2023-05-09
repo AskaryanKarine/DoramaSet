@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
@@ -51,6 +52,7 @@ func TestGetListStaff(t *testing.T) {
 			dc := StaffController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetList()
 			if (err != nil) != testCase.isNeg {
@@ -100,6 +102,7 @@ func TestGetListByNameStaff(t *testing.T) {
 			dc := StaffController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetListByName(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -147,6 +150,7 @@ func TestGetListByDoramaStaff(t *testing.T) {
 			dc := StaffController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetListByDorama(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -229,6 +233,7 @@ func TestCreateStaff(t *testing.T) {
 			dc := StaffController{
 				repo: test.field.repo,
 				uc:   test.field.uc,
+				log:  &logrus.Logger{},
 			}
 			err := dc.CreateStaff(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
@@ -308,6 +313,7 @@ func TestUpdateStaff(t *testing.T) {
 			dc := StaffController{
 				repo: test.field.repo,
 				uc:   test.field.uc,
+				log:  &logrus.Logger{},
 			}
 			err := dc.UpdateStaff(test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
@@ -359,6 +365,7 @@ func TestStaffController_GetStaffById(t *testing.T) {
 			s := &StaffController{
 				repo: tt.fields.repo,
 				uc:   tt.fields.uc,
+				log:  &logrus.Logger{},
 			}
 			got, err := s.GetStaffById(tt.args.id)
 			if (err != nil) != tt.wantErr {

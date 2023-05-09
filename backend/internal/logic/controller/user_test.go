@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 	"time"
@@ -191,6 +192,7 @@ func TestRegistrationUser(t *testing.T) {
 				tokenExpiration: testCase.fl.tokenExpiration,
 				loginLen:        testCase.fl.loginLen,
 				passwordLen:     testCase.fl.passwordLen,
+				log:             &logrus.Logger{},
 			}
 			res, err := dc.Registration(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -302,6 +304,7 @@ func TestLoginUser(t *testing.T) {
 				tokenExpiration: testCase.fl.tokenExpiration,
 				loginLen:        testCase.fl.loginLen,
 				passwordLen:     testCase.fl.passwordLen,
+				log:             &logrus.Logger{},
 			}
 			res, err := dc.Login(testCase.arg.login, testCase.arg.password)
 			if (err != nil) != testCase.isNeg {
@@ -414,6 +417,7 @@ func TestUpdateActive(t *testing.T) {
 				repo:      testCase.fl.repo,
 				pc:        testCase.fl.pc,
 				secretKey: testCase.fl.secretKey,
+				log:       &logrus.Logger{},
 			}
 			err := dc.UpdateActive(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -494,6 +498,7 @@ func TestAuthByToken(t *testing.T) {
 				repo:      testCase.fl.repo,
 				pc:        testCase.fl.pc,
 				secretKey: testCase.fl.secretKey,
+				log:       &logrus.Logger{},
 			}
 			res, err := dc.AuthByToken(testCase.arg)
 			if (err != nil) != testCase.isNeg {

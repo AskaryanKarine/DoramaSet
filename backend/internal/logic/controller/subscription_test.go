@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
@@ -47,6 +48,7 @@ func TestGetAllSub(t *testing.T) {
 			dc := SubscriptionController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetAll()
 			if (err != nil) != testCase.isNeg {
@@ -96,6 +98,7 @@ func TestGetInfoSub(t *testing.T) {
 			dc := SubscriptionController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetInfo(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -184,6 +187,7 @@ func TestSubscribe(t *testing.T) {
 				uc:    testCase.fl.uc,
 				pc:    testCase.fl.pc,
 				urepo: testCase.fl.urepo,
+				log:   &logrus.Logger{},
 			}
 			err := dc.SubscribeUser(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
@@ -258,6 +262,7 @@ func TestUnsubscribe(t *testing.T) {
 				uc:    testCase.fl.uc,
 				pc:    testCase.fl.pc,
 				urepo: testCase.fl.urepo,
+				log:   &logrus.Logger{},
 			}
 			err := dc.UnsubscribeUser(testCase.arg.token)
 			if (err != nil) != testCase.isNeg {

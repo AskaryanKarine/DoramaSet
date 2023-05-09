@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
@@ -56,6 +57,7 @@ func TestGetLisByDoramaPicture(t *testing.T) {
 			dc := PictureController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetListByDorama(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -105,6 +107,7 @@ func TestGetLisByStaffPicture(t *testing.T) {
 			dc := PictureController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			res, err := dc.GetListByStaff(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -197,6 +200,7 @@ func TestCreatePicture(t *testing.T) {
 			dc := PictureController{
 				repo: test.field.repo,
 				uc:   test.field.uc,
+				log:  &logrus.Logger{},
 			}
 			err := dc.CreatePicture(test.arg.token, &test.arg.picture)
 			if (err != nil) != test.isNeg {
@@ -267,6 +271,7 @@ func TestPictureController_AddPictureToStaff(t *testing.T) {
 			p := &PictureController{
 				repo: tt.fields.repo,
 				uc:   tt.fields.uc,
+				log:  &logrus.Logger{},
 			}
 			if err := p.AddPictureToStaff(tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("AddPictureToStaff() error = %v, wantErr %v", err, tt.wantErr)
@@ -336,6 +341,7 @@ func TestPictureController_AddPictureToDorama(t *testing.T) {
 			p := &PictureController{
 				repo: tt.fields.repo,
 				uc:   tt.fields.uc,
+				log:  &logrus.Logger{},
 			}
 			if err := p.AddPictureToDorama(tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("AddPictureToDorama() error = %v, wantErr %v", err, tt.wantErr)

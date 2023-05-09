@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
@@ -55,6 +56,7 @@ func TestGetEpisodeList(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			r, err := dc.GetEpisodeList(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -102,6 +104,7 @@ func TestGetEpisode(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			r, err := dc.GetEpisode(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -169,6 +172,7 @@ func TestMarkWathingEpisode(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			err := dc.MarkWatchingEpisode(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
@@ -225,6 +229,7 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			e := &EpisodeController{
 				repo: tt.fields.repo,
 				uc:   tt.fields.uc,
+				log:  &logrus.Logger{},
 			}
 			if err := e.CreateEpisode(tt.args.record, tt.args.idD); (err != nil) != tt.wantErr {
 				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)

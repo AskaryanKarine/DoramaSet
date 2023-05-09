@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 
@@ -67,6 +68,7 @@ func TestEarnPointForLogin(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := PointsController{
 				repo: testCase.fl.repo,
+				log:  &logrus.Logger{},
 			}
 			err := dc.EarnPointForLogin(&testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -118,6 +120,7 @@ func TestPurgePoint(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := PointsController{
 				repo: testCase.fl.repo,
+				log:  &logrus.Logger{},
 			}
 			err := dc.PurgePoint(&testCase.arg.username, testCase.arg.point)
 			if (err != nil) != testCase.isNeg {
@@ -161,6 +164,7 @@ func TestEarnPoint(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := PointsController{
 				repo: testCase.fl.repo,
+				log:  &logrus.Logger{},
 			}
 			err := dc.EarnPoint(&testCase.arg.username, testCase.arg.point)
 			if (err != nil) != testCase.isNeg {
