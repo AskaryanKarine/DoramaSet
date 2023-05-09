@@ -3,8 +3,8 @@ package model
 import "time"
 
 type Subscription struct {
-	Id          int
-	Description string
-	Cost        int
-	Duration    time.Duration
+	Id          int           `json:"id,omitempty"`
+	Description string        `json:"description,omitempty"`
+	Cost        int           `json:"cost,omitempty"`
+	Duration    time.Duration `json:"duration,omitempty"`
 }
