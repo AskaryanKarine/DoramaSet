@@ -6,9 +6,9 @@ type IDoramaController interface {
 	GetAll() ([]model.Dorama, error)
 	GetByName(name string) ([]model.Dorama, error)
 	GetById(id int) (*model.Dorama, error)
-	CreateDorama(token string, record model.Dorama) error
+	CreateDorama(token string, record *model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
-	AddStaffToDorama(idD, idS int) error
+	AddStaffToDorama(token string, idD, idS int) error
 }
 
 type IEpisodeController interface {

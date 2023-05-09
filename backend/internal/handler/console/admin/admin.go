@@ -63,7 +63,7 @@ func (a *Admin) CreateDorama(token string) error {
 	}
 	dorama.Status = strings.TrimRight(line, "\r\n")
 
-	err = a.dc.CreateDorama(token, dorama)
+	err = a.dc.CreateDorama(token, &dorama)
 	if err != nil {
 		return err
 	}
@@ -245,7 +245,7 @@ func (a *Admin) updateDorama(token string) error {
 	return nil
 }
 
-func (a *Admin) addStaff() error {
+func (a *Admin) addStaff(token string) error {
 	var idD, idS int
 	fmt.Print("Введите ID дорамы: ")
 	if _, err := fmt.Scan(&idD); err != nil {
@@ -256,7 +256,7 @@ func (a *Admin) addStaff() error {
 		return err
 	}
 
-	err := a.dc.AddStaffToDorama(idD, idS)
+	err := a.dc.AddStaffToDorama(token, idD, idS)
 	if err != nil {
 		return err
 	}
@@ -277,7 +277,7 @@ func (a *Admin) UpdateDorama(token string) error {
 			return err
 		}
 	case 2:
-		if err := a.addStaff(); err != nil {
+		if err := a.addStaff(token); err != nil {
 			return err
 		}
 	default:
