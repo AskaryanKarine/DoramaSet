@@ -60,7 +60,7 @@ type mISubscriptionRepoMockGetList struct {
 	expectations       []*ISubscriptionRepoMockGetListExpectation
 }
 
-// ISubscriptionRepoMockGetListExpectation specifies expectation struct of the ISubscriptionRepo.GetList
+// ISubscriptionRepoMockGetListExpectation specifies expectation struct of the ISubscriptionRepo.GetStaffList
 type ISubscriptionRepoMockGetListExpectation struct {
 	mock *ISubscriptionRepoMock
 
@@ -68,16 +68,16 @@ type ISubscriptionRepoMockGetListExpectation struct {
 	Counter uint64
 }
 
-// ISubscriptionRepoMockGetListResults contains results of the ISubscriptionRepo.GetList
+// ISubscriptionRepoMockGetListResults contains results of the ISubscriptionRepo.GetStaffList
 type ISubscriptionRepoMockGetListResults struct {
 	sa1 []model.Subscription
 	err error
 }
 
-// Expect sets up expected params for ISubscriptionRepo.GetList
+// Expect sets up expected params for ISubscriptionRepo.GetStaffList
 func (mmGetList *mISubscriptionRepoMockGetList) Expect() *mISubscriptionRepoMockGetList {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("ISubscriptionRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("ISubscriptionRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	if mmGetList.defaultExpectation == nil {
@@ -87,10 +87,10 @@ func (mmGetList *mISubscriptionRepoMockGetList) Expect() *mISubscriptionRepoMock
 	return mmGetList
 }
 
-// Inspect accepts an inspector function that has same arguments as the ISubscriptionRepo.GetList
+// Inspect accepts an inspector function that has same arguments as the ISubscriptionRepo.GetStaffList
 func (mmGetList *mISubscriptionRepoMockGetList) Inspect(f func()) *mISubscriptionRepoMockGetList {
 	if mmGetList.mock.inspectFuncGetList != nil {
-		mmGetList.mock.t.Fatalf("Inspect function is already set for ISubscriptionRepoMock.GetList")
+		mmGetList.mock.t.Fatalf("Inspect function is already set for ISubscriptionRepoMock.GetStaffList")
 	}
 
 	mmGetList.mock.inspectFuncGetList = f
@@ -98,10 +98,10 @@ func (mmGetList *mISubscriptionRepoMockGetList) Inspect(f func()) *mISubscriptio
 	return mmGetList
 }
 
-// Return sets up results that will be returned by ISubscriptionRepo.GetList
+// Return sets up results that will be returned by ISubscriptionRepo.GetStaffList
 func (mmGetList *mISubscriptionRepoMockGetList) Return(sa1 []model.Subscription, err error) *ISubscriptionRepoMock {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("ISubscriptionRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("ISubscriptionRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	if mmGetList.defaultExpectation == nil {
@@ -111,14 +111,14 @@ func (mmGetList *mISubscriptionRepoMockGetList) Return(sa1 []model.Subscription,
 	return mmGetList.mock
 }
 
-// Set uses given function f to mock the ISubscriptionRepo.GetList method
+// Set uses given function f to mock the ISubscriptionRepo.GetStaffList method
 func (mmGetList *mISubscriptionRepoMockGetList) Set(f func() (sa1 []model.Subscription, err error)) *ISubscriptionRepoMock {
 	if mmGetList.defaultExpectation != nil {
-		mmGetList.mock.t.Fatalf("Default expectation is already set for the ISubscriptionRepo.GetList method")
+		mmGetList.mock.t.Fatalf("Default expectation is already set for the ISubscriptionRepo.GetStaffList method")
 	}
 
 	if len(mmGetList.expectations) > 0 {
-		mmGetList.mock.t.Fatalf("Some expectations are already set for the ISubscriptionRepo.GetList method")
+		mmGetList.mock.t.Fatalf("Some expectations are already set for the ISubscriptionRepo.GetStaffList method")
 	}
 
 	mmGetList.mock.funcGetList = f
@@ -139,14 +139,14 @@ func (mmGetList *ISubscriptionRepoMock) GetList() (sa1 []model.Subscription, err
 
 		mm_results := mmGetList.GetListMock.defaultExpectation.results
 		if mm_results == nil {
-			mmGetList.t.Fatal("No results are set for the ISubscriptionRepoMock.GetList")
+			mmGetList.t.Fatal("No results are set for the ISubscriptionRepoMock.GetStaffList")
 		}
 		return (*mm_results).sa1, (*mm_results).err
 	}
 	if mmGetList.funcGetList != nil {
 		return mmGetList.funcGetList()
 	}
-	mmGetList.t.Fatalf("Unexpected call to ISubscriptionRepoMock.GetList.")
+	mmGetList.t.Fatalf("Unexpected call to ISubscriptionRepoMock.GetStaffList.")
 	return
 }
 
@@ -184,17 +184,17 @@ func (m *ISubscriptionRepoMock) MinimockGetListDone() bool {
 func (m *ISubscriptionRepoMock) MinimockGetListInspect() {
 	for _, e := range m.GetListMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to ISubscriptionRepoMock.GetList")
+			m.t.Error("Expected call to ISubscriptionRepoMock.GetStaffList")
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GetListMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetListCounter) < 1 {
-		m.t.Error("Expected call to ISubscriptionRepoMock.GetList")
+		m.t.Error("Expected call to ISubscriptionRepoMock.GetStaffList")
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGetList != nil && mm_atomic.LoadUint64(&m.afterGetListCounter) < 1 {
-		m.t.Error("Expected call to ISubscriptionRepoMock.GetList")
+		m.t.Error("Expected call to ISubscriptionRepoMock.GetStaffList")
 	}
 }
 

@@ -42,11 +42,11 @@ func TestSubscriptionRepo_GetList(t *testing.T) {
 			}
 			got, err := s.GetList()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("GetList() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("GetStaffList() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetList() got = %v, want %v", got, tt.want)
+				t.Errorf("GetStaffList() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

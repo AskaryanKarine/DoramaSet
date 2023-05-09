@@ -24,7 +24,7 @@ func NewStaffController(SRepo repository.IStaffRepo, uc controller.IUserControll
 	}
 }
 
-func (s *StaffController) GetList() ([]model.Staff, error) {
+func (s *StaffController) GetStaffList() ([]model.Staff, error) {
 	res, err := s.repo.GetList()
 	if err != nil {
 		s.log.Warnf("get staff list err %s", err)

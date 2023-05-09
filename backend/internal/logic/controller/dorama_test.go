@@ -62,9 +62,9 @@ func TestGetAllDorama(t *testing.T) {
 				uc:   test.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			r, err := dc.GetAll()
+			r, err := dc.GetAllDorama()
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetAll(): error = %v, expect = %v", err, test.isNeg)
+				t.Errorf("GetAllDorama(): error = %v, expect = %v", err, test.isNeg)
 			}
 			if !reflect.DeepEqual(r, test.result) {
 				t.Errorf("GotAll(): got: %v, expect = %v", r, test.result)
@@ -109,12 +109,12 @@ func TestGetByNameDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetByName(test.arg)
+			res, err := dc.GetDoramaByName(test.arg)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetByName() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("GetDoramaByName() error: %v, expect: %v", err, test.isNeg)
 			}
 			if !reflect.DeepEqual(res, test.result) {
-				t.Errorf("GetByName() got: %v, expect: %v", res, test.result)
+				t.Errorf("GetDoramaByName() got: %v, expect: %v", res, test.result)
 			}
 		})
 	}
@@ -156,12 +156,12 @@ func TestByIdDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetById(test.arg)
+			res, err := dc.GetDoramaById(test.arg)
 			if (err != nil) != test.isNeg {
-				t.Errorf("GetById() error: %v, expect: %v", err, test.isNeg)
+				t.Errorf("GetDoramaById() error: %v, expect: %v", err, test.isNeg)
 			}
 			if !reflect.DeepEqual(res, test.result) {
-				t.Errorf("GetById() got: %v, expect: %v", res, test.result)
+				t.Errorf("GetDoramaById() got: %v, expect: %v", res, test.result)
 			}
 		})
 	}

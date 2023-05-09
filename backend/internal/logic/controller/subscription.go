@@ -32,7 +32,7 @@ func (s *SubscriptionController) GetAll() ([]model.Subscription, error) {
 	res, err := s.repo.GetList()
 	if err != nil {
 		s.log.Warnf("get all subs err %s", err)
-		return nil, fmt.Errorf("GetList: %w", err)
+		return nil, fmt.Errorf("GetStaffList: %w", err)
 	}
 	s.log.Infof("got all subs")
 	return res, nil

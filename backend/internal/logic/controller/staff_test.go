@@ -54,12 +54,12 @@ func TestGetListStaff(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetList()
+			res, err := dc.GetStaffList()
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetList() error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetStaffList() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetList() got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetStaffList() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}

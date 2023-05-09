@@ -730,7 +730,7 @@ type mIEpisodeRepoMockGetList struct {
 	mutex    sync.RWMutex
 }
 
-// IEpisodeRepoMockGetListExpectation specifies expectation struct of the IEpisodeRepo.GetList
+// IEpisodeRepoMockGetListExpectation specifies expectation struct of the IEpisodeRepo.GetStaffList
 type IEpisodeRepoMockGetListExpectation struct {
 	mock    *IEpisodeRepoMock
 	params  *IEpisodeRepoMockGetListParams
@@ -738,21 +738,21 @@ type IEpisodeRepoMockGetListExpectation struct {
 	Counter uint64
 }
 
-// IEpisodeRepoMockGetListParams contains parameters of the IEpisodeRepo.GetList
+// IEpisodeRepoMockGetListParams contains parameters of the IEpisodeRepo.GetStaffList
 type IEpisodeRepoMockGetListParams struct {
 	idDorama int
 }
 
-// IEpisodeRepoMockGetListResults contains results of the IEpisodeRepo.GetList
+// IEpisodeRepoMockGetListResults contains results of the IEpisodeRepo.GetStaffList
 type IEpisodeRepoMockGetListResults struct {
 	ea1 []model.Episode
 	err error
 }
 
-// Expect sets up expected params for IEpisodeRepo.GetList
+// Expect sets up expected params for IEpisodeRepo.GetStaffList
 func (mmGetList *mIEpisodeRepoMockGetList) Expect(idDorama int) *mIEpisodeRepoMockGetList {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	if mmGetList.defaultExpectation == nil {
@@ -769,10 +769,10 @@ func (mmGetList *mIEpisodeRepoMockGetList) Expect(idDorama int) *mIEpisodeRepoMo
 	return mmGetList
 }
 
-// Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.GetList
+// Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.GetStaffList
 func (mmGetList *mIEpisodeRepoMockGetList) Inspect(f func(idDorama int)) *mIEpisodeRepoMockGetList {
 	if mmGetList.mock.inspectFuncGetList != nil {
-		mmGetList.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.GetList")
+		mmGetList.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.GetStaffList")
 	}
 
 	mmGetList.mock.inspectFuncGetList = f
@@ -780,10 +780,10 @@ func (mmGetList *mIEpisodeRepoMockGetList) Inspect(f func(idDorama int)) *mIEpis
 	return mmGetList
 }
 
-// Return sets up results that will be returned by IEpisodeRepo.GetList
+// Return sets up results that will be returned by IEpisodeRepo.GetStaffList
 func (mmGetList *mIEpisodeRepoMockGetList) Return(ea1 []model.Episode, err error) *IEpisodeRepoMock {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	if mmGetList.defaultExpectation == nil {
@@ -793,25 +793,25 @@ func (mmGetList *mIEpisodeRepoMockGetList) Return(ea1 []model.Episode, err error
 	return mmGetList.mock
 }
 
-// Set uses given function f to mock the IEpisodeRepo.GetList method
+// Set uses given function f to mock the IEpisodeRepo.GetStaffList method
 func (mmGetList *mIEpisodeRepoMockGetList) Set(f func(idDorama int) (ea1 []model.Episode, err error)) *IEpisodeRepoMock {
 	if mmGetList.defaultExpectation != nil {
-		mmGetList.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.GetList method")
+		mmGetList.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.GetStaffList method")
 	}
 
 	if len(mmGetList.expectations) > 0 {
-		mmGetList.mock.t.Fatalf("Some expectations are already set for the IEpisodeRepo.GetList method")
+		mmGetList.mock.t.Fatalf("Some expectations are already set for the IEpisodeRepo.GetStaffList method")
 	}
 
 	mmGetList.mock.funcGetList = f
 	return mmGetList.mock
 }
 
-// When sets expectation for the IEpisodeRepo.GetList which will trigger the result defined by the following
+// When sets expectation for the IEpisodeRepo.GetStaffList which will trigger the result defined by the following
 // Then helper
 func (mmGetList *mIEpisodeRepoMockGetList) When(idDorama int) *IEpisodeRepoMockGetListExpectation {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockGetListExpectation{
@@ -822,7 +822,7 @@ func (mmGetList *mIEpisodeRepoMockGetList) When(idDorama int) *IEpisodeRepoMockG
 	return expectation
 }
 
-// Then sets up IEpisodeRepo.GetList return parameters for the expectation previously defined by the When method
+// Then sets up IEpisodeRepo.GetStaffList return parameters for the expectation previously defined by the When method
 func (e *IEpisodeRepoMockGetListExpectation) Then(ea1 []model.Episode, err error) *IEpisodeRepoMock {
 	e.results = &IEpisodeRepoMockGetListResults{ea1, err}
 	return e.mock
@@ -856,19 +856,19 @@ func (mmGetList *IEpisodeRepoMock) GetList(idDorama int) (ea1 []model.Episode, e
 		mm_want := mmGetList.GetListMock.defaultExpectation.params
 		mm_got := IEpisodeRepoMockGetListParams{idDorama}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
-			mmGetList.t.Errorf("IEpisodeRepoMock.GetList got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+			mmGetList.t.Errorf("IEpisodeRepoMock.GetStaffList got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
 		mm_results := mmGetList.GetListMock.defaultExpectation.results
 		if mm_results == nil {
-			mmGetList.t.Fatal("No results are set for the IEpisodeRepoMock.GetList")
+			mmGetList.t.Fatal("No results are set for the IEpisodeRepoMock.GetStaffList")
 		}
 		return (*mm_results).ea1, (*mm_results).err
 	}
 	if mmGetList.funcGetList != nil {
 		return mmGetList.funcGetList(idDorama)
 	}
-	mmGetList.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetList. %v", idDorama)
+	mmGetList.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetStaffList. %v", idDorama)
 	return
 }
 
@@ -919,21 +919,21 @@ func (m *IEpisodeRepoMock) MinimockGetListDone() bool {
 func (m *IEpisodeRepoMock) MinimockGetListInspect() {
 	for _, e := range m.GetListMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Errorf("Expected call to IEpisodeRepoMock.GetList with params: %#v", *e.params)
+			m.t.Errorf("Expected call to IEpisodeRepoMock.GetStaffList with params: %#v", *e.params)
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GetListMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetListCounter) < 1 {
 		if m.GetListMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IEpisodeRepoMock.GetList")
+			m.t.Error("Expected call to IEpisodeRepoMock.GetStaffList")
 		} else {
-			m.t.Errorf("Expected call to IEpisodeRepoMock.GetList with params: %#v", *m.GetListMock.defaultExpectation.params)
+			m.t.Errorf("Expected call to IEpisodeRepoMock.GetStaffList with params: %#v", *m.GetListMock.defaultExpectation.params)
 		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGetList != nil && mm_atomic.LoadUint64(&m.afterGetListCounter) < 1 {
-		m.t.Error("Expected call to IEpisodeRepoMock.GetList")
+		m.t.Error("Expected call to IEpisodeRepoMock.GetStaffList")
 	}
 }
 

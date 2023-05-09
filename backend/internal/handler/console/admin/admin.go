@@ -182,7 +182,7 @@ func (a *Admin) updateDorama(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
-	old, err := a.dc.GetById(id)
+	old, err := a.dc.GetDoramaById(id)
 	if err != nil {
 		return err
 	}

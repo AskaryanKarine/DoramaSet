@@ -3,9 +3,9 @@ package controller
 import "DoramaSet/internal/logic/model"
 
 type IDoramaController interface {
-	GetAll() ([]model.Dorama, error)
-	GetByName(name string) ([]model.Dorama, error)
-	GetById(id int) (*model.Dorama, error)
+	GetAllDorama() ([]model.Dorama, error)
+	GetDoramaByName(name string) ([]model.Dorama, error)
+	GetDoramaById(id int) (*model.Dorama, error)
 	CreateDorama(token string, record *model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
 	AddStaffToDorama(token string, idD, idS int) error
@@ -45,7 +45,7 @@ type IPointsController interface {
 }
 
 type IStaffController interface {
-	GetList() ([]model.Staff, error)
+	GetStaffList() ([]model.Staff, error)
 	GetListByName(name string) ([]model.Staff, error)
 	GetListByDorama(idD int) ([]model.Staff, error)
 	GetStaffById(id int) (*model.Staff, error)

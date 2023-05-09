@@ -20,7 +20,7 @@ func NewDoramaController(DRepo repository.IDoramaRepo, uc controller.IUserContro
 	return &DoramaController{repo: DRepo, uc: uc, log: log}
 }
 
-func (d *DoramaController) GetAll() ([]model.Dorama, error) {
+func (d *DoramaController) GetAllDorama() ([]model.Dorama, error) {
 	res, err := d.repo.GetList()
 	if err != nil {
 		d.log.Warnf("get all dorama, get list err %s", err)
@@ -30,7 +30,7 @@ func (d *DoramaController) GetAll() ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
+func (d *DoramaController) GetDoramaByName(name string) ([]model.Dorama, error) {
 
 	res, err := d.repo.GetListName(name)
 	if err != nil {
@@ -41,7 +41,7 @@ func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaController) GetById(id int) (*model.Dorama, error) {
+func (d *DoramaController) GetDoramaById(id int) (*model.Dorama, error) {
 	res, err := d.repo.GetDorama(id)
 	if err != nil {
 		d.log.Warnf("get dorama by id error: %s, value: %d", err, id)

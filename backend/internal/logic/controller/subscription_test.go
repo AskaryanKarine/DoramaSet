@@ -52,7 +52,7 @@ func TestGetAllSub(t *testing.T) {
 			}
 			res, err := dc.GetAll()
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetAll() error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetAllDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
 				t.Errorf("GotAll() got: %v, expect = %v", res, testCase.result)
