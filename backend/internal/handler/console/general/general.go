@@ -176,7 +176,7 @@ func (g *General) GetStaffByDorama(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
-	res, err := g.sc.GetListByDorama(id)
+	res, err := g.sc.GetStaffListByDorama(id)
 	if err != nil {
 		return err
 	}

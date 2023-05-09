@@ -114,6 +114,11 @@ func (u *UserController) Login(username, password string) (string, error) {
 		return "", fmt.Errorf("getUser: %w", err)
 	}
 
+	if user == nil {
+		u.log.Warnf("login err %s, value %s", err, username)
+		return "", fmt.Errorf("%w", errors.ErrorWrongLogin)
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		u.log.Warnf("login err %s, value %s", err, username)

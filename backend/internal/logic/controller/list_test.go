@@ -84,7 +84,7 @@ func TestCreateList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			err := dc.CreateList(testCase.arg.token, testCase.arg.record)
+			err := dc.CreateList(testCase.arg.token, &testCase.arg.record)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("CreateList() error = %v, expect = %v", err, testCase.isNeg)
 			}

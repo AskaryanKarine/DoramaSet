@@ -101,7 +101,7 @@ func (a *Admin) CreateStaff(token string) error {
 		return err
 	}
 
-	err = a.sc.CreateStaff(token, staff)
+	err = a.sc.CreateStaff(token, &staff)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func (a *Admin) CreateEpisode(token string) error {
 		return err
 	}
 
-	err := a.ec.CreateEpisode(episode, id)
+	err := a.ec.CreateEpisode(token, &episode, id)
 	if err != nil {
 		return err
 	}

@@ -61,10 +61,10 @@ func TestGetLisByDoramaPicture(t *testing.T) {
 			}
 			res, err := dc.GetListByDorama(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetListByDorama() error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetStaffListByDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetListByDorama() got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetStaffListByDorama() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}

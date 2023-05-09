@@ -252,6 +252,20 @@ func TestLoginUser(t *testing.T) {
 			isNeg:  false,
 		},
 		{
+			name: "wrong username error",
+			fl: UserController{
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(nil, nil).CreateUserMock.Return(nil),
+				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			arg:    argument{"123456789", "123456"},
+			result: "",
+			isNeg:  true,
+		},
+		{
 			name: "wrong password error",
 			fl: UserController{
 				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),

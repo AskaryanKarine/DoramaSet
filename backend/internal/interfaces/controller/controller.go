@@ -15,11 +15,11 @@ type IEpisodeController interface {
 	GetEpisodeList(idD int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
 	MarkWatchingEpisode(token string, idEp int) error
-	CreateEpisode(record model.Episode, idD int) error
+	CreateEpisode(token string, record *model.Episode, idD int) error
 }
 
 type IListController interface {
-	CreateList(token string, record model.List) error
+	CreateList(token string, record *model.List) error
 	GetUserLists(token string) ([]model.List, error)
 	GetPublicLists() ([]model.List, error)
 	GetListById(token string, id int) (*model.List, error)
@@ -47,9 +47,9 @@ type IPointsController interface {
 type IStaffController interface {
 	GetStaffList() ([]model.Staff, error)
 	GetListByName(name string) ([]model.Staff, error)
-	GetListByDorama(idD int) ([]model.Staff, error)
+	GetStaffListByDorama(idD int) ([]model.Staff, error)
 	GetStaffById(id int) (*model.Staff, error)
-	CreateStaff(token string, record model.Staff) error
+	CreateStaff(token string, record *model.Staff) error
 	UpdateStaff(token string, record model.Staff) error
 }
 

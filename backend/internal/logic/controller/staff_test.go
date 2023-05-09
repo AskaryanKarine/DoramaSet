@@ -152,12 +152,12 @@ func TestGetListByDoramaStaff(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetListByDorama(testCase.arg)
+			res, err := dc.GetStaffListByDorama(testCase.arg)
 			if (err != nil) != testCase.isNeg {
-				t.Errorf("GetListByDorama() error = %v, expect = %v", err, testCase.isNeg)
+				t.Errorf("GetStaffListByDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
-				t.Errorf("GetListByDorama() got: %v, expect = %v", res, testCase.result)
+				t.Errorf("GetStaffListByDorama() got: %v, expect = %v", res, testCase.result)
 			}
 		})
 	}
@@ -235,7 +235,7 @@ func TestCreateStaff(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.CreateStaff(test.arg.token, test.arg.dorama)
+			err := dc.CreateStaff(test.arg.token, &test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreateStaff() error: %v, expect: %v", err, test.isNeg)
 			}
