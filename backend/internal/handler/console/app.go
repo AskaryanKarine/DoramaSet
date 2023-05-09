@@ -42,7 +42,7 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	log, f, err := logger2.Init(cfg)
+	log, err := logger2.Init(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func NewApp() (*App, error) {
 	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
-		log.Fatalf("DB can't connect: %s", err)
+		log.Logger.Fatalf("DB can't connect: %s", err)
 		return nil, err
 	}
 
@@ -64,15 +64,15 @@ func NewApp() (*App, error) {
 	uRepo := postgres2.NewUserRepo(db, subRepo, lRepo)
 
 	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
-		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log)
+		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log.Logger)
 	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
-		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log)
-	dc := controller.NewDoramaController(dRepo, uc, log)
-	ec := controller.NewEpisodeController(eRepo, uc, log)
-	lc := controller.NewListController(lRepo, dRepo, uc, log)
-	picC := controller.NewPictureController(picRepo, uc, log)
-	staffC := controller.NewStaffController(staffRepo, uc, log)
-	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, log)
+		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log.Logger)
+	dc := controller.NewDoramaController(dRepo, uc, log.Logger)
+	ec := controller.NewEpisodeController(eRepo, uc, log.Logger)
+	lc := controller.NewListController(lRepo, dRepo, uc, log.Logger)
+	picC := controller.NewPictureController(picRepo, uc, log.Logger)
+	staffC := controller.NewStaffController(staffRepo, uc, log.Logger)
+	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, log.Logger)
 
 	generalOp := general.New(dc, staffC, lc)
 	guestOp := guest.New(uc)
@@ -82,7 +82,7 @@ func NewApp() (*App, error) {
 	a := App{
 		token:   "",
 		admin:   false,
-		logFile: f,
+		logFile: log.File,
 	}
 
 	a.generalOptions = []handler{

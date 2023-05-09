@@ -25,8 +25,13 @@ type loggerConfig struct {
 	Level    string
 }
 
+type serverConfig struct {
+	Port string
+}
+
 type Config struct {
 	DB     dbConfig
 	App    appConfig
 	Logger loggerConfig
+	Server serverConfig
 }

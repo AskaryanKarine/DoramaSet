@@ -8,17 +8,22 @@ import (
 	"os"
 )
 
-func Init(cfg *config.Config) (*logrus.Logger, *os.File, error) {
+type Logger struct {
+	*logrus.Entry
+	File *os.File
+}
+
+func Init(cfg *config.Config) (*Logger, error) {
 	level, err := logrus.ParseLevel(cfg.Logger.Level)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	f, err := os.OpenFile(cfg.Logger.FileName, os.O_CREATE|os.O_APPEND, os.ModePerm)
 	if err != nil {
-		_ = f.Close()
-		return nil, nil, err
+		return nil, err
 	}
+
 	log := logrus.Logger{
 		Out: io.Writer(f),
 		Formatter: &easy.Formatter{
@@ -27,5 +32,10 @@ func Init(cfg *config.Config) (*logrus.Logger, *os.File, error) {
 		},
 		Level: level,
 	}
-	return &log, f, nil
+	l := Logger{
+		logrus.NewEntry(&log),
+		f,
+	}
+
+	return &l, nil
 }
