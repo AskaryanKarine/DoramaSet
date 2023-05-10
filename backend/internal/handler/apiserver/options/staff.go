@@ -28,6 +28,7 @@ func (h *Handler) findStaffByName(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Data": data})
@@ -47,6 +48,7 @@ func (h *Handler) getStaffById(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Data": data})

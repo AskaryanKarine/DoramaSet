@@ -38,6 +38,7 @@ func (h *Handler) getListById(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Data": data})

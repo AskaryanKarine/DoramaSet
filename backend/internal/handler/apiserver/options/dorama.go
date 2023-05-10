@@ -78,6 +78,7 @@ func (h *Handler) getDoramaById(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Data": dorama})
@@ -93,6 +94,7 @@ func (h *Handler) findDoramaByName(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Data": dorama})
@@ -142,6 +144,7 @@ func (h *Handler) getStaffListByDorama(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"Data": data})
