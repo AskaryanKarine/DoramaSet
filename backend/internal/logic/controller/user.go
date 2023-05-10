@@ -37,7 +37,7 @@ func NewUserController(UR repository.IUserRepo, pc controller.IPointsController,
 	}
 }
 
-func (u *UserController) Registration(newUser model.User) (string, error) {
+func (u *UserController) Registration(newUser *model.User) (string, error) {
 	res, err := u.repo.GetUser(newUser.Username)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
@@ -75,20 +75,20 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 
 	newUser.Password = string(hash)
 
-	err = u.repo.CreateUser(&newUser)
+	err = u.repo.CreateUser(newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("createUser: %w", err)
 	}
 
-	err = u.pc.EarnPointForLogin(&newUser)
+	err = u.pc.EarnPointForLogin(newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
 	newUser.LastActive = time.Now()
-	err = u.repo.UpdateUser(newUser)
+	err = u.repo.UpdateUser(*newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("updateUser: %w", err)

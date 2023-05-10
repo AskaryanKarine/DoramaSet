@@ -2,10 +2,28 @@ package options
 
 import (
 	"DoramaSet/internal/handler/apiserver/middleware"
+	"DoramaSet/internal/logic/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
+
+type subResponse struct {
+	Id          int    `json:"id,omitempty"`
+	Description string `json:"description,omitempty"`
+	Cost        int    `json:"cost,omitempty"`
+	Duration    string `json:"duration,omitempty"`
+}
+
+func makeSubResponse(sub model.Subscription) subResponse {
+	return subResponse{
+		Id:          sub.Id,
+		Description: sub.Description,
+		Cost:        sub.Cost,
+		Duration:    fmt.Sprintf("%s", sub.Duration),
+	}
+}
 
 func (h *Handler) getAllSubs(c *gin.Context) {
 	data, err := h.Services.GetAll()
@@ -13,7 +31,11 @@ func (h *Handler) getAllSubs(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": data})
+	response := make([]subResponse, len(data))
+	for _, el := range data {
+		response = append(response, makeSubResponse(el))
+	}
+	c.JSON(http.StatusOK, gin.H{"Data": response})
 }
 
 func (h *Handler) getInfoSub(c *gin.Context) {
@@ -34,7 +56,7 @@ func (h *Handler) getInfoSub(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": data})
+	c.JSON(http.StatusOK, gin.H{"Data": makeSubResponse(*data)})
 }
 
 func (h *Handler) subscribe(c *gin.Context) {

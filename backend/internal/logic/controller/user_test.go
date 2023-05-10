@@ -194,7 +194,7 @@ func TestRegistrationUser(t *testing.T) {
 				passwordLen:     testCase.fl.passwordLen,
 				log:             &logrus.Logger{},
 			}
-			res, err := dc.Registration(testCase.arg)
+			res, err := dc.Registration(&testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Registration() error = %v, expect = %v", err, testCase.isNeg)
 			}

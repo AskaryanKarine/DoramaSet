@@ -61,7 +61,7 @@ type ISubscriptionController interface {
 }
 
 type IUserController interface {
-	Registration(record model.User) (string, error)
+	Registration(record *model.User) (string, error)
 	Login(username, password string) (string, error)
 	UpdateActive(token string) error
 	AuthByToken(token string) (*model.User, error)
