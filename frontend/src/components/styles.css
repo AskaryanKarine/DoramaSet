@@ -1,0 +1,95 @@
+.header {
+    position: sticky;
+    top: 0;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 120px;
+    background: aquamarine;
+}
+
+button {
+    border: 1px solid red;
+    border-radius: 20px;
+}
+
+button :hover {
+
+}
+
+.Nav {
+    width: 20%;
+    background: beige;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: auto;
+}
+
+/*класс внутренних дивов в навигации*/
+.Nav > div {
+    border: 1px solid gray;
+    border-radius: 20px;
+    width: 80%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px;
+}
+
+.userHeader {
+    display: flex;
+    align-items: center;
+    /*border: 1px solid black;*/
+}
+
+.userHeader > button {
+    /*border: 1px solid red;*/
+    /*border-radius: 20px;*/
+    width: 110px;
+    height: 40px;
+    margin-right: 50px;
+}
+
+.closeButton {
+    position: absolute;
+    top: 25px;
+    right: 20px;
+    border: 1px solid black;
+    border-radius: 20px;
+    padding: 0px 10px;
+}
+
+form {
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+input {
+    width: 100%;
+    border: 1px solid gray;
+    outline: 0;
+    padding: 0.75rem 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+form > button {
+    width: 50%;
+    height: 40px;
+}
+
+.regP:hover {
+    color: blue;
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-decoration-color: blue;
+}
+
+.question {
+    display: flex;
+}
