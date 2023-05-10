@@ -3,7 +3,6 @@ package options
 import (
 	"DoramaSet/internal/handler/apiserver/middleware"
 	"DoramaSet/internal/handler/apiserver/services"
-	"DoramaSet/internal/logger"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -11,14 +10,12 @@ import (
 )
 
 type Handler struct {
-	log logger.Logger
 	services.Services
 	mode string
 }
 
-func NewHandler(log logger.Logger, services services.Services, mode string) *Handler {
+func NewHandler(services services.Services, mode string) *Handler {
 	return &Handler{
-		log:      log,
 		Services: services,
 		mode:     mode,
 	}

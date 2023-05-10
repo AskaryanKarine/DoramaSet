@@ -21,9 +21,23 @@ func (h *Handler) login(c *gin.Context) {
 	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+	
+	user, err := h.Services.AuthByToken(token)
+	if err != nil && fatalDB(err) {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"admin": user.IsAdmin,
+	})
 }
 
 func (h *Handler) registration(c *gin.Context) {
@@ -44,5 +58,8 @@ func (h *Handler) registration(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"admin": false,
+	})
 }

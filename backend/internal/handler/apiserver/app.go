@@ -65,7 +65,7 @@ func Init() (*App, error) {
 		IPictureController:      picC,
 		ISubscriptionController: subC,
 	}
-	handle := options.NewHandler(*log, srvs, cfg.Server.Mode)
+	handle := options.NewHandler(srvs, cfg.Server.Mode)
 
 	app := &App{
 		srv:      new(server.Server),
@@ -89,7 +89,7 @@ func (a *App) Run() error {
 		return err
 	}
 
-	a.log.Infof("DoramaSet Started")
+	a.log.Infof("DoramaSet api Started")
 
 	return nil
 }
