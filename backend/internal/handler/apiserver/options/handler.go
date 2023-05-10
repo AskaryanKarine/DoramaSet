@@ -13,13 +13,19 @@ import (
 type Handler struct {
 	log logger.Logger
 	services.Services
+	mode string
 }
 
-func NewHandler(log logger.Logger, services services.Services) *Handler {
-	return &Handler{log, services}
+func NewHandler(log logger.Logger, services services.Services, mode string) *Handler {
+	return &Handler{
+		log:      log,
+		Services: services,
+		mode:     mode,
+	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
+	gin.SetMode(h.mode)
 	router := gin.New()
 	router.Use(middleware.ErrorHandler)
 

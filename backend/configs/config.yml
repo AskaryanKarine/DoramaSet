@@ -22,3 +22,4 @@ Logger:
 
 Server:
   Port: "8000"
+  Mode: debug

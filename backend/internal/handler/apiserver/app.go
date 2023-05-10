@@ -8,6 +8,7 @@ import (
 	"DoramaSet/internal/logic/controller"
 	"DoramaSet/internal/repository/postgres"
 	"DoramaSet/internal/server"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
 )
@@ -64,7 +65,7 @@ func Init() (*App, error) {
 		IPictureController:      picC,
 		ISubscriptionController: subC,
 	}
-	handle := options.NewHandler(*log, srvs)
+	handle := options.NewHandler(*log, srvs, cfg.Server.Mode)
 
 	app := &App{
 		srv:      new(server.Server),
@@ -78,6 +79,11 @@ func Init() (*App, error) {
 }
 
 func (a *App) Run() error {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Initialisation application error: %s", r)
+		}
+	}()
 	err := a.srv.Run(*a.cfg, a.handlers.InitRoutes())
 	if err != nil {
 		return err

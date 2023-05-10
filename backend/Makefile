@@ -2,6 +2,13 @@ build-tech:
 	mkdir out
 	go build -o out cmd\console\main.go
 
+build:
+	mkdir "out"
+	go build -o out cmd\apiserver\main.go
+
+run:
+	./out/main.exe
+
 clear:
 	rmdir /s /q out
 

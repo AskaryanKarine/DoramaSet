@@ -27,6 +27,7 @@ type loggerConfig struct {
 
 type serverConfig struct {
 	Port string
+	Mode string
 }
 
 type Config struct {
