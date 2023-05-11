@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/handler/apiserver/middleware"
 	"DoramaSet/internal/handler/apiserver/services"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -23,8 +24,11 @@ func NewHandler(services services.Services, mode string) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	gin.SetMode(h.mode)
-	router := gin.New()
+	router := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:3000"}
 	router.Use(middleware.ErrorHandler)
+	router.Use(cors.New(config))
 
 	home := router.Group("/", h.updateUserActiveByToken)
 	{
