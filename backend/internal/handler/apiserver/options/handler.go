@@ -31,7 +31,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth := home.Group("/auth")
 		{
 			auth.POST("/registration", h.registration) // guest
-			auth.GET("/login", h.login)                // guest
+			auth.POST("/login", h.login)               // guest
 		}
 
 		user := home.Group("/user")
