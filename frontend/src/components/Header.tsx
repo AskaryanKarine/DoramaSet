@@ -1,5 +1,6 @@
 import React from 'react';
 import './styles.css'
+import {Link} from "react-router-dom";
 
 interface HeaderProps {
     children: React.ReactNode
@@ -8,7 +9,9 @@ interface HeaderProps {
 export function Header({children}:HeaderProps) {
     return (
         <div className="header">
-            <h1 className='text-3xl font-serif font-bold mx-20'>DoramaSet</h1>
+            <Link to="/" className='w-[20%]'>
+                <h1 className='text-3xl font-serif font-bold text-center'>DoramaSet</h1>
+            </Link>
             {children}
         </div>
     )

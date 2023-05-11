@@ -1,4 +1,12 @@
+.app {
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .header {
+    width: 100%;
+    height: 120px;
+    z-index: 1;
     position: sticky;
     top: 0;
     text-align: center;
@@ -6,8 +14,12 @@
     justify-content: space-between;
     flex-wrap: nowrap;
     align-items: center;
-    height: 120px;
     background: aquamarine;
+}
+
+.header h1 {
+    width: auto;
+    display: block;
 }
 
 button {
@@ -19,17 +31,34 @@ button :hover {
 
 }
 
-.Nav {
+.content {
+    background: lightcyan;
+    position: relative;
+    right: 0;
+    width: 80%;
+    padding: 50px;
+}
+
+.Menu {
     width: 20%;
     background: beige;
+    position: sticky;
+    height: 100vh;
+}
+
+.Nav {
+    /*height: 100vh;*/
+    position: fixed;
+    top: 120px;
+    left: 0;
+    padding: 50px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: auto;
 }
 
 /*класс внутренних дивов в навигации*/
-.Nav > div {
+.Nav div {
     border: 1px solid gray;
     border-radius: 20px;
     width: 80%;
@@ -40,18 +69,16 @@ button :hover {
     margin: 15px;
 }
 
-.userHeader {
+.signHeader {
+    width: 80%;
     display: flex;
-    align-items: center;
-    /*border: 1px solid black;*/
+    justify-content: flex-end;
 }
 
-.userHeader > button {
-    /*border: 1px solid red;*/
-    /*border-radius: 20px;*/
+.signHeader > button {
     width: 110px;
     height: 40px;
-    margin-right: 50px;
+    margin: 0 50px;
 }
 
 .closeButton {
@@ -60,7 +87,7 @@ button :hover {
     right: 20px;
     border: 1px solid black;
     border-radius: 20px;
-    padding: 0px 10px;
+    padding: 0 10px;
 }
 
 form {
