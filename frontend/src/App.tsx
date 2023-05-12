@@ -1,18 +1,20 @@
 import React from 'react';
-import {Header} from "./components/Header";
-import {Sign} from "./components/Sign";
+import {Header} from "./components/Header/Header";
 import {Route, Routes} from "react-router-dom";
-import {Menu} from "./components/Menu";
+import {SideMenu} from "./components/SideMenu/SideMenu";
 import {AccountPages} from "./pages/AccountPages";
 import {HomePage} from "./pages/HomePage";
+import {TopMenu} from "./components/TopMenu/TopMenu";
+import './index.css'
+
 
 function App() {
     return (
         <div className="app">
             <Header>
-                <Sign/>
+                <TopMenu/>
             </Header>
-            <Menu/>
+            <SideMenu/>
             <main className="content">
                 <Routes>
                     <Route path="/" element={<HomePage/>}/>

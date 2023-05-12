@@ -1,0 +1,10 @@
+.question {
+
+}
+
+.question:hover {
+    color: blue;
+    cursor: pointer;
+    text-decoration-line: underline;
+    text-decoration-color: blue;
+}

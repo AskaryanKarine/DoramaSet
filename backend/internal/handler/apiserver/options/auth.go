@@ -82,6 +82,6 @@ func (h *Handler) registration(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
-		"admin": makeUserResponse(req),
+		"user":  makeUserResponse(req),
 	})
 }

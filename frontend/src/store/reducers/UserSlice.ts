@@ -2,6 +2,7 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import {IUser} from "../../models/IUser";
 import axios, {AxiosError} from "axios";
 import {IError} from "../../models/IError";
+import {AuthState} from "../../models/AuthState";
 
 interface UserState {
     token: string
@@ -12,7 +13,7 @@ interface UserState {
 
 const initialState: UserState = {
     token: "",
-    user: <IUser>{},
+    user: {} as IUser,
     loading: false,
     error: ""
 }
@@ -23,11 +24,19 @@ interface UserRequest {
 }
 
 export const fetchUser = createAsyncThunk<UserRequest,
-    {login: string, password:string, email:string, isLogin: boolean}, {rejectValue:string}>(
+    {login: string, password:string, email:string, authState: AuthState}, {rejectValue:string}>(
     'user/fetchUser',
-    async function ({login, password,email, isLogin}, {rejectWithValue}) {
+    async function ({login, password,email, authState}, {rejectWithValue}) {
         try {
-            const urlPath = isLogin ? "login" : "registration"
+            let urlPath: string
+            switch (authState) {
+                case AuthState.SIGN_IN:
+                    urlPath= "login"
+                    break
+                case AuthState.REGISTRATION:
+                    urlPath = "registration"
+                    break
+            }
             const url = ["http://localhost:8000/auth/", urlPath].join("")
             const response = await axios.post<UserRequest>(url, {
                 username: login,
@@ -41,12 +50,12 @@ export const fetchUser = createAsyncThunk<UserRequest,
                 console.log(e)
                 throw e;
             }
-            console.log(error)
             if (error.response && error.response.status >= 500) {
                 console.log(error)
                 throw new Error(error.response.data.error)
             }
             console.log(error)
+            console.log(error.response.data.error)
             return rejectWithValue(error.response.data.error)
         }
 
@@ -56,24 +65,35 @@ export const fetchUser = createAsyncThunk<UserRequest,
 export const userSlice = createSlice({
     name: "user",
     initialState,
-    reducers: {},
+    reducers: {
+        // resetState: () => initialState,
+        // resetError (state) {
+        //     state.error = ""
+        // }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchUser.pending, (state) => {
+                console.log(state.error)
                 state.loading = true
                 state.error = ""
+                console.log("load")
             })
             .addCase(fetchUser.fulfilled, (state, action) => {
                 state.user = action.payload.user
                 state.token = action.payload.token
                 state.loading = false
-
+                console.log("fulfilled")
             })
             .addCase(fetchUser.rejected, (state, action) => {
                 state.error = action.payload
                 state.loading = false
+                console.log("err")
+                console.log(state.error)
             })
     }
 })
+
+// export const {resetState, resetError} = userSlice.actions
 
 export default userSlice.reducer

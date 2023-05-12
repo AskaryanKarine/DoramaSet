@@ -1,0 +1,31 @@
+.menu {
+    width: 20%;
+    background: beige;
+    position: sticky;
+    height: 100vh;
+}
+
+.navigation {
+    position: fixed;
+    top: 120px;
+    left: 0;
+    padding: 50px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navigation div {
+    border: 1px solid gray;
+    border-radius: 20px;
+    width: 80%;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px;
+}
+
+.firstDiv {
+    margin-top: 30px;
+}
