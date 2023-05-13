@@ -13,6 +13,7 @@ const (
 	LoginLen         = 5
 	PasswordLen      = 8
 	TokenExpiration  = time.Hour * 700
+	Day              = 24 * time.Hour
 )
 
 const (

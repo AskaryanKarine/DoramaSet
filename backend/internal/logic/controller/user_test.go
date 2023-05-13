@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"DoramaSet/internal/interfaces/controller"
+	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
@@ -520,6 +522,174 @@ func TestAuthByToken(t *testing.T) {
 			}
 			if !reflect.DeepEqual(res, testCase.result) {
 				t.Errorf("AuthByToken() got: %v, expect = %v", res, testCase.result)
+			}
+		})
+	}
+}
+
+func TestUserController_ChangeEmoji(t *testing.T) {
+	secretKey := "qwerty"
+	correctUser := model.User{
+		Username: "123456789",
+	}
+	tokenExpiration := time.Hour * 700
+	mc := minimock.NewController(t)
+	type fields struct {
+		repo            repository.IUserRepo
+		pc              controller.IPointsController
+		secretKey       string
+		loginLen        int
+		passwordLen     int
+		tokenExpiration time.Duration
+		log             *logrus.Logger
+	}
+	type args struct {
+		token     string
+		emojiCode string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "successful result",
+			fields: fields{
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&correctUser, nil),
+				pc:              nil,
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			wantErr: false,
+		},
+		{
+			name: "update user error",
+			fields: fields{
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&model.User{}, nil),
+				pc:              nil,
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			wantErr: true,
+		},
+		{
+			name: "auth error",
+			fields: fields{
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&model.User{}, errors.New("error")),
+				pc:              nil,
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			args:    args{"", ""},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := &UserController{
+				repo:            tt.fields.repo,
+				pc:              tt.fields.pc,
+				secretKey:       tt.fields.secretKey,
+				loginLen:        tt.fields.loginLen,
+				passwordLen:     tt.fields.passwordLen,
+				tokenExpiration: tt.fields.tokenExpiration,
+				log:             &logrus.Logger{},
+			}
+			if err := u.ChangeEmoji(tt.args.token, tt.args.emojiCode); (err != nil) != tt.wantErr {
+				t.Errorf("ChangeEmoji() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestUserController_ChangeAvatarColor(t *testing.T) {
+	secretKey := "qwerty"
+	correctUser := model.User{
+		Username: "123456789",
+	}
+	tokenExpiration := time.Hour * 700
+	mc := minimock.NewController(t)
+	type fields struct {
+		repo            repository.IUserRepo
+		pc              controller.IPointsController
+		secretKey       string
+		loginLen        int
+		passwordLen     int
+		tokenExpiration time.Duration
+		log             *logrus.Logger
+	}
+	type args struct {
+		token string
+		color string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "successful result",
+			fields: fields{
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&model.User{}, nil),
+				pc:              nil,
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			wantErr: false,
+		},
+		{
+			name: "update user error",
+			fields: fields{
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&model.User{}, nil),
+				pc:              nil,
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			wantErr: true,
+		},
+		{
+			name: "auth error",
+			fields: fields{
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&model.User{}, errors.New("error")),
+				pc:              nil,
+				secretKey:       secretKey,
+				tokenExpiration: tokenExpiration,
+				loginLen:        5,
+				passwordLen:     8,
+			},
+			args:    args{"", ""},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := &UserController{
+				repo:            tt.fields.repo,
+				pc:              tt.fields.pc,
+				secretKey:       tt.fields.secretKey,
+				loginLen:        tt.fields.loginLen,
+				passwordLen:     tt.fields.passwordLen,
+				tokenExpiration: tt.fields.tokenExpiration,
+				log:             &logrus.Logger{},
+			}
+			if err := u.ChangeAvatarColor(tt.args.token, tt.args.color); (err != nil) != tt.wantErr {
+				t.Errorf("ChangeAvatarColor() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

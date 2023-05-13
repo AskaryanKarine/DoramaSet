@@ -101,3 +101,28 @@ func (s *SubscriptionController) UnsubscribeUser(token string) error {
 	s.log.Infof("unsubsribe user %s", user.Username)
 	return nil
 }
+
+func (s *SubscriptionController) UpdateSubscribe(token string) error {
+	user, err := s.uc.AuthByToken(token)
+	if err != nil {
+		s.log.Warnf("update active user auth err %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	updateDate := user.LastSubscribe.Add(user.Sub.Duration)
+	if !eqDate(time.Now(), updateDate) {
+		return nil
+	}
+
+	err = s.SubscribeUser(token, user.Sub.Id)
+	if err != nil {
+		err := s.UnsubscribeUser(token)
+		if err != nil {
+			s.log.Warnf("update subscribe unsubsribe user %s error %s", user.Username, err)
+			return fmt.Errorf("unsubscribeUser: %w", err)
+		}
+		return nil
+	}
+
+	s.log.Infof("update subsribe user %s", user.Username)
+	return nil
+}

@@ -6,11 +6,11 @@ import (
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"net/mail"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -195,4 +195,35 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 	}
 	u.log.Infof("auth by token user %s", user.Username)
 	return user, nil
+}
+
+func (u *UserController) ChangeEmoji(token, emojiCode string) error {
+	user, err := u.AuthByToken(token)
+	if err != nil {
+		u.log.Warnf("change emoji auth err %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	user.Emoji = emojiCode
+	err = u.repo.UpdateUser(*user)
+	if err != nil {
+		u.log.Warnf("chande emoji err %s, user %s, value %s", err, user.Username, emojiCode)
+		return fmt.Errorf("updateUser: %w", err)
+	}
+	u.log.Infof("user %s change emoji to %s", user.Username, emojiCode)
+	return nil
+}
+func (u *UserController) ChangeAvatarColor(token, color string) error {
+	user, err := u.AuthByToken(token)
+	if err != nil {
+		u.log.Warnf("change acatar color auth err %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	user.Color = color
+	err = u.repo.UpdateUser(*user)
+	if err != nil {
+		u.log.Warnf("chande emoji err %s, user %s, value %s", err, user.Username, color)
+		return fmt.Errorf("updateUser: %w", err)
+	}
+	u.log.Infof("user %s change color avatar to %s", user.Username, color)
+	return nil
 }

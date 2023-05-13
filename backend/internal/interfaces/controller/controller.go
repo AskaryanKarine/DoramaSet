@@ -58,6 +58,7 @@ type ISubscriptionController interface {
 	GetInfo(id int) (*model.Subscription, error)
 	SubscribeUser(token string, id int) error
 	UnsubscribeUser(token string) error
+	UpdateSubscribe(token string) error
 }
 
 type IUserController interface {
@@ -65,4 +66,6 @@ type IUserController interface {
 	Login(username, password string) (string, error)
 	UpdateActive(token string) error
 	AuthByToken(token string) (*model.User, error)
+	ChangeEmoji(token, emojiCode string) error
+	ChangeAvatarColor(token, color string) error
 }
