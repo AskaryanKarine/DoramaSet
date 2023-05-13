@@ -11,6 +11,8 @@ type User struct {
 	LastSubscribe time.Time     `json:"last_subscribe,omitempty"`
 	Points        int           `json:"points,omitempty,"`
 	IsAdmin       bool          `json:"is_admin,omitempty"`
+	Color         string        `json:"color,omitempty"`
+	Emoji         string        `json:"emoji,omitempty"`
 	Sub           *Subscription `json:"sub,omitempty"`
 	Collection    []List        `json:"collection,omitempty"`
 }

@@ -25,6 +25,8 @@ type userModel struct {
 	LastActive       time.Time
 	LastSubscribe    time.Time
 	Points           int
+	Color            string
+	Emoji            string
 }
 
 func NewUserRepo(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.IListRepo) *UserRepo {
@@ -61,8 +63,10 @@ func (u *UserRepo) GetUser(username string) (*model.User, error) {
 		LastSubscribe: user.LastSubscribe,
 		Points:        user.Points,
 		IsAdmin:       user.IsAdmin,
+		Color:         user.Color,
 		Sub:           sub,
 		Collection:    lists,
+		Emoji:         user.Emoji,
 	}
 
 	return &res, nil
@@ -83,6 +87,8 @@ func (u *UserRepo) CreateUser(record *model.User) error {
 		LastSubscribe:    record.LastSubscribe,
 		Points:           record.Points,
 		IsAdmin:          record.IsAdmin,
+		Color:            record.Color,
+		Emoji:            record.Emoji,
 		SubId:            freeSub.Id,
 	}
 	record.Sub = freeSub
@@ -115,6 +121,8 @@ func (u *UserRepo) UpdateUser(record model.User) error {
 		LastActive:       record.LastActive,
 		LastSubscribe:    record.LastSubscribe,
 		Points:           record.Points,
+		Color:            record.Color,
+		Emoji:            record.Emoji,
 	}
 	result := u.db.Table("dorama_set.user").Save(&m)
 	if result.Error != nil {

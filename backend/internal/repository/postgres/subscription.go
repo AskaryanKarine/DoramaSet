@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
@@ -14,6 +15,7 @@ type SubscriptionRepo struct {
 
 type subModel struct {
 	Id          int
+	Name        string
 	Description string
 	Cost        int
 	Duration    int
@@ -39,9 +41,10 @@ func (s *SubscriptionRepo) GetList() ([]model.Subscription, error) {
 	for _, s := range subs {
 		tmp := model.Subscription{
 			Id:          s.Id,
+			Name:        s.Name,
 			Description: s.Description,
 			Cost:        s.Cost,
-			Duration:    time.Duration(s.Duration) * time.Second,
+			Duration:    time.Duration(s.Duration) * constant.Day,
 		}
 		resSubs = append(resSubs, tmp)
 	}
@@ -58,9 +61,10 @@ func (s *SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) 
 
 	res := model.Subscription{
 		Id:          sub.Id,
+		Name:        sub.Name,
 		Description: sub.Description,
 		Cost:        sub.Cost,
-		Duration:    time.Duration(sub.Duration) * time.Second}
+		Duration:    time.Duration(sub.Duration) * constant.Day}
 	return &res, nil
 }
 
@@ -76,9 +80,10 @@ func (s *SubscriptionRepo) GetSubscriptionByPrice(price int) (*model.Subscriptio
 	}
 	res := model.Subscription{
 		Id:          sub.Id,
+		Name:        sub.Name,
 		Description: sub.Description,
 		Cost:        sub.Cost,
-		Duration:    sub.Duration * time.Second}
+		Duration:    sub.Duration * constant.Day}
 
 	return &res, nil
 }
