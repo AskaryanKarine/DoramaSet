@@ -3,39 +3,51 @@ package options
 import (
 	"DoramaSet/internal/handler/apiserver/middleware"
 	"DoramaSet/internal/handler/apiserver/services"
+	"errors"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Handler struct {
 	services.Services
-	mode string
+	mode          string
+	tokenExprHour int
 }
 
-func NewHandler(services services.Services, mode string) *Handler {
+func NewHandler(services services.Services, mode string, tokenExprHour int) *Handler {
 	return &Handler{
-		Services: services,
-		mode:     mode,
+		Services:      services,
+		mode:          mode,
+		tokenExprHour: tokenExprHour,
 	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	gin.SetMode(h.mode)
 	router := gin.Default()
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
-	router.Use(middleware.ErrorHandler)
-	router.Use(cors.New(config))
 
-	home := router.Group("/", h.updateUserActiveByToken)
+	router.Use(middleware.ErrorHandler)
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:3000"},
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders: []string{"Origin", "Content-Length", "Content-Type",
+			"withCredentials", "Set-Cookie", "Access-Control-Allow-Credentials"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	home := router.Group("/", h.updateUserDataByToken)
 	{
 		auth := home.Group("/auth")
 		{
+			auth.GET("/", h.getUserByCookieToken)
 			auth.POST("/registration", h.registration) // guest
 			auth.POST("/login", h.login)               // guest
+			auth.GET("/logout", h.logout)
 		}
 
 		user := home.Group("/user")
@@ -44,6 +56,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			user.GET("/list", h.getUserLists)            // user
 			user.POST("/favorite/", h.addToFav)          // user
 			user.GET("/favorite", h.getUserFavList)      // user
+			user.PUT("/color")
+			user.PUT("/emoji")
 		}
 
 		subscription := home.Group("/subscription")
@@ -102,23 +116,17 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	return router
 }
 
-func (h *Handler) updateUserActiveByToken(c *gin.Context) {
+func (h *Handler) updateUserDataByToken(c *gin.Context) {
 	var token string
-	header := c.GetHeader("Authorization")
-	if header == "" {
+	cook, err := c.Cookie("token")
+	if errors.Is(err, http.ErrNoCookie) {
 		token = ""
+	} else if err != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("invalid cookie"))
+		return
 	} else {
-		headerParts := strings.Split(header, " ")
-		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			_ = c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("invalid auth header"))
-			return
-		}
+		token = cook
 
-		if len(headerParts[1]) == 0 {
-			_ = c.AbortWithError(http.StatusUnauthorized, fmt.Errorf("token is empty"))
-			return
-		}
-		token = headerParts[1]
 		err := h.Services.UpdateActive(token)
 		if err != nil && fatalDB(err) {
 			_ = c.AbortWithError(http.StatusInternalServerError, err)
@@ -126,10 +134,20 @@ func (h *Handler) updateUserActiveByToken(c *gin.Context) {
 		}
 		if err != nil {
 			_ = c.AbortWithError(http.StatusUnauthorized, err)
+			return
+		}
+		err = h.Services.UpdateSubscribe(token)
+		if err != nil && fatalDB(err) {
+			_ = c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		if err != nil {
+			_ = c.AbortWithError(http.StatusUnauthorized, err)
+			return
 		}
 	}
 
-	c.Set("userToken", token)
+	c.Set("userToken", cook)
 }
 
 func fatalDB(e error) bool {

@@ -65,7 +65,7 @@ func Init() (*App, error) {
 		IPictureController:      picC,
 		ISubscriptionController: subC,
 	}
-	handle := options.NewHandler(srvs, cfg.Server.Mode)
+	handle := options.NewHandler(srvs, cfg.Server.Mode, cfg.App.TokenExpirationHours)
 
 	app := &App{
 		srv:      new(server.Server),

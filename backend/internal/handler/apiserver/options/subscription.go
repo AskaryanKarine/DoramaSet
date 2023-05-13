@@ -7,13 +7,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type subResponse struct {
-	Id          int    `json:"id,omitempty"`
-	Description string `json:"description,omitempty"`
-	Cost        int    `json:"cost,omitempty"`
-	Duration    string `json:"duration,omitempty"`
+	Id          int    `json:"id"`
+	Description string `json:"description"`
+	Cost        int    `json:"cost"`
+	Duration    string `json:"duration"`
+}
+
+func durationToString(t time.Duration) string {
+	d := t.Round(time.Minute)
+	h := d / time.Hour
+	month := (h / 24) / 30
+	return fmt.Sprintf("%d month", month)
 }
 
 func makeSubResponse(sub model.Subscription) subResponse {
@@ -21,7 +29,7 @@ func makeSubResponse(sub model.Subscription) subResponse {
 		Id:          sub.Id,
 		Description: sub.Description,
 		Cost:        sub.Cost,
-		Duration:    fmt.Sprintf("%s", sub.Duration),
+		Duration:    durationToString(sub.Duration),
 	}
 }
 
@@ -31,7 +39,7 @@ func (h *Handler) getAllSubs(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	response := make([]subResponse, len(data))
+	response := make([]subResponse, 0)
 	for _, el := range data {
 		response = append(response, makeSubResponse(el))
 	}
