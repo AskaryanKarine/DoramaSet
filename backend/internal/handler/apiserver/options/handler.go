@@ -56,16 +56,17 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			user.GET("/list", h.getUserLists)            // user
 			user.POST("/favorite/", h.addToFav)          // user
 			user.GET("/favorite", h.getUserFavList)      // user
-			user.PUT("/color")
-			user.PUT("/emoji")
+			user.PUT("/color", h.changeColor)
+			user.PUT("/emoji", h.changeEmoji)
+			user.POST("/earn/", h.earnPoint)
 		}
 
 		subscription := home.Group("/subscription")
 		{
 			subscription.GET("/", h.getAllSubs)    // guest
 			subscription.GET("/:id", h.getInfoSub) // guest
-			subscription.PUT("/:id", h.subscribe)  // user
-			subscription.PUT("/", h.unsubscribe)   // user
+			subscription.POST("/:id", h.subscribe) // user
+			subscription.POST("/", h.unsubscribe)  // user
 		}
 
 		dorama := home.Group("/dorama")
@@ -128,22 +129,14 @@ func (h *Handler) updateUserDataByToken(c *gin.Context) {
 		token = cook
 
 		err := h.Services.UpdateActive(token)
-		if err != nil && fatalDB(err) {
-			_ = c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
 		if err != nil {
-			_ = c.AbortWithError(http.StatusUnauthorized, err)
-			return
+			setCookie(c, "", -1)
+			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
 		err = h.Services.UpdateSubscribe(token)
-		if err != nil && fatalDB(err) {
-			_ = c.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
 		if err != nil {
-			_ = c.AbortWithError(http.StatusUnauthorized, err)
-			return
+			setCookie(c, "", -1)
+			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
 	}
 

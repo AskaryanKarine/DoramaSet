@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 var (
@@ -13,11 +14,17 @@ var (
 
 func ErrorHandler(c *gin.Context) {
 	c.Next()
-	rc := -1
 	if len(c.Errors) > 0 {
 		err := c.Errors[0]
-		e := err.Unwrap()
-		c.JSON(rc, gin.H{"error": e.Error()})
+		curErr := err.Unwrap()
+		for errors.Unwrap(curErr) != nil {
+			curErr = errors.Unwrap(curErr)
+		}
+		errStr := curErr.Error()
+		if errors.Is(curErr, http.ErrNoCookie) {
+			errStr = ""
+		}
+		c.JSON(-1, gin.H{"error": errStr})
 	}
 }
 

@@ -2,7 +2,9 @@ package options
 
 import (
 	"DoramaSet/internal/handler/apiserver/middleware"
+	errors2 "DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -12,6 +14,7 @@ import (
 
 type subResponse struct {
 	Id          int    `json:"id"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 	Cost        int    `json:"cost"`
 	Duration    string `json:"duration"`
@@ -27,6 +30,7 @@ func durationToString(t time.Duration) string {
 func makeSubResponse(sub model.Subscription) subResponse {
 	return subResponse{
 		Id:          sub.Id,
+		Name:        sub.Name,
 		Description: sub.Description,
 		Cost:        sub.Cost,
 		Duration:    durationToString(sub.Duration),
@@ -82,12 +86,19 @@ func (h *Handler) subscribe(c *gin.Context) {
 	}
 
 	err = h.Services.SubscribeUser(token, id)
+	if err != nil && errors.As(err, &errors2.BalanceError{}) {
+		_ = c.AbortWithError(http.StatusPaymentRequired, err)
+		return
+	}
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{})
+	sub, err := h.Services.GetInfo(id)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+	}
+	c.JSON(http.StatusOK, gin.H{"Data": makeSubResponse(*sub)})
 }
 
 func (h *Handler) unsubscribe(c *gin.Context) {
