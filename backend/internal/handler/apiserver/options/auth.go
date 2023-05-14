@@ -14,8 +14,10 @@ type userResponse struct {
 	Points   int         `json:"points,omitempty"`
 	IsAdmin  bool        `json:"isAdmin,omitempty"`
 	Sub      subResponse `json:"sub"`
-	LastSubs string      `json:"lastSubs,omitempty"`
+	LastSubs string      `json:"lastSub,omitempty"`
 	RegData  string      `json:"regData,omitempty"`
+	Color    string      `json:"color,omitempty"`
+	Emoji    string      `json:"emoji,omitempty"`
 }
 
 func makeUserResponse(user model.User) userResponse {
@@ -25,18 +27,20 @@ func makeUserResponse(user model.User) userResponse {
 		Points:   user.Points,
 		IsAdmin:  user.IsAdmin,
 		Sub:      makeSubResponse(*user.Sub),
-		LastSubs: user.LastSubscribe.Format("1 January 2006"),
-		RegData:  user.RegData.Format("1 January 2006"),
+		LastSubs: user.LastSubscribe.Add(user.Sub.Duration).Format("_2 January 2006"),
+		RegData:  user.RegData.Format("_2 January 2006"),
+		Color:    user.Color,
+		Emoji:    user.Emoji,
 	}
 }
 
 func setCookie(c *gin.Context, token string, tokenExp int) {
-
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    token,
 		Expires:  time.Now().Add(time.Duration(tokenExp) * time.Hour),
-		HttpOnly: false,
+		HttpOnly: true,
+		Path:     "/",
 	})
 }
 
@@ -68,7 +72,6 @@ func (h *Handler) login(c *gin.Context) {
 		return
 	}
 
-	// c.SetCookie("token", token, 3600*h.tokenExprHour, "/", "localhost", false, true)
 	setCookie(c, token, h.tokenExprHour)
 	c.JSON(http.StatusOK, gin.H{
 		"user": makeUserResponse(*user),
@@ -93,7 +96,6 @@ func (h *Handler) registration(c *gin.Context) {
 		return
 	}
 
-	// c.SetCookie("token", token, 3600*h.tokenExprHour, "/", "localhost", false, true)
 	setCookie(c, token, h.tokenExprHour)
 	c.JSON(http.StatusOK, gin.H{
 		"user": makeUserResponse(req),

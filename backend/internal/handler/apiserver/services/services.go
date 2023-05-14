@@ -10,4 +10,5 @@ type Services struct {
 	controller.IListController
 	controller.IPictureController
 	controller.ISubscriptionController
+	controller.IPointsController
 }
