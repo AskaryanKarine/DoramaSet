@@ -20,7 +20,7 @@ create table if not exists dorama_set.User (
     last_subscribe date not null,
     points int not null default 0,
     is_admin bool not null default false,
-    emoji text,
+    emoji text default '2b50',
     color text not null default '#000000',
     foreign key (sub_id) references dorama_set.Subscription(id) on delete cascade
 );
