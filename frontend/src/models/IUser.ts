@@ -8,4 +8,6 @@ export interface IUser {
     sub: ISubscribe
     lastSub: string
     regData: string
+    color: string
+    emoji: string
 }

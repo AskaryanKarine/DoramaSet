@@ -1,9 +1,10 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {AuthQuestion} from "../Question/Question";
 import {ErrorMessage} from "../../ErrorMessage/ErrorMessage";
 import {useAppDispatch, useAppSelector} from "../../../hooks/redux";
 import {AuthState} from "../../../models/AuthState";
 import {fetchUser} from "../../../store/reducers/UserSlice";
+import {Loading} from "../../Loading/Loading";
 
 interface SignFormProps {
     authState: AuthState
@@ -14,17 +15,15 @@ interface SignFormProps {
 
 export function AuthForm({authState, onRegistration, onSignIn, onClose}:SignFormProps) {
     const dispatch = useAppDispatch()
+    let {error, loading, user, isAuth} = useAppSelector(state => state.userReducer)
+    const btnName = authState === AuthState.SIGN_IN ? "Войти" : "Зарегистрироваться"
 
     const [valueLogin, setValueLogin] = useState('')
     const [valuePassword, setValuePassword] = useState('')
     const [valueEmail, setValueEmail] = useState('')
     const [errorValue, setErrorValue] = useState('')
-    const {error, loading} = useAppSelector(state => state.userReducer)
-
-    const btnName = authState === AuthState.SIGN_IN ? "Войти" : "Зарегистрироваться"
 
     const submitHandler = async (event: React.FormEvent) => {
-        setErrorValue('')
         event.preventDefault()
 
         if (valueLogin.trim().length === 0 || valuePassword.trim().length === 0 ||
@@ -32,18 +31,13 @@ export function AuthForm({authState, onRegistration, onSignIn, onClose}:SignForm
             setErrorValue('Пожалуйста введите валидные данные')
             return
         }
-        await dispatch(fetchUser({
-            login: valueLogin,
-            password: valuePassword,
-            email: valueEmail,
-            authState: authState
-        }))
 
-        console.log("error in form", loading, error, (error as string).length)
-        // TODO
-        if ((loading == false) && ((error as string).length === 0)) {
-            onClose()
-        }
+        await dispatch(fetchUser({
+                login: valueLogin,
+                password: valuePassword,
+                email: valueEmail,
+                authState: authState})
+        )
     }
 
     const authHandler = () => {
@@ -57,6 +51,14 @@ export function AuthForm({authState, onRegistration, onSignIn, onClose}:SignForm
                 break
         }
     }
+
+    useEffect(() => {
+        if ((loading == false) && user.username && isAuth) {
+            onClose()
+        }
+    }, [loading, user])
+
+    const errMsg = errorValue.length > 0 ? errorValue : error as string
 
     return (
         <>
@@ -85,8 +87,8 @@ export function AuthForm({authState, onRegistration, onSignIn, onClose}:SignForm
                 </button>
                 <AuthQuestion onAction={authHandler} status={authState}/>
             </form>
-            {(errorValue) && <ErrorMessage error={errorValue}/>}
-            {(error as string).length != 0 && <ErrorMessage error={error as string}/>}
+            {(errMsg) && <ErrorMessage error={errMsg}/>}
+            {loading && <Loading/>}
         </>
     )
 }

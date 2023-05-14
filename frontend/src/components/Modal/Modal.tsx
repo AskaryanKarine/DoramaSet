@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useEffect} from "react";
 import styles from "./Modal.module.css"
+import {useAppSelector} from "../../hooks/redux";
 
 
 
@@ -10,16 +11,23 @@ interface ModalProps {
 }
 
 export function Modal({children, title, onClose}:ModalProps) {
+    let {loading, user, isAuth} = useAppSelector(state => state.userReducer)
+    const escFunc = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+            onClose()
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener("keydown", escFunc, false)
+    })
+
     return (
         <>
-            <div
-                className='absolute bg-black/50 top-0 right-0 left-0 bottom-0 h-screen flex justify-center items-center'
-            >
-                <div
-                    className='w-[500px] p-5 rounded-2xl bg-white'
-                >
-                    <div className="relative flex items-center justify-center">
-                        <h1 className='text-2xl text-center mb-2'>{title}</h1>
+            <div className={styles.modal_overlay}>
+                <div className={styles.modal}>
+                    <div className={styles.modal_header}>
+                        <h1 className='text-3xl mb-1.5'>{title}</h1>
                         <button
                             className={styles.close}
                             onClick={onClose}
