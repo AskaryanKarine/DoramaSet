@@ -88,6 +88,8 @@ func (u *UserController) Registration(newUser *model.User) (string, error) {
 	}
 
 	newUser.LastActive = time.Now()
+	newUser.Color = "#000000"
+	newUser.Emoji = "star"
 	err = u.repo.UpdateUser(*newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
@@ -189,7 +191,7 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 	}
 
 	user, err := u.repo.GetUser(claims.ID)
-	if err != nil {
+	if err != nil || user == nil {
 		u.log.Warnf("auth by token err %s, username %s", err, claims.ID)
 		return nil, fmt.Errorf("getUser: %w", err)
 	}
