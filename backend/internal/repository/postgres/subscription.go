@@ -19,6 +19,7 @@ type subModel struct {
 	Description string
 	Cost        int
 	Duration    int
+	AccessLvl   int
 }
 
 func NewSubscriptionRepo(db *gorm.DB) *SubscriptionRepo {
@@ -45,6 +46,7 @@ func (s *SubscriptionRepo) GetList() ([]model.Subscription, error) {
 			Description: s.Description,
 			Cost:        s.Cost,
 			Duration:    time.Duration(s.Duration) * constant.Day,
+			AccessLvl:   s.AccessLvl,
 		}
 		resSubs = append(resSubs, tmp)
 	}
@@ -64,7 +66,9 @@ func (s *SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) 
 		Name:        sub.Name,
 		Description: sub.Description,
 		Cost:        sub.Cost,
-		Duration:    time.Duration(sub.Duration) * constant.Day}
+		Duration:    time.Duration(sub.Duration) * constant.Day,
+		AccessLvl:   sub.AccessLvl,
+	}
 	return &res, nil
 }
 
@@ -83,7 +87,9 @@ func (s *SubscriptionRepo) GetSubscriptionByPrice(price int) (*model.Subscriptio
 		Name:        sub.Name,
 		Description: sub.Description,
 		Cost:        sub.Cost,
-		Duration:    sub.Duration * constant.Day}
+		Duration:    sub.Duration * constant.Day,
+		AccessLvl:   sub.AccessLvl,
+	}
 
 	return &res, nil
 }

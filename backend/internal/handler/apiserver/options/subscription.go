@@ -18,6 +18,7 @@ type subResponse struct {
 	Description string `json:"description"`
 	Cost        int    `json:"cost"`
 	Duration    string `json:"duration"`
+	AccessLvl   int    `json:"access_lvl"`
 }
 
 func durationToString(t time.Duration) string {
@@ -34,6 +35,7 @@ func makeSubResponse(sub model.Subscription) subResponse {
 		Description: sub.Description,
 		Cost:        sub.Cost,
 		Duration:    durationToString(sub.Duration),
+		AccessLvl:   sub.AccessLvl,
 	}
 }
 

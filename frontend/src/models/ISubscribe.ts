@@ -4,4 +4,5 @@ export interface ISubscribe {
     description: string
     cost: number
     duration: string
+    access_lvl: number
 }

@@ -7,7 +7,8 @@ create table if not exists dorama_set.Subscription (
     name text not null,
     cost int not null ,
     description text not null,
-    duration int not null
+    duration int not null,
+    access_lvl int not null 
 );
 
 create table if not exists dorama_set.User (

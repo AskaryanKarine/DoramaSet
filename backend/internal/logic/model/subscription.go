@@ -8,4 +8,5 @@ type Subscription struct {
 	Description string
 	Cost        int
 	Duration    time.Duration
+	AccessLvl   int
 }

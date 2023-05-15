@@ -56,8 +56,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			user.GET("/list", h.getUserLists)            // user
 			user.POST("/favorite/", h.addToFav)          // user
 			user.GET("/favorite", h.getUserFavList)      // user
-			user.PUT("/color", h.changeColor)
-			user.PUT("/emoji", h.changeEmoji)
+			user.GET("/color", h.changeColor)
+			user.GET("/emoji", h.changeEmoji)
 			user.POST("/earn/", h.earnPoint)
 		}
 

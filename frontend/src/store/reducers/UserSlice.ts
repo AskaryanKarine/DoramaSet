@@ -126,6 +126,23 @@ export const earnPoint = createAsyncThunk<number, {points: string}, {rejectValue
     }
 )
 
+export const setEmoji = createAsyncThunk<string, {emoji: string}, {rejectValue: string}>(
+    "user/set/emoji",
+    async function ({emoji}, {rejectWithValue}) {
+        // const url = ["/subscription/", idSub.toString()].join("")
+        try {
+            await instance.get("/user/emoji", {
+                params: {
+                    emoji: emoji,
+                },
+            })
+            return emoji
+        } catch (e:unknown) {
+            return rejectWithValue(errorHandler(e))
+        }
+    }
+)
+
 export const userSlice = createSlice({
     name: "user",
     initialState,
@@ -211,6 +228,20 @@ export const userSlice = createSlice({
                 state.user.points += action.payload
             })
             .addCase(earnPoint.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload
+            })
+
+            .addCase(setEmoji.pending, (state) => {
+                state.loading = true
+                state.error = ""
+            })
+            .addCase(setEmoji.fulfilled, (state, action) => {
+                state.loading = false
+                state.error = ""
+                state.user.emoji = action.payload
+            })
+            .addCase(setEmoji.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload
             })
