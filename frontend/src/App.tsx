@@ -15,7 +15,6 @@ function App() {
     useEffect(() => {
             dispatch(getUser())
         }, [])
-    console.log(user)
     return (
         <div className="app">
             <Header>

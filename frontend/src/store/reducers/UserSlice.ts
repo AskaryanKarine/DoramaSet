@@ -143,6 +143,22 @@ export const setEmoji = createAsyncThunk<string, {emoji: string}, {rejectValue: 
     }
 )
 
+export const setColor = createAsyncThunk<string, {color: string}, {rejectValue: string}>(
+    "user/set/color",
+    async function ({color}, {rejectWithValue}) {
+        try {
+            await instance.get("/user/color", {
+                params: {
+                    color: color,
+                },
+            })
+            return color
+        } catch (e:unknown) {
+            return rejectWithValue(errorHandler(e))
+        }
+    }
+)
+
 export const userSlice = createSlice({
     name: "user",
     initialState,
@@ -242,6 +258,20 @@ export const userSlice = createSlice({
                 state.user.emoji = action.payload
             })
             .addCase(setEmoji.rejected, (state, action) => {
+                state.loading = false
+                state.error = action.payload
+            })
+
+            .addCase(setColor.pending, (state) => {
+                state.loading = true
+                state.error = ""
+            })
+            .addCase(setColor.fulfilled, (state, action) => {
+                state.loading = false
+                state.error = ""
+                state.user.color = action.payload
+            })
+            .addCase(setColor.rejected, (state, action) => {
                 state.loading = false
                 state.error = action.payload
             })

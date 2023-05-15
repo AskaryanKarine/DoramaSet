@@ -2,19 +2,14 @@ import {useAppDispatch, useAppSelector} from "../../hooks/redux";
 import EmojiPicker, {Emoji, EmojiClickData} from "emoji-picker-react";
 import React, {useState} from "react";
 import style from "./EmojiStatus.module.css";
-import classNames from "classnames";
 import {setEmoji} from "../../store/reducers/UserSlice";
 
 export function EmojiStatus() {
     const [pickerVisibly, setPickerVisibly] = useState(false)
     const [chosenEmoji, setChosenEmoji] = useState({} as EmojiClickData);
-    const {user} = useAppSelector(state => state.userReducer)
+    const {user, error, loading} = useAppSelector(state => state.userReducer)
     const emoji = chosenEmoji.unified && pickerVisibly ? chosenEmoji.unified : user.emoji
     const dispatch = useAppDispatch()
-
-    // const submitHandler: async (event: React.>) {
-
-    // }
 
     return(
         <div className={style.dropdown}>
@@ -28,13 +23,17 @@ export function EmojiStatus() {
             >
                 <Emoji unified={emoji} size={50}/></button>
             <div className={!pickerVisibly ? style.dropdown_content : style.show}>
-                {<EmojiPicker onEmojiClick={(emoji:EmojiClickData, event) => {setChosenEmoji(emoji)}}/>}
+                {<EmojiPicker
+                    onEmojiClick={(emoji:EmojiClickData, event) => {setChosenEmoji(emoji)}}
+                />}
                 <button
                     onClick={() => {
                         if (chosenEmoji && chosenEmoji.unified) {
                             dispatch(setEmoji({emoji: chosenEmoji.unified}))
-                    }}
-                        }
+                            if (!loading && !error) {
+                                setPickerVisibly(false)
+                    }}}
+                }
                 >Выбрать</button>
             </div>
         </div>

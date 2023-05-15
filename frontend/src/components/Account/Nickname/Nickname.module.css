@@ -22,8 +22,3 @@
     font-size: 1.875rem; /* 30px */
     line-height: 2.25rem; /* 36px */
 }
-
-.leftContainer {
-    display: flex;
-    flex-direction: column;
-}
