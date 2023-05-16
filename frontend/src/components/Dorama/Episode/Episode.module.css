@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    align-items: center;
+    border: 1px solid lightgray;
+    border-radius: 20px;
+    background-color: #efefef;
+}
+
+.container > div {
+    margin: 5px 10px;
+}
+
+.container > p {
+    text-align: center;
+    width: 100%;
+    padding: 0 10px;
+}

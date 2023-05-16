@@ -1,0 +1,12 @@
+.container {
+    display: flex;
+    /*align-items: center;*/
+}
+
+.info {
+    max-width: 500px;
+}
+
+.info > p {
+    margin-top: 10px;
+}

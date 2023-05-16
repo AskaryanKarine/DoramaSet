@@ -15,6 +15,7 @@ type IEpisodeController interface {
 	GetEpisodeList(idD int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
 	MarkWatchingEpisode(token string, idEp int) error
+	GetWatchingEpisode(token string, idD int) ([]model.Episode, error)
 	CreateEpisode(token string, record *model.Episode, idD int) error
 }
 

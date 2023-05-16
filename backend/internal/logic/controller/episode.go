@@ -78,3 +78,17 @@ func (e *EpisodeController) CreateEpisode(token string, record *model.Episode, i
 	e.log.Infof("created episode value %v %d", record, idD)
 	return nil
 }
+
+func (e *EpisodeController) GetWatchingEpisode(token string, idD int) ([]model.Episode, error) {
+	user, err := e.uc.AuthByToken(token)
+	if err != nil {
+		return nil, fmt.Errorf("authByToken: %w", err)
+	}
+
+	res, err := e.repo.GetWatchingList(user.Username, idD)
+	if err != nil {
+		return nil, fmt.Errorf("getWatchingList: %w", err)
+	}
+
+	return res, nil
+}

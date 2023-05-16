@@ -15,6 +15,7 @@ type IDoramaRepo interface {
 
 type IEpisodeRepo interface {
 	GetList(idDorama int) ([]model.Episode, error)
+	GetWatchingList(username string, idD int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
 	MarkEpisode(idEp int, username string) error
 	CreateEpisode(episode model.Episode, idD int) (int, error)

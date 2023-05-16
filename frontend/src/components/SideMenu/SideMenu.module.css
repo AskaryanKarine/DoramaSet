@@ -15,7 +15,7 @@
     align-items: center;
 }
 
-.navigation div {
+.navigation div, Link {
     border: 1px solid gray;
     border-radius: 20px;
     width: 80%;
@@ -24,6 +24,11 @@
     align-items: center;
     justify-content: center;
     margin: 15px;
+}
+
+.linkDiv {
+    width: 100%;
+    text-align: center;
 }
 
 .firstDiv {

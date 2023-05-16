@@ -59,6 +59,30 @@ func (h *Handler) createEpisode(c *gin.Context) {
 }
 
 func (h *Handler) markWatchingEpisode(c *gin.Context) {
+	var req struct {
+		Id int `json:"id,omitempty"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	token, err := middleware.GetUserToken(c)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
+	err = h.Services.MarkWatchingEpisode(token, req.Id)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func (h *Handler) getWatchingEpisode(c *gin.Context) {
 	rowId := c.Query("id")
 	id, err := strconv.Atoi(rowId)
 	if err != nil {
@@ -72,11 +96,10 @@ func (h *Handler) markWatchingEpisode(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.MarkWatchingEpisode(token, id)
+	res, err := h.Services.GetWatchingEpisode(token, id)
 	if err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err)
-		return
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, gin.H{"Data": res})
 }

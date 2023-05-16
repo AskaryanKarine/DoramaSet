@@ -16,13 +16,15 @@
     /*position: relative;*/
     /*max-width: 500px;*/
     width: max-content;
+    max-height: 100%;
+    overflow-y: auto;
     background-color: white;
     border-radius: 20px;
     padding: 30px;
 }
 
 .modal_header {
-    min-width: 350px;
+    min-width: 410px;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -268,3 +268,47 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 		})
 	}
 }
+
+func TestEpisodeController_GetWatchingEpisode(t *testing.T) {
+	type fields struct {
+		repo repository.IEpisodeRepo
+		uc   controller.IUserController
+		log  *logrus.Logger
+	}
+	type args struct {
+		token string
+		idD   int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []model.Episode
+		wantErr bool
+	}{
+		{
+			name:    "",
+			fields:  fields{},
+			args:    args{},
+			want:    nil,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &EpisodeController{
+				repo: tt.fields.repo,
+				uc:   tt.fields.uc,
+				log:  tt.fields.log,
+			}
+			got, err := e.GetWatchingEpisode(tt.args.token, tt.args.idD)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetWatchingEpisode() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetWatchingEpisode() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

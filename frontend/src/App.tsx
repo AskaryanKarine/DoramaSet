@@ -8,6 +8,11 @@ import {TopMenu} from "./components/TopMenu/TopMenu";
 import './index.css'
 import {useAppDispatch, useAppSelector} from "./hooks/redux";
 import {getUser} from "./store/reducers/UserSlice";
+import {DoramaPage} from "./pages/DoramaPage";
+import {StaffPage} from "./pages/StaffPage";
+import {PublicListPage} from "./pages/PublicListPage";
+import {PrivateListPage} from "./pages/PrivateListPage";
+import {FavoritePage} from "./pages/FavoritePage";
 
 function App() {
     const {isAuth, user} = useAppSelector(state => state.userReducer)
@@ -23,8 +28,13 @@ function App() {
             <SideMenu/>
             <main className="content">
                 <Routes>
-                    <Route path="/" element={<HomePage/>}/>
+                    <Route path="/" element={<PublicListPage/>}/>
                     <Route path="/account" element={<AccountPages />} />
+                    <Route path="/list/public" element={<PublicListPage/>}/>
+                    <Route path="/dorama" element={<DoramaPage/>}/>
+                    <Route path="/staff" element={<StaffPage/>}/>
+                    <Route path="/list" element={<PrivateListPage/>}/>
+                    <Route path="/list/favorite" element={<FavoritePage/>}/>
                 </Routes>
             </main>
         </div>

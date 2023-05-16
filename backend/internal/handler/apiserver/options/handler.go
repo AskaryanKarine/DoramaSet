@@ -52,13 +52,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 		user := home.Group("/user")
 		{
-			user.POST("/episode", h.markWatchingEpisode) // user
-			user.GET("/list", h.getUserLists)            // user
-			user.POST("/favorite/", h.addToFav)          // user
-			user.GET("/favorite", h.getUserFavList)      // user
+			user.GET("/list", h.getUserLists)       // user
+			user.POST("/favorite", h.addToFav)      // user
+			user.GET("/favorite", h.getUserFavList) // user
 			user.GET("/color", h.changeColor)
 			user.GET("/emoji", h.changeEmoji)
-			user.POST("/earn/", h.earnPoint)
+			user.POST("/earn", h.earnPoint)
+			user.GET("/episode", h.getWatchingEpisode)
+			user.POST("/episode", h.markWatchingEpisode) // user
 		}
 
 		subscription := home.Group("/subscription")
