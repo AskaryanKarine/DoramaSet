@@ -1,10 +1,11 @@
 import {IDorama} from "../../../models/IDorama";
 import styles from "./DoramaPreview.module.css"
-import {toUpperFirst} from "../../../hooks/toUpperFirst";
+import {upToFirst} from "../../../hooks/upToFirst";
 import {useState} from "react";
-import {AdminPanel} from "../../AdminPanel/AdminPanel";
 import {Modal} from "../../Modal/Modal";
 import {Dorama} from "../Dorama";
+import {UpdateForm} from "../Form/UpdateForm";
+import {AdminPanel} from "../../Admin/Panel/AdminPanel";
 
 interface DoramaPreviewProps {
     dorama: IDorama
@@ -12,6 +13,7 @@ interface DoramaPreviewProps {
 
 export function DoramaPreview({dorama}:DoramaPreviewProps) {
     const [modalVisible, setModalVisible] = useState(false)
+    const [editVisible, setEditVisible] = useState(false)
 
     return (
         <>{dorama && <>
@@ -25,7 +27,7 @@ export function DoramaPreview({dorama}:DoramaPreviewProps) {
                 <div className={styles.info}>
                     <div>
                         <p className="text-3xl">{dorama.name}</p>
-                        <p>{toUpperFirst(dorama.genre)}</p>
+                        <p>{upToFirst(dorama.genre)}</p>
                         <p>Год выхода {dorama.release_year}, {dorama.status}</p>
                         <p>Количество эпизодов: {dorama.episodes ? dorama.episodes.length : "0"}</p>
                     </div>
@@ -36,7 +38,7 @@ export function DoramaPreview({dorama}:DoramaPreviewProps) {
                 </div>
                 <AdminPanel
                     onDelete={()=>{}}
-                    onEdit={()=>{}}
+                    onEdit={()=>{setEditVisible(true)}}
                 />
             </div>
             {modalVisible &&
@@ -45,6 +47,14 @@ export function DoramaPreview({dorama}:DoramaPreviewProps) {
                     onClose={()=>{setModalVisible(false)}}
                 >
                 <Dorama dorama={dorama}/>
+            </Modal>}
+            {editVisible &&
+                <Modal
+                    title="Изменить дораму"
+                    onClose={() => {setEditVisible(false)
+                }}
+            >
+                <UpdateForm dorama={dorama}/>
             </Modal>}
         </>}</>
     )

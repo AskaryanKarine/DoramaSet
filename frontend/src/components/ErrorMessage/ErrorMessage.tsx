@@ -1,4 +1,4 @@
-import {toUpperFirst} from "../../hooks/toUpperFirst";
+import {upToFirst} from "../../hooks/upToFirst";
 
 interface ErrorMessageProps {
     error: string
@@ -7,7 +7,7 @@ interface ErrorMessageProps {
 
 export function ErrorMessage({ error }: ErrorMessageProps) {
     return (
-        <p className="text-center text-xl text-red-600 mt-3">{ toUpperFirst(error) }</p>
+        <p className="text-center text-xl text-red-600 mt-3">{ upToFirst(error) }</p>
     )
 }
 
@@ -16,6 +16,6 @@ export function ErrorMessage1({ error, info }: ErrorMessageProps) {
     // <i className="fa-solid fa-info"></i> - info
     // <i className="fa-solid "></i> - warning
     return (
-        <p className="text-center text-xl text-red-600 mt-3">{ toUpperFirst(error) }</p>
+        <p className="text-center text-xl text-red-600 mt-3">{ upToFirst(error) }</p>
     )
 }

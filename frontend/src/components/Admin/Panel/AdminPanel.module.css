@@ -1,0 +1,11 @@
+.adminPanel {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: auto;
+}
+.adminPanel > button {
+    width: auto;
+    height: auto;
+    border: 0;
+    margin: 10px 0;
+}

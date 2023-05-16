@@ -1,0 +1,13 @@
+
+.container {
+    display: flex;
+    /*align-items: center;*/
+}
+
+.info {
+    width: 400px;
+}
+
+.info > p {
+    margin-top: 10px;
+}

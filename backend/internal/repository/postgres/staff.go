@@ -125,10 +125,6 @@ func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
-	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
-	}
-
 	for _, r := range resDB {
 		staff, err := s.picRepo.GetListStaff(r.ID)
 		if err != nil {

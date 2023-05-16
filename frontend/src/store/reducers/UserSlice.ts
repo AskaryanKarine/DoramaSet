@@ -29,7 +29,7 @@ interface Response {
     Data: ISubscribe
 }
 
-export const fetchUser = createAsyncThunk<UserRequest,
+export const authUser = createAsyncThunk<UserRequest,
     {login: string, password:string, email:string, authState: AuthState}, {rejectValue:string}>(
     'user/fetchUser',
     async function ({login, password,email, authState}, {rejectWithValue}) {
@@ -170,16 +170,16 @@ export const userSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchUser.pending, (state) => {
+            .addCase(authUser.pending, (state) => {
                 state.loading = true
                 state.error = ""
             })
-            .addCase(fetchUser.fulfilled, (state, action) => {
+            .addCase(authUser.fulfilled, (state, action) => {
                 state.user = action.payload.user
                 state.isAuth = true
                 state.loading = false
             })
-            .addCase(fetchUser.rejected, (state, action) => {
+            .addCase(authUser.rejected, (state, action) => {
                 state.error = action.payload
                 state.loading = false
             })

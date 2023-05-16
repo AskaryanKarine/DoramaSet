@@ -58,7 +58,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			user.GET("/color", h.changeColor)
 			user.GET("/emoji", h.changeEmoji)
 			user.POST("/earn", h.earnPoint)
-			user.GET("/episode", h.getWatchingEpisode)
+			user.GET("/episode", h.getEpisodeWithStatus)
 			user.POST("/episode", h.markWatchingEpisode) // user
 		}
 
@@ -90,7 +90,6 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			list.POST("/", h.createList)         // user
 			list.POST("/:id", h.addToList)       // user
 			list.DELETE("/:id", h.delFromList)   // user
-			list.DELETE("/", h.delList)          // user
 		}
 
 		staff := home.Group("/staff")

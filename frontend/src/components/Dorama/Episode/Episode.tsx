@@ -1,10 +1,8 @@
 import {IEpisode} from "../../../models/IEpisode";
-import {useEpisode} from "../../../hooks/episode";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import styles from  "./Episode.module.css"
-import {instance} from "../../../http-common";
-import {AxiosError} from "axios/index";
-import {IError} from "../../../models/IError";
+import {useAppSelector} from "../../../hooks/redux";
+import {useEpisode} from "../../../hooks/episode";
 
 
 interface EpisodeProps {
@@ -13,30 +11,15 @@ interface EpisodeProps {
 }
 
 export function Episode({ep, flag}:EpisodeProps) {
+    const {isAuth} = useAppSelector(state => state.userReducer)
     const [watched, setWatched] = useState(flag)
-    const [epErr, setEpErr] = useState("")
+    const [error, setError] = useState<string[]>([])
+    const {epErr, markEpisode} = useEpisode()
 
-    async function markEpisode(idEp:number) {
-        try {
-            setEpErr('')
-
-            console.log(idEp)
-            await instance.post('/user/episode', {
-                id: idEp,
-            })
-        } catch (e: unknown) {
-            const error = e as AxiosError<IError>
-            if (error.response) {
-                setEpErr(error.response.data.error)
-            } else {
-                setEpErr(error.message)
-            }
-        }
-    }
 
     const clickSubmit = () => {
-        if (!watched) {
-            markEpisode(ep.id)
+        if (!watched && ep.id) {
+            markEpisode(ep.id).then(_ => setError(prevState => [...prevState, epErr]))
             if (epErr.length === 0) {
                 setWatched(true)
             }
@@ -46,7 +29,7 @@ export function Episode({ep, flag}:EpisodeProps) {
     return (
         <>
             <div className={styles.container}>
-                <button onClick={()=>{clickSubmit()}}>
+                <button onClick={()=>{clickSubmit()}} disabled={!isAuth || watched}>
                     {watched ? <i className="fa-regular fa-eye"></i> : <i className="fa-regular fa-eye-slash"></i>}
                 </button>
 

@@ -3,7 +3,6 @@ import {Header} from "./components/Header/Header";
 import {Route, Routes} from "react-router-dom";
 import {SideMenu} from "./components/SideMenu/SideMenu";
 import {AccountPages} from "./pages/AccountPages";
-import {HomePage} from "./pages/HomePage";
 import {TopMenu} from "./components/TopMenu/TopMenu";
 import './index.css'
 import {useAppDispatch, useAppSelector} from "./hooks/redux";

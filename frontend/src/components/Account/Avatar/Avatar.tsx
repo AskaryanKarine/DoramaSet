@@ -27,8 +27,6 @@ export function Avatar() {
         }
     }, [user]);
 
-    console.log(user)
-
     return (
         <>
             <div className={style.dropdown}>

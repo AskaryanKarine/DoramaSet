@@ -9,13 +9,37 @@ import (
 	"time"
 )
 
+type staffResponse struct {
+	Id       int             `json:"id,omitempty"`
+	Name     string          `json:"name,omitempty"`
+	Birthday string          `json:"birthday,omitempty"`
+	Type     string          `json:"type,omitempty"`
+	Gender   string          `json:"gender,omitempty"`
+	Photo    []model.Picture `json:"photo,omitempty"`
+}
+
+func makeStaffResponse(staff model.Staff) staffResponse {
+	return staffResponse{
+		Id:       staff.Id,
+		Name:     staff.Name,
+		Birthday: staff.Birthday.Format("_2 January 2006"),
+		Type:     staff.Type,
+		Gender:   staff.Gender,
+		Photo:    staff.Photo,
+	}
+}
+
 func (h *Handler) getStaffList(c *gin.Context) {
 	data, err := h.Services.GetStaffList()
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": data})
+	var res []staffResponse
+	for _, d := range data {
+		res = append(res, makeStaffResponse(d))
+	}
+	c.JSON(http.StatusOK, gin.H{"Data": res})
 }
 
 func (h *Handler) findStaffByName(c *gin.Context) {
@@ -30,8 +54,11 @@ func (h *Handler) findStaffByName(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"Data": data})
+	var res []staffResponse
+	for _, d := range data {
+		res = append(res, makeStaffResponse(d))
+	}
+	c.JSON(http.StatusOK, gin.H{"Data": res})
 }
 
 func (h *Handler) getStaffById(c *gin.Context) {
@@ -51,7 +78,7 @@ func (h *Handler) getStaffById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": data})
+	c.JSON(http.StatusOK, gin.H{"Data": makeStaffResponse(*data)})
 
 }
 
@@ -74,7 +101,7 @@ func (h *Handler) createStaff(c *gin.Context) {
 		return
 	}
 
-	t, err := time.Parse("02/01/2006", req.Birthday)
+	t, err := time.Parse("02.01.2006", req.Birthday)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -92,7 +119,7 @@ func (h *Handler) createStaff(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": newStaff})
+	c.JSON(http.StatusOK, gin.H{"Data": makeStaffResponse(newStaff)})
 }
 
 func (h *Handler) updateStaff(c *gin.Context) {
@@ -115,7 +142,7 @@ func (h *Handler) updateStaff(c *gin.Context) {
 		return
 	}
 
-	t, err := time.Parse("02/01/2006", req.Birthday)
+	t, err := time.Parse("02.01.2006", req.Birthday)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -134,5 +161,5 @@ func (h *Handler) updateStaff(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": newStaff})
+	c.JSON(http.StatusOK, gin.H{"Data": makeStaffResponse(newStaff)})
 }

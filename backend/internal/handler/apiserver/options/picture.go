@@ -66,9 +66,11 @@ func (h *Handler) addPictureToDorama(c *gin.Context) {
 		return
 	}
 
-	rowPId := c.Query("id")
-	PId, err := strconv.Atoi(rowPId)
-	if err != nil {
+	var req struct {
+		Id int `json:"id"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -79,7 +81,7 @@ func (h *Handler) addPictureToDorama(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddPictureToDorama(token, model.Picture{Id: PId}, DId)
+	err = h.Services.AddPictureToDorama(token, model.Picture{Id: req.Id}, DId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

@@ -101,15 +101,17 @@ func (h *Handler) findDoramaByName(c *gin.Context) {
 }
 
 func (h *Handler) addStaffToDorama(c *gin.Context) {
-	rowDId := c.Param("id")
-	DId, err := strconv.Atoi(rowDId)
-	if err != nil {
+	var req struct {
+		Id int `json:"id"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	rowSId := c.Query("id")
-	SId, err := strconv.Atoi(rowSId)
+	rowDId := c.Param("id")
+	DId, err := strconv.Atoi(rowDId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -121,7 +123,7 @@ func (h *Handler) addStaffToDorama(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddStaffToDorama(token, DId, SId)
+	err = h.Services.AddStaffToDorama(token, DId, req.Id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

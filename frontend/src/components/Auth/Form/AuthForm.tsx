@@ -3,7 +3,7 @@ import {AuthQuestion} from "../Question/Question";
 import {ErrorMessage} from "../../ErrorMessage/ErrorMessage";
 import {useAppDispatch, useAppSelector} from "../../../hooks/redux";
 import {AuthState} from "../../../models/AuthState";
-import {fetchUser} from "../../../store/reducers/UserSlice";
+import {authUser} from "../../../store/reducers/UserSlice";
 import {Loading} from "../../Loading/Loading";
 
 interface SignFormProps {
@@ -32,7 +32,7 @@ export function AuthForm({authState, onRegistration, onSignIn, onClose}:SignForm
             return
         }
 
-        await dispatch(fetchUser({
+        await dispatch(authUser({
                 login: valueLogin,
                 password: valuePassword,
                 email: valueEmail,

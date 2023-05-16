@@ -1,6 +1,6 @@
 
 export interface IEpisode {
-    id: number
+    id?: number
     num_season: number
     num_episode: number
 }

@@ -18,6 +18,13 @@ export function useDorama() {
         setDorama(prev=>[...prev, dorama])
     }
 
+    function updateDorama(upDorama:IDorama) {
+        dorama.forEach(x => {
+            x = upDorama.id === x.id ? upDorama : x
+        })
+        setDorama(dorama)
+    }
+
     function delDorama(id:number) {
         let i = 0
         for (i = 0; i < dorama.length; i++) {
@@ -26,13 +33,6 @@ export function useDorama() {
             }
         }
         delete dorama[i]
-        setDorama(dorama)
-    }
-
-    function updateDorama(upDorama:IDorama) {
-        dorama.forEach(x => {
-            x = upDorama.id === x.id ? upDorama : x
-        })
         setDorama(dorama)
     }
 
@@ -54,9 +54,38 @@ export function useDorama() {
         }
     }
 
+    async function findDorama(name:string) {
+        try {
+            setDoramaErr("")
+            setLoading(true)
+            const response = await instance.get<DoramaResponse>("/find/dorama/", {
+                params: {
+                    name: name
+                }
+            })
+            setDorama(response.data.Data)
+            setLoading(false)
+        } catch (e: unknown) {
+            const error = e as AxiosError<IError>
+            setLoading(false)
+            if (error.response) {
+                if (error.status === 400) {
+                    setDorama([])
+                }
+                setDoramaErr(error.response.data.error)
+            } else {
+                setDoramaErr(error.message)
+            }
+        }
+    }
+
+    const resetDorama = () => {
+        fetchDorama().then(_ => {})
+    }
+
     useEffect(()=>{
-        fetchDorama()
+        fetchDorama().then(r => {})
     }, [])
 
-    return {dorama, doramaErr, loading, addDorama, delDorama, updateDorama}
+    return {dorama, doramaErr, loading, addDorama, updateDorama, findDorama, resetDorama}
 }

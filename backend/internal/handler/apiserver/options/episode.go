@@ -82,7 +82,13 @@ func (h *Handler) markWatchingEpisode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
-func (h *Handler) getWatchingEpisode(c *gin.Context) {
+type watchingResponse struct {
+	Episode  model.Episode `json:"episode"`
+	Watching bool          `json:"watching"`
+}
+
+func (h *Handler) getEpisodeWithStatus(c *gin.Context) {
+	var response []watchingResponse
 	rowId := c.Query("id")
 	id, err := strconv.Atoi(rowId)
 	if err != nil {
@@ -96,10 +102,34 @@ func (h *Handler) getWatchingEpisode(c *gin.Context) {
 		return
 	}
 
-	res, err := h.Services.GetWatchingEpisode(token, id)
-	if err != nil {
-		_ = c.AbortWithError(http.StatusInternalServerError, err)
+	if len(token) == 0 {
+		c.JSON(http.StatusOK, gin.H{"Data": response})
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": res})
+	watching, err := h.Services.GetWatchingEpisode(token, id)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	all, err := h.GetEpisodeList(id)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	for _, e := range all {
+		w := false
+		for i, watch := range watching {
+			if e.Id == watch.Id {
+				w = true
+				watching = append(watching[:i], watching[i+1:]...)
+				break
+			}
+		}
+		response = append(response, watchingResponse{Episode: e, Watching: w})
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{"Data": response})
 }

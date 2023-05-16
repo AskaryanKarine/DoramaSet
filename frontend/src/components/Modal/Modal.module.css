@@ -13,8 +13,6 @@
 }
 
 .modal {
-    /*position: relative;*/
-    /*max-width: 500px;*/
     width: max-content;
     max-height: 100%;
     overflow-y: auto;

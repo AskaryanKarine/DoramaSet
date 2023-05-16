@@ -1,43 +1,45 @@
 import {useDorama} from "../hooks/dorama";
 import {DoramaPreview} from "../components/Dorama/DoramaPreview/DoramaPreview";
-import {useState} from "react";
+import React, {useState} from "react";
 import {Modal} from "../components/Modal/Modal";
-import {CreateForm} from "../components/Dorama/Form/CreateForm";
 import {useAppSelector} from "../hooks/redux";
 import {IDorama} from "../models/IDorama";
+import {DoramaForm} from "../components/Dorama/Form/DoramaForm";
+import {Loading} from "../components/Loading/Loading";
+import {Search} from "../components/Search/Search";
+import {AddButton} from "../components/Admin/AddButton/AddButton";
 
 export function DoramaPage() {
-    const {user} = useAppSelector(state => state.userReducer)
-    const {dorama, doramaErr, loading, addDorama} = useDorama()
+    const {dorama, doramaErr, loading, addDorama, findDorama, resetDorama} = useDorama()
     const [modalVisible, setModalVisible] = useState(false)
+    const {user} = useAppSelector(state => state.userReducer)
 
     const createHandler = (dorama: IDorama) => {
         setModalVisible(false)
         addDorama(dorama)
     }
 
+    console.log(dorama)
+
     return (
         <>
+            {loading && <Loading/>}
             <h1>Дорамы</h1>
-            <div className="grid grid-cols-2">
-                {[...dorama].map(
-                    drm => <DoramaPreview dorama={drm} key={drm.id}/>
-                )}
+            <div>
+                <Search findFunc={findDorama} resetFunc={resetDorama}/>
             </div>
-
+            <div className="grid grid-cols-2">
+                {dorama ? [...dorama].map(
+                    drm => <DoramaPreview dorama={drm} key={drm.id}/>
+                ) : "Ничего не найдено"}
+            </div>
             {user.isAdmin &&
-                <button
-                    className="w-auto h-auto border-0 fixed bottom-5 right-5"
-                    onClick={()=>{setModalVisible(true)}}
-                >
-                    <i className="fa-solid fa-plus fa-2x fa-border border-2 rounded-full bg-white border-black"></i>
-                </button>
+                <AddButton onOpen={()=>{setModalVisible(true)}}/>
             }
-
             {modalVisible &&
                 <Modal title="Добавить новую дораму"
                 onClose={()=>{setModalVisible(false)}}>
-                    <CreateForm onCreate={createHandler}/>
+                    <DoramaForm onCreate={createHandler} isEdit={false}/>
                 </Modal>}
         </>
     )

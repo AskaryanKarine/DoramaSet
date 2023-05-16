@@ -69,9 +69,7 @@ func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	if len(resDB) == 0 {
-		return nil, fmt.Errorf("db: %w", errors.ErrorDontExistsInDB)
-	}
+
 	for _, r := range resDB {
 		dorama, err := l.doramaRepo.GetListByListId(r.ID)
 		if err != nil {
