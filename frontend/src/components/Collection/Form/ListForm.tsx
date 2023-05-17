@@ -11,7 +11,7 @@ interface ListFormInterface {
 }
 
 interface listResponse {
-    Data:IList
+    data:IList
 }
 
 export function ListForm({list, onCreate}:ListFormInterface) {
@@ -38,9 +38,9 @@ export function ListForm({list, onCreate}:ListFormInterface) {
 
         await instance.post<listResponse>('/list/', request)
             .then(r => {
-                r.data.Data.type = type
-                onCreate(r.data.Data)
-                console.log(r.data.Data)})
+                r.data.data.type = type
+                onCreate(r.data.data)
+                console.log(r.data.data)})
     }
 
 

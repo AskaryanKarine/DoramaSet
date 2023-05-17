@@ -6,7 +6,7 @@ import {IError} from "../models/IError";
 import {IDorama} from "../models/IDorama";
 
 interface DoramaResponse {
-    Data: IDorama[]
+    data: IDorama[]
 }
 
 export function useDorama() {
@@ -41,7 +41,7 @@ export function useDorama() {
             setDoramaErr('')
             setLoading(true)
             const response = await instance.get<DoramaResponse>('/dorama/')
-            setDorama(response.data.Data)
+            setDorama(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             const error = e as AxiosError<IError>
@@ -63,7 +63,7 @@ export function useDorama() {
                     name: name
                 }
             })
-            setDorama(response.data.Data)
+            setDorama(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             const error = e as AxiosError<IError>

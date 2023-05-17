@@ -1,6 +1,7 @@
 package options
 
 import (
+	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
 	"DoramaSet/internal/logic/model"
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,7 @@ import (
 )
 
 func (h *Handler) createPicture(c *gin.Context) {
-	var req model.Picture
+	var req DTO.Picture
 
 	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
@@ -22,12 +23,13 @@ func (h *Handler) createPicture(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.CreatePicture(token, &req)
+	newPicture := DTO.MakePicture(req)
+	err = h.Services.CreatePicture(token, newPicture)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": req})
+	c.JSON(http.StatusOK, gin.H{"data": DTO.MakePictureResponse(*newPicture)})
 }
 
 func (h *Handler) addPictureToStaff(c *gin.Context) {

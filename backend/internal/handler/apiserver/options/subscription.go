@@ -1,43 +1,14 @@
 package options
 
 import (
+	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
 	errors2 "DoramaSet/internal/logic/errors"
-	"DoramaSet/internal/logic/model"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"time"
 )
-
-type subResponse struct {
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Cost        int    `json:"cost"`
-	Duration    string `json:"duration"`
-	AccessLvl   int    `json:"access_lvl"`
-}
-
-func durationToString(t time.Duration) string {
-	d := t.Round(time.Minute)
-	h := d / time.Hour
-	month := (h / 24) / 30
-	return fmt.Sprintf("%d month", month)
-}
-
-func makeSubResponse(sub model.Subscription) subResponse {
-	return subResponse{
-		Id:          sub.Id,
-		Name:        sub.Name,
-		Description: sub.Description,
-		Cost:        sub.Cost,
-		Duration:    durationToString(sub.Duration),
-		AccessLvl:   sub.AccessLvl,
-	}
-}
 
 func (h *Handler) getAllSubs(c *gin.Context) {
 	data, err := h.Services.GetAll()
@@ -45,11 +16,11 @@ func (h *Handler) getAllSubs(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	response := make([]subResponse, 0)
+	response := make([]DTO.Subscription, 0)
 	for _, el := range data {
-		response = append(response, makeSubResponse(el))
+		response = append(response, DTO.MakeSubResponse(el))
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": response})
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 func (h *Handler) getInfoSub(c *gin.Context) {
@@ -70,7 +41,7 @@ func (h *Handler) getInfoSub(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": makeSubResponse(*data)})
+	c.JSON(http.StatusOK, gin.H{"data": DTO.MakeSubResponse(*data)})
 }
 
 func (h *Handler) subscribe(c *gin.Context) {
@@ -100,7 +71,7 @@ func (h *Handler) subscribe(c *gin.Context) {
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": makeSubResponse(*sub)})
+	c.JSON(http.StatusOK, gin.H{"data": DTO.MakeSubResponse(*sub)})
 }
 
 func (h *Handler) unsubscribe(c *gin.Context) {

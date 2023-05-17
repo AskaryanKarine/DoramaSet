@@ -1,34 +1,12 @@
 package options
 
 import (
+	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
-	"DoramaSet/internal/logic/constant"
-	"DoramaSet/internal/logic/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
-
-type listResponse struct {
-	Id          int            `json:"id,omitempty"`
-	Name        string         `json:"name,omitempty"`
-	Description string         `json:"description,omitempty"`
-	CreatorName string         `json:"creator_name,omitempty"`
-	Type        string         `json:"type,omitempty"`
-	Doramas     []model.Dorama `json:"doramas,omitempty"`
-}
-
-func makeListResponse(list model.List) listResponse {
-	str, _ := constant.GetTypeList(list.Type)
-	return listResponse{
-		Id:          list.Id,
-		Name:        list.Name,
-		Description: list.Description,
-		CreatorName: list.CreatorName,
-		Type:        str,
-		Doramas:     list.Doramas,
-	}
-}
 
 func (h *Handler) getPublicList(c *gin.Context) {
 	data, err := h.Services.GetPublicLists()
@@ -36,11 +14,11 @@ func (h *Handler) getPublicList(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	var result []listResponse
+	var result []DTO.List
 	for _, d := range data {
-		result = append(result, makeListResponse(d))
+		result = append(result, DTO.MakeListResponse(d))
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
 func (h *Handler) getListById(c *gin.Context) {
@@ -67,7 +45,7 @@ func (h *Handler) getListById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": makeListResponse(*data)})
+	c.JSON(http.StatusOK, gin.H{"data": DTO.MakeListResponse(*data)})
 }
 
 func (h *Handler) createList(c *gin.Context) {
@@ -77,25 +55,20 @@ func (h *Handler) createList(c *gin.Context) {
 		return
 	}
 
-	var req listResponse
+	var req DTO.List
 	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	model := model.List{
-		Name:        req.Name,
-		Description: req.Description,
-		Type:        constant.ListType[req.Type],
-		Doramas:     nil,
-	}
+	list := DTO.MakeList(req)
 
-	err = h.Services.CreateList(token, &model)
+	err = h.Services.CreateList(token, list)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": model})
+	c.JSON(http.StatusOK, gin.H{"data": list})
 }
 
 func (h *Handler) addToList(c *gin.Context) {
@@ -112,9 +85,7 @@ func (h *Handler) addToList(c *gin.Context) {
 		return
 	}
 
-	var req struct {
-		Id int `json:"id"`
-	}
+	var req DTO.Id
 
 	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
@@ -196,11 +167,11 @@ func (h *Handler) getUserLists(c *gin.Context) {
 		return
 	}
 
-	var result []listResponse
+	var result []DTO.List
 	for _, d := range data {
-		result = append(result, makeListResponse(d))
+		result = append(result, DTO.MakeListResponse(d))
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
 func (h *Handler) getUserFavList(c *gin.Context) {
@@ -216,11 +187,11 @@ func (h *Handler) getUserFavList(c *gin.Context) {
 		return
 	}
 
-	var result []listResponse
+	var result []DTO.List
 	for _, d := range data {
-		result = append(result, makeListResponse(d))
+		result = append(result, DTO.MakeListResponse(d))
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
 func (h *Handler) addToFav(c *gin.Context) {

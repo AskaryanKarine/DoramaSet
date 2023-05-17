@@ -8,9 +8,12 @@ import (
 	"DoramaSet/internal/logic/controller"
 	"DoramaSet/internal/repository/postgres"
 	"DoramaSet/internal/server"
+	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 type App struct {
@@ -79,18 +82,30 @@ func Init() (*App, error) {
 	return app, nil
 }
 
-func (a *App) Run() error {
+func (a *App) Run() {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Printf("Initialisation application error: %s", r)
 		}
 	}()
-	err := a.srv.Run(*a.cfg, a.handlers.InitRoutes())
-	if err != nil {
-		return err
-	}
+
+	go func() {
+		err := a.srv.Run(*a.cfg, a.handlers.InitRoutes())
+		if err != nil {
+			fmt.Printf("Application running error: %s", err)
+			os.Exit(1)
+		}
+	}()
 
 	a.log.Infof("DoramaSet api Started")
 
-	return nil
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	a.log.Infof("DoramaSet api Shutting Down")
+	if err := a.srv.Shutdown(context.Background()); err != nil {
+		fmt.Printf("Application running error: %s", err)
+		os.Exit(1)
+	}
 }

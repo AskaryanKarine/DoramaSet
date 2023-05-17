@@ -6,7 +6,7 @@ import {IStaff} from "../models/IStaff";
 import {IDorama} from "../models/IDorama";
 
 interface staffResponse {
-    Data: IStaff[]
+    data: IStaff[]
 }
 
 export function useStaff(idDorama?:number) {
@@ -21,7 +21,7 @@ export function useStaff(idDorama?:number) {
             setStaffErr('')
             setStaffLoading(true)
             const response = await instance.get<staffResponse>('/staff/')
-            setStaff(response.data.Data)
+            setStaff(response.data.data)
             setStaffLoading(false)
         } catch (e: unknown) {
             const error = e as AxiosError<IError>
@@ -39,7 +39,7 @@ export function useStaff(idDorama?:number) {
             setStaffLoading(true)
             const url = ["/dorama", idDorama, "staff"].join("/")
             const response = await instance.get<staffResponse>(url)
-            setStaffDorama(response.data.Data)
+            setStaffDorama(response.data.data)
             setStaffLoading(false)
         } catch (e: unknown) {
             setStaffLoading(false)
@@ -61,7 +61,7 @@ export function useStaff(idDorama?:number) {
                     name: name
                 }
             })
-            setStaff(response.data.Data)
+            setStaff(response.data.data)
             setStaffLoading(false)
         } catch (e: unknown) {
             const error = e as AxiosError<IError>

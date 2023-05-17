@@ -7,8 +7,8 @@ export const createPhoto = async (url:string) => {
         const request: IPhoto = {
             url: url,
         }
-        const response = await instance.post<{Data:IPhoto}>('/picture/', request)
-        return response.data.Data
+        const response = await instance.post<{data:IPhoto}>('/picture/', request)
+        return response.data.data
     } catch (e:unknown) {
         return errorHandler(e)
     }

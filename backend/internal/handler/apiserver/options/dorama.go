@@ -1,8 +1,8 @@
 package options
 
 import (
+	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
-	"DoramaSet/internal/logic/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -15,11 +15,15 @@ func (h *Handler) getAllDorama(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": dorama})
+	var response []DTO.Dorama
+	for _, d := range dorama {
+		response = append(response, DTO.MakeDoramaResponse(d))
+	}
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 func (h *Handler) createDorama(c *gin.Context) {
-	var req model.Dorama
+	var req DTO.Dorama
 
 	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
@@ -32,17 +36,18 @@ func (h *Handler) createDorama(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.CreateDorama(token, &req)
+	newDorama := DTO.MakeDorama(req)
+	err = h.Services.CreateDorama(token, newDorama)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": req})
+	c.JSON(http.StatusOK, gin.H{"data": DTO.MakeDoramaResponse(*newDorama)})
 }
 
 func (h *Handler) updateDorama(c *gin.Context) {
-	var req model.Dorama
+	var req DTO.Dorama
 
 	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
@@ -55,12 +60,15 @@ func (h *Handler) updateDorama(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.UpdateDorama(token, req)
+	data := DTO.MakeDorama(req)
+	data.Id = req.Id
+	err = h.Services.UpdateDorama(token, *data)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Data": req})
+
+	c.JSON(http.StatusOK, gin.H{"data": req})
 }
 
 func (h *Handler) getDoramaById(c *gin.Context) {
@@ -81,7 +89,7 @@ func (h *Handler) getDoramaById(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": dorama})
+	c.JSON(http.StatusOK, gin.H{"data": DTO.MakeDoramaResponse(*dorama)})
 }
 
 func (h *Handler) findDoramaByName(c *gin.Context) {
@@ -97,13 +105,16 @@ func (h *Handler) findDoramaByName(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": dorama})
+	var response []DTO.Dorama
+	for _, d := range dorama {
+		response = append(response, DTO.MakeDoramaResponse(d))
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 func (h *Handler) addStaffToDorama(c *gin.Context) {
-	var req struct {
-		Id int `json:"id"`
-	}
+	var req DTO.Id
 
 	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
@@ -149,5 +160,9 @@ func (h *Handler) getStaffListByDorama(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"Data": data})
+	var response []DTO.Staff
+	for _, d := range data {
+		response = append(response, DTO.MakeStaffResponse(d))
+	}
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }

@@ -13,9 +13,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = app.Run()
-	if err != nil {
-		fmt.Printf("Application running error: %s", err)
-		os.Exit(1)
-	}
+	app.Run()
 }

@@ -7,7 +7,7 @@ import {useAppSelector} from "./redux";
 import {IDorama} from "../models/IDorama";
 
 interface listResponse {
-    Data: IList[]
+    data: IList[]
 }
 
 export function useCollection() {
@@ -22,7 +22,7 @@ export function useCollection() {
             setColErr("")
             setLoading(true)
             const response = await instance.get<listResponse>('/list/public')
-            setPublicCollection(response.data.Data)
+            setPublicCollection(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             setLoading(false)
@@ -40,7 +40,7 @@ export function useCollection() {
             setColErr("")
             setLoading(true)
             const response = await instance.get<listResponse>('/user/favorite')
-            setFavCollection(response.data.Data)
+            setFavCollection(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             setLoading(false)
@@ -58,7 +58,7 @@ export function useCollection() {
             setColErr("")
             setLoading(true)
             const response = await instance.get<listResponse>('/user/list')
-            setUserCollection(response.data.Data)
+            setUserCollection(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             setLoading(false)

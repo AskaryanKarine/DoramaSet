@@ -6,7 +6,7 @@ import {IError} from "../models/IError";
 
 
 interface SubscribeResponse {
-    Data: ISubscribe[]
+    data: ISubscribe[]
 }
 
 export function useSubscribe() {
@@ -19,7 +19,7 @@ export function useSubscribe() {
             setSubErr('')
             setLoading(true)
             const response = await instance.get<SubscribeResponse>('/subscription/')
-            setSubscribes(response.data.Data)
+            setSubscribes(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             const error = e as AxiosError<IError>

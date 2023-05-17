@@ -11,7 +11,7 @@ interface episodeWithStatus {
 }
 
 interface EpisodeResponse {
-    Data: episodeWithStatus[]
+    data: episodeWithStatus[]
 }
 
 export function useEpisodeWithStatus(id?:number) {
@@ -28,7 +28,7 @@ export function useEpisodeWithStatus(id?:number) {
                     id: idDorama,
                 }
             })
-            setEpisodeWithStatus(response.data.Data)
+            setEpisodeWithStatus(response.data.data)
             setLoading(false)
         } catch (e: unknown) {
             setLoading(false)

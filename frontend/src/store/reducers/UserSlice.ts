@@ -26,7 +26,7 @@ interface UserRequest {
 }
 
 interface Response {
-    Data: ISubscribe
+    data: ISubscribe
 }
 
 export const authUser = createAsyncThunk<UserRequest,
@@ -45,7 +45,7 @@ export const authUser = createAsyncThunk<UserRequest,
             }
             const url = ["/auth/", urlPath].join("")
             const response = await instance.post<UserRequest>(url, {
-                username: login,
+                login: login,
                 password: password,
                 email: email,
             })
@@ -91,7 +91,7 @@ export const subscribe = createAsyncThunk<ISubscribe, {idSub: number}, {rejectVa
         const url = ["/subscription/", idSub.toString()].join("")
         try {
             const response = await instance.post<Response>(url)
-            return response.data.Data
+            return response.data.data
         } catch (e:unknown) {
             return rejectWithValue(errorHandler(e))
         }
