@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+}
+
+.info {
+    display: flex;
+    max-width: 500px;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.info > div > p {
+    margin-top: 10px;
+}
+
+
+.FavButton {
+    width: auto;
+    height: auto;
+    border: 0;
+    margin-right: 20px;
+}
+
+.FavButton > i:hover {
+    color: #a52727;
+    font-weight: 900;
+}

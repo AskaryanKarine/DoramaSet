@@ -7,8 +7,7 @@ import {useAppSelector} from "../../hooks/redux";
 import React, {useState} from "react";
 import {Modal} from "../Modal/Modal";
 import {useCollection} from "../../hooks/collection";
-import {ListPreview} from "../Collection/Preview/ListPreview";
-import {ListShort} from "../Collection/Short/ShortList";
+import {ListShort} from "../Collection/Short/ListShort";
 
 interface DoramaProps {
     dorama: IDorama

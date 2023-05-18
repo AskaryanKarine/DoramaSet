@@ -1,15 +1,15 @@
 .container {
     display: flex;
-    flex-direction: column;
     border: 1px solid lightgray;
     border-radius: 20px;
     padding: 10px;
-    max-width: 150px;
+    /*max-width: 150px;*/
     justify-content: center;
     align-items: center;
-    margin: 0 10px;
+    margin: 10px;
 }
 
 .container > img {
     border-radius: 20px;
+    margin: auto 2px;
 }

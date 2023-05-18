@@ -2,32 +2,33 @@ import {IDorama} from "../../../models/IDorama";
 import React, {useState} from "react";
 import {instance} from "../../../http-common";
 import {useDorama} from "../../../hooks/dorama";
+import {errorHandler} from "../../../hooks/errorHandler";
 
 interface DoramaFormProps {
     isEdit:boolean
     dorama?:IDorama
-    onCreate : (dorama:IDorama)=>void
+    onCreate :(dorama:IDorama)=>void
 }
 
-export function DoramaForm({isEdit, dorama, onCreate}:DoramaFormProps) {
+export function DoramaCreate({isEdit, dorama, onCreate}:DoramaFormProps) {
     const [name, setName] = useState(dorama ? dorama.name : "")
     const [description, setDescription] = useState(dorama ? dorama.description : "")
     const [genre, setGenre] = useState(dorama ? dorama.genre : "")
     const [year, setYear] = useState(dorama ? dorama.release_year.toString() : "")
     const [status, setStatus] = useState(dorama ? dorama.status : "in progress")
     const [error, setError] = useState("")
-    const {updateDorama} = useDorama()
-
 
     const submitHandler = async (event: React.FormEvent) => {
         setError('')
         event.preventDefault()
 
         if (name.trim().length === 0 || description.trim().length === 0 ||
-            genre.trim().length === 0 || year.trim().length === 0) {
+            genre.trim().length === 0 || year.trim().length === 0 ||
+            isNaN(parseInt(year.trim()))) {
             setError('Пожалуйста, введите корректные данные')
         }
         const request: IDorama = {
+            id: dorama?.id,
             name: name,
             description: description,
             genre: genre,
@@ -35,12 +36,16 @@ export function DoramaForm({isEdit, dorama, onCreate}:DoramaFormProps) {
             release_year: parseInt(year),
         }
 
-        if (isEdit) {
-            await instance.put('/dorama/', request)
-                .then(_ => {updateDorama(request)})
-        } else {
-            await instance.post<IDorama>('/dorama/', request)
-                .then(_ => {onCreate(request)})
+        try {
+            if (isEdit) {
+                await instance.put('/dorama/', request)
+                    .then(_ => {onCreate(request)})
+            } else {
+                const response = await instance.post<{data:IDorama}>('/dorama/', request)
+                    .then(r => {onCreate(r.data.data)})
+            }
+        } catch (e:unknown) {
+            errorHandler(e)
         }
     }
 

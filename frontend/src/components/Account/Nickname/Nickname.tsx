@@ -3,9 +3,10 @@ import {useAppSelector} from "../../../hooks/redux";
 import {EmojiStatus} from "../../EmojiStatus/EmojiStatus";
 import {Avatar} from "../Avatar/Avatar";
 import React from "react";
+import {ErrorMessage} from "../../ErrorMessage/ErrorMessage";
 
 export function Nickname() {
-    const {user} = useAppSelector(state => state.userReducer)
+    const {user, error} = useAppSelector(state => state.userReducer)
 
     return (
         <div>
@@ -17,9 +18,10 @@ export function Nickname() {
                 }
             </div>
             <div className={style.info}>
-                <p>Администратор</p>
+                <p>{user.isAdmin ? "Администратор" : "Пользователь"}</p>
                 <p>Баллы: {user.points}</p>
             </div>
+            <ErrorMessage error={error as string}/>
         </div>
     )
 }

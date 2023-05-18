@@ -18,6 +18,8 @@ export function EpisodeInfo({id, isEdit}:EpisodeInfoProps) {
     const [ep, setEp] = useState("")
     const [season, setSeason] = useState("")
 
+    console.log(episodeWithStatus)
+
     const submitHandler = (event: React.FormEvent) => {
         event.preventDefault()
         if (id) {
@@ -29,7 +31,7 @@ export function EpisodeInfo({id, isEdit}:EpisodeInfoProps) {
         {loading && <Loading/>}
         <div>
             <div className={styles.addHeader}>
-                <h2 className="text-center font-bold text-xl" >Эпизоды</h2>
+                <h2>Эпизоды</h2>
                 {isEdit && <button onClick={()=>{setModal(true)}}>
                     <i className="fa-solid fa-plus fa-border border-2 rounded-full bg-white border-black"></i>
                 </button>}

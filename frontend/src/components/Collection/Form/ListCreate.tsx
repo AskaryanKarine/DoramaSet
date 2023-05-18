@@ -4,6 +4,9 @@ import {useDorama} from "../../../hooks/dorama";
 import {IDorama} from "../../../models/IDorama";
 import {instance} from "../../../http-common";
 import {useCollection} from "../../../hooks/collection";
+import {IError} from "../../../models/IError";
+import {ErrorMessage} from "../../ErrorMessage/ErrorMessage";
+import {errorHandler} from "../../../hooks/errorHandler";
 
 interface ListFormInterface {
     list?:IList
@@ -14,14 +17,11 @@ interface listResponse {
     data:IList
 }
 
-export function ListForm({list, onCreate}:ListFormInterface) {
-    
+export function ListCreate({list, onCreate}:ListFormInterface) {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [type, setType] = useState("private")
     const [error, setError] = useState("")
-    const {} = useCollection()
-
 
     const submitHandler = async (event: React.FormEvent) => {
         setError('')
@@ -36,11 +36,14 @@ export function ListForm({list, onCreate}:ListFormInterface) {
             type: type,
         }
 
-        await instance.post<listResponse>('/list/', request)
-            .then(r => {
-                r.data.data.type = type
-                onCreate(r.data.data)
-                console.log(r.data.data)})
+        try {
+            await instance.post<listResponse>('/list/', request)
+                .then(r => {
+                    r.data.data.type = type
+                    onCreate(r.data.data)})
+        } catch (e:unknown) {
+            errorHandler(e)
+        }
     }
 
 
@@ -72,6 +75,7 @@ export function ListForm({list, onCreate}:ListFormInterface) {
                 </select>
             </div>
             <button type="submit" className="mt-5">Создать</button>
+            <ErrorMessage error={error}/>
         </form>
     </>)
 }

@@ -30,6 +30,9 @@
     margin-bottom: 12px;
 }
 
+.modal::-webkit-scrollbar {
+    width: 0;
+}
 
 .close {
     position: absolute;

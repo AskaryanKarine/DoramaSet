@@ -5,6 +5,7 @@ import {useStaff} from "../../../hooks/staff";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
+import {errorHandler} from "../../../hooks/errorHandler";
 
 interface StaffFormProps {
     isEdit:boolean
@@ -29,18 +30,23 @@ export function StaffForm({isEdit, staff, onCreate}:StaffFormProps) {
             setError('Пожалуйста, введите корректные данные')
         }
         const request: IStaff = {
+            id: staff?.id,
             name: name,
             gender: gender,
             type: status,
             birthday: (moment(bDay)).format('DD.MM.yyyy').toString(),
         }
 
-        if (isEdit) {
-            await instance.put('/staff/', request)
-                .then(_ => {updateStaff(request)})
-        } else {
-            await instance.post<IStaff>('/staff/', request)
-                .then(_ => {onCreate(request)})
+        try {
+            if (isEdit) {
+                await instance.put('/staff/', request)
+                    .then(_ => {updateStaff(request)})
+            } else {
+                await instance.post<IStaff>('/staff/', request)
+                    .then(_ => {onCreate(request)})
+            }
+        } catch (e:unknown) {
+            errorHandler(e)
         }
     }
 

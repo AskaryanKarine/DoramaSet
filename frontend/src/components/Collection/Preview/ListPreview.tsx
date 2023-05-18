@@ -3,6 +3,7 @@ import styles from "./ListPreview.module.css";
 import {Modal} from "../../Modal/Modal";
 import {useState} from "react";
 import {List} from "../List";
+import {useAppSelector} from "../../../hooks/redux";
 
 interface ListPreviewProps {
     list:IList
@@ -18,7 +19,7 @@ export function ListPreview({list, isPublic}:ListPreviewProps) {
                     <p className="text-3xl">{list.name}</p>
                     <p>Создатель: {list.creator_name}</p>
                     <p>Тип: {list.type}</p>
-                    <p>Количество дорам: {list.doramas ? list.doramas.length : "0"}</p>
+                    <p>Количество дорам: {list.doramas ? list.doramas.length : 0}</p>
                 </div>
                 <button
                     className={styles.more}
@@ -31,7 +32,7 @@ export function ListPreview({list, isPublic}:ListPreviewProps) {
                 title={list.name}
                 onClose={()=>{setModalVisible(false)}}
             >
-                <List list={list} isPublic={isPublic}/>
+                <List list={list}/>
             </Modal>}
     </>}</>)
 }

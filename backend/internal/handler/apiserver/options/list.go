@@ -195,9 +195,9 @@ func (h *Handler) getUserFavList(c *gin.Context) {
 }
 
 func (h *Handler) addToFav(c *gin.Context) {
-	rowId := c.Query("id")
-	id, err := strconv.Atoi(rowId)
-	if err != nil {
+	var req DTO.Id
+
+	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -208,7 +208,7 @@ func (h *Handler) addToFav(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddToFav(token, id)
+	err = h.Services.AddToFav(token, req.Id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

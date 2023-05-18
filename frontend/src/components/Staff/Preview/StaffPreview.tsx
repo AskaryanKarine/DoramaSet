@@ -4,7 +4,7 @@ import {AdminPanel} from "../../Admin/Panel/AdminPanel";
 import {useState} from "react";
 import {Modal} from "../../Modal/Modal";
 import {Dorama} from "../../Dorama/Dorama";
-import {UpdateForm} from "../../Dorama/Form/UpdateForm";
+import {DoramaUpdate} from "../../Dorama/Form/DoramaUpdate";
 import {UpdateStaff} from "../Form/UpdateStaff";
 import {Staff} from "../Staff";
 

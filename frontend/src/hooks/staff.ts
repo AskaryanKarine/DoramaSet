@@ -78,7 +78,11 @@ export function useStaff(idDorama?:number) {
     }
 
     function addStaff(staff:IStaff) {
-        setStaffDorama(prev=>[...prev, staff])
+        if (staffDorama) {
+            setStaffDorama(prev=>[...prev, staff])
+        } else {
+            setStaffDorama(()=>[staff])
+        }
     }
 
     const resetStaff = () => {

@@ -117,7 +117,7 @@ export const earnPoint = createAsyncThunk<number, {points: string}, {rejectValue
     "user/earn/point",
     async function ({points}, {rejectWithValue}) {
         try {
-            await instance.post("/user/earn/", {
+            await instance.post("/user/earn", {
                 points: points})
             return parseInt(points)
         } catch (e:unknown) {

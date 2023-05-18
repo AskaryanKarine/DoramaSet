@@ -1,6 +1,5 @@
 import React, {useState} from "react";
-import {useDorama} from "../../hooks/dorama";
-import {useStaff} from "../../hooks/staff";
+import styles from "./Search.module.css"
 
 interface SearchProps {
     findFunc:(name:string)=>void
@@ -25,7 +24,7 @@ export function Search({findFunc, resetFunc}:SearchProps) {
         <form className="flex items-center flex-row justify-center"
               onSubmit={submitHandler}>
             <input
-                className="w-[90%] m-0"
+                className={styles.input}
                 type="text"
                 placeholder='Поиск'
                 value={find}

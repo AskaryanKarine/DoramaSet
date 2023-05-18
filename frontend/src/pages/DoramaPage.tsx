@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import {Modal} from "../components/Modal/Modal";
 import {useAppSelector} from "../hooks/redux";
 import {IDorama} from "../models/IDorama";
-import {DoramaForm} from "../components/Dorama/Form/DoramaForm";
+import {DoramaCreate} from "../components/Dorama/Form/DoramaCreate";
 import {Loading} from "../components/Loading/Loading";
 import {Search} from "../components/Search/Search";
 import {AddButton} from "../components/Admin/AddButton/AddButton";
@@ -18,8 +18,6 @@ export function DoramaPage() {
         setModalVisible(false)
         addDorama(dorama)
     }
-
-    console.log(dorama)
 
     return (
         <>
@@ -39,7 +37,7 @@ export function DoramaPage() {
             {modalVisible &&
                 <Modal title="Добавить новую дораму"
                 onClose={()=>{setModalVisible(false)}}>
-                    <DoramaForm onCreate={createHandler} isEdit={false}/>
+                    <DoramaCreate onCreate={createHandler} isEdit={false}/>
                 </Modal>}
         </>
     )

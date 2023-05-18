@@ -3,6 +3,7 @@ import styles from "./ListShort.module.css";
 import {IList} from "../../../models/IList";
 import {IPhoto} from "../../../models/IPhoto";
 import {instance} from "../../../http-common";
+import {errorHandler} from "../../../hooks/errorHandler";
 
 interface ListShortProps {
     list: IList
@@ -15,9 +16,13 @@ export function ListShort({list, isEdit, idDorama}:ListShortProps) {
     let lenList = list.doramas ? list.doramas.length : 0
     const onCreate = async () => {
         const url = ["/list/", list.id].join("")
-        await instance.post<void>(url, {
-            id: idDorama
-        }).then(_ => {lenList = lenList +1})
+        try {
+            await instance.post<void>(url, {
+                id: idDorama
+            }).then(_ => {lenList = lenList +1})
+        } catch (e:unknown) {
+            errorHandler(e)
+        }
     }
 
     return (

@@ -13,13 +13,13 @@ type Id struct {
 }
 
 type WatchingResponse struct {
-	Episode  model.Episode `json:"episode"`
-	Watching bool          `json:"watching"`
+	Episode  Episode `json:"episode"`
+	Watching bool    `json:"watching"`
 }
 
 func MakeWatchingResponse(e model.Episode, watch bool) WatchingResponse {
 	return WatchingResponse{
-		Episode:  e,
+		Episode:  MakeEpisodeRequest(e),
 		Watching: watch,
 	}
 }

@@ -16,7 +16,6 @@ export function Episode({ep, flag}:EpisodeProps) {
     const [error, setError] = useState<string[]>([])
     const {epErr, markEpisode} = useEpisode()
 
-
     const clickSubmit = () => {
         if (!watched && ep.id) {
             markEpisode(ep.id).then(_ => setError(prevState => [...prevState, epErr]))
@@ -34,7 +33,7 @@ export function Episode({ep, flag}:EpisodeProps) {
                 </button>
 
                 <p>
-                    Сезон {ep.num_season} серия {ep.num_episode}
+                    Сезон {ep.num_episode} серия {ep.num_season}
                 </p>
             </div>
         </>

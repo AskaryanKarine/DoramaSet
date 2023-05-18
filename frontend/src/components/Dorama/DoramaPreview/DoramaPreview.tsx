@@ -4,8 +4,9 @@ import {upToFirst} from "../../../hooks/upToFirst";
 import {useState} from "react";
 import {Modal} from "../../Modal/Modal";
 import {Dorama} from "../Dorama";
-import {UpdateForm} from "../Form/UpdateForm";
+import {DoramaUpdate} from "../Form/DoramaUpdate";
 import {AdminPanel} from "../../Admin/Panel/AdminPanel";
+import {useDorama} from "../../../hooks/dorama";
 
 interface DoramaPreviewProps {
     dorama: IDorama
@@ -14,6 +15,12 @@ interface DoramaPreviewProps {
 export function DoramaPreview({dorama}:DoramaPreviewProps) {
     const [modalVisible, setModalVisible] = useState(false)
     const [editVisible, setEditVisible] = useState(false)
+    const {updateDorama} = useDorama()
+
+    const onUpdateDorama = (dorama:IDorama) => {
+        updateDorama(dorama)
+        setEditVisible(false)
+    }
 
     return (
         <>{dorama && <>
@@ -54,7 +61,7 @@ export function DoramaPreview({dorama}:DoramaPreviewProps) {
                     onClose={() => {setEditVisible(false)
                 }}
             >
-                <UpdateForm dorama={dorama}/>
+                <DoramaUpdate dorama={dorama} onClose={onUpdateDorama}/>
             </Modal>}
         </>}</>
     )

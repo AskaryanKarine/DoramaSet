@@ -1,6 +1,5 @@
 import {Modal} from "../Modal/Modal";
 import React, {useState} from "react";
-import {instance} from "../../http-common";
 import {IPhoto} from "../../models/IPhoto";
 import {createPhoto} from "../../hooks/presenters";
 

@@ -23,6 +23,7 @@ export function useEpisodeWithStatus(id?:number) {
         try {
             setEpErr('')
             setLoading(true)
+
             const response = await instance.get<EpisodeResponse>('/user/episode', {
                 params: {
                     id: idDorama,
@@ -43,16 +44,16 @@ export function useEpisodeWithStatus(id?:number) {
 
     async function createEpisode(id:number, ep: string, season:string) {
         const url = ["/dorama/", id, "/episode"].join("")
-        const request : IEpisode = {
-            num_episode: parseInt(ep),
-            num_season: parseInt(season)
-        }
         try {
-            const response = await instance.post<{Data: IEpisode}>(url, request)
+            const response = await instance.post<{data: IEpisode}>(url, {
+                num_episode: parseInt(ep),
+                num_season: parseInt(season)
+            })
             const epSt: episodeWithStatus = {
-                episode: response.data.Data,
+                episode: response.data.data,
                 watching: false
             }
+            console.log(response.data.data, epSt)
             addEpisode(epSt)
         } catch (e:unknown) {
 

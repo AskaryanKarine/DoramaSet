@@ -87,5 +87,9 @@ export function useDorama() {
         fetchDorama().then(r => {})
     }, [])
 
+    // useEffect(()=>{
+    //     fetchDorama()
+    // }, [dorama])
+
     return {dorama, doramaErr, loading, addDorama, updateDorama, findDorama, resetDorama}
 }

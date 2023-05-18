@@ -39,9 +39,11 @@ func (h *Handler) addPictureToStaff(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	rowPId := c.Query("id")
-	PId, err := strconv.Atoi(rowPId)
-	if err != nil {
+	var req struct {
+		Id int `json:"id"`
+	}
+
+	if err := c.BindJSON(&req); err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
@@ -52,7 +54,7 @@ func (h *Handler) addPictureToStaff(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddPictureToStaff(token, model.Picture{Id: PId}, SId)
+	err = h.Services.AddPictureToStaff(token, model.Picture{Id: req.Id}, SId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

@@ -4,7 +4,6 @@ import {instance} from "../http-common";
 import {AxiosError} from "axios";
 import {IError} from "../models/IError";
 import {useAppSelector} from "./redux";
-import {IDorama} from "../models/IDorama";
 
 interface listResponse {
     data: IList[]
@@ -16,6 +15,7 @@ export function useCollection() {
     const [favCollection, setFavCollection] = useState<IList[]>([])
     const [colErr, setColErr] = useState('')
     const [loading, setLoading] = useState(false)
+    const {isAuth} = useAppSelector(state => state.userReducer)
 
     async function fetchPublic() {
         try {
@@ -76,10 +76,12 @@ export function useCollection() {
     }
 
     useEffect(()=>{
+        if (isAuth) {
+            fetchFav()
+            fetchUserList()
+        }
         fetchPublic()
-        fetchFav()
-        fetchUserList()
-    }, [])
+    }, [isAuth])
 
     return {publicCollection, userCollection, favCollection, loading, colErr, addPrivateList}
 }

@@ -4,8 +4,8 @@ import {useCollection} from "../hooks/collection";
 import {ListPreview} from "../components/Collection/Preview/ListPreview";
 import {AddButton} from "../components/Admin/AddButton/AddButton";
 import {Modal} from "../components/Modal/Modal";
-import {DoramaForm} from "../components/Dorama/Form/DoramaForm";
-import {ListForm} from "../components/Collection/Form/ListForm";
+import {DoramaCreate} from "../components/Dorama/Form/DoramaCreate";
+import {ListCreate} from "../components/Collection/Form/ListCreate";
 import {IDorama} from "../models/IDorama";
 import {IList} from "../models/IList";
 
@@ -30,7 +30,7 @@ export function PrivateListPage() {
             {modalVisible &&
                 <Modal title="Добавить новый список"
                        onClose={()=>{setModalVisible(false)}}>
-                    <ListForm onCreate={createHandler}/>
+                    <ListCreate onCreate={createHandler}/>
                 </Modal>}
         </>
     )

@@ -2,7 +2,6 @@ import {useState} from "react";
 import {instance} from "../http-common";
 import {AxiosError} from "axios";
 import {IError} from "../models/IError";
-import {IEpisode} from "../models/IEpisode";
 
 export function useEpisode() {
     const [epErr, setEpEpr] = useState("")

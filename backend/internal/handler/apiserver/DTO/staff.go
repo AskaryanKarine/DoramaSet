@@ -6,22 +6,26 @@ import (
 )
 
 type Staff struct {
-	Id       int             `json:"id,omitempty"`
-	Name     string          `json:"name"`
-	Birthday string          `json:"birthday"`
-	Type     string          `json:"type"`
-	Gender   string          `json:"gender"`
-	Photo    []model.Picture `json:"photo,omitempty"`
+	Id       int       `json:"id,omitempty"`
+	Name     string    `json:"name"`
+	Birthday string    `json:"birthday"`
+	Type     string    `json:"type"`
+	Gender   string    `json:"gender"`
+	Photo    []Picture `json:"photo,omitempty"`
 }
 
 func MakeStaffResponse(staff model.Staff) Staff {
+	var photo []Picture
+	for _, p := range staff.Photo {
+		photo = append(photo, MakePictureResponse(p))
+	}
 	return Staff{
 		Id:       staff.Id,
 		Name:     staff.Name,
 		Birthday: staff.Birthday.Format("_2 January 2006"),
 		Type:     staff.Type,
 		Gender:   staff.Gender,
-		Photo:    staff.Photo,
+		Photo:    photo,
 	}
 }
 

@@ -1,5 +1,5 @@
 import {IStaff} from "../../../models/IStaff";
-import styles from "../../Dorama/Form/UpdateForm.module.css";
+import styles from "./UpdateStaff.module.css";
 import SimpleImageSlider from "react-simple-image-slider";
 import React, {useState} from "react";
 import {StaffForm} from "./StaffForm";

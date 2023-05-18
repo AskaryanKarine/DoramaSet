@@ -104,12 +104,6 @@ func (h *Handler) getEpisodeWithStatus(c *gin.Context) {
 		return
 	}
 
-	watching, err := h.Services.GetWatchingEpisode(token, id)
-	if err != nil {
-		_ = c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
 	all, err := h.GetEpisodeList(id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
@@ -121,6 +115,13 @@ func (h *Handler) getEpisodeWithStatus(c *gin.Context) {
 			response = append(response, DTO.MakeWatchingResponse(d, false))
 		}
 		c.JSON(http.StatusOK, gin.H{"data": response})
+		return
+	}
+
+	watching, err := h.Services.GetWatchingEpisode(token, id)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	for _, e := range all {
