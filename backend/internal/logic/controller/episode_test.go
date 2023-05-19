@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
 
@@ -55,6 +56,7 @@ func TestGetEpisodeList(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			r, err := dc.GetEpisodeList(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -102,6 +104,7 @@ func TestGetEpisode(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			r, err := dc.GetEpisode(testCase.arg)
 			if (err != nil) != testCase.isNeg {
@@ -169,6 +172,7 @@ func TestMarkWathingEpisode(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
+				log:  &logrus.Logger{},
 			}
 			err := dc.MarkWatchingEpisode(testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
@@ -180,12 +184,15 @@ func TestMarkWathingEpisode(t *testing.T) {
 
 func TestEpisodeController_CreateEpisode(t *testing.T) {
 	mc := minimock.NewController(t)
+	adminUser := model.User{IsAdmin: true}
+	noadminUser := model.User{IsAdmin: false}
 
 	type fields struct {
 		repo repository.IEpisodeRepo
 		uc   controller.IUserController
 	}
 	type args struct {
+		token  string
 		record model.Episode
 		idD    int
 	}
@@ -199,9 +206,10 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			name: "successful result",
 			fields: fields{
 				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(1, nil),
-				uc:   nil,
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
 			},
 			args: args{
+				token:  "",
 				record: model.Episode{},
 				idD:    1,
 			},
@@ -211,9 +219,36 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			name: "create error",
 			fields: fields{
 				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(-1, errors.New("error")),
-				uc:   nil,
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
 			},
 			args: args{
+				token:  "",
+				record: model.Episode{},
+				idD:    1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "auth error",
+			fields: fields{
+				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(1, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
+			},
+			args: args{
+				token:  "",
+				record: model.Episode{},
+				idD:    1,
+			},
+			wantErr: true,
+		},
+		{
+			name: "access error",
+			fields: fields{
+				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(1, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+			},
+			args: args{
+				token:  "",
 				record: model.Episode{},
 				idD:    1,
 			},
@@ -225,8 +260,9 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			e := &EpisodeController{
 				repo: tt.fields.repo,
 				uc:   tt.fields.uc,
+				log:  &logrus.Logger{},
 			}
-			if err := e.CreateEpisode(tt.args.record, tt.args.idD); (err != nil) != tt.wantErr {
+			if err := e.CreateEpisode(tt.args.token, &tt.args.record, tt.args.idD); (err != nil) != tt.wantErr {
 				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

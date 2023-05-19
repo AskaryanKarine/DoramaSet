@@ -18,4 +18,8 @@ App:
 
 Logger:
   FileName: "log.txt"
-  Level: 6
+  Level: debug
+
+Server:
+  Port: "8000"
+  Mode: debug

@@ -968,7 +968,7 @@ type mIDoramaRepoMockGetList struct {
 	expectations       []*IDoramaRepoMockGetListExpectation
 }
 
-// IDoramaRepoMockGetListExpectation specifies expectation struct of the IDoramaRepo.GetList
+// IDoramaRepoMockGetListExpectation specifies expectation struct of the IDoramaRepo.GetStaffList
 type IDoramaRepoMockGetListExpectation struct {
 	mock *IDoramaRepoMock
 
@@ -976,16 +976,16 @@ type IDoramaRepoMockGetListExpectation struct {
 	Counter uint64
 }
 
-// IDoramaRepoMockGetListResults contains results of the IDoramaRepo.GetList
+// IDoramaRepoMockGetListResults contains results of the IDoramaRepo.GetStaffList
 type IDoramaRepoMockGetListResults struct {
 	da1 []model.Dorama
 	err error
 }
 
-// Expect sets up expected params for IDoramaRepo.GetList
+// Expect sets up expected params for IDoramaRepo.GetStaffList
 func (mmGetList *mIDoramaRepoMockGetList) Expect() *mIDoramaRepoMockGetList {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("IDoramaRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("IDoramaRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	if mmGetList.defaultExpectation == nil {
@@ -995,10 +995,10 @@ func (mmGetList *mIDoramaRepoMockGetList) Expect() *mIDoramaRepoMockGetList {
 	return mmGetList
 }
 
-// Inspect accepts an inspector function that has same arguments as the IDoramaRepo.GetList
+// Inspect accepts an inspector function that has same arguments as the IDoramaRepo.GetStaffList
 func (mmGetList *mIDoramaRepoMockGetList) Inspect(f func()) *mIDoramaRepoMockGetList {
 	if mmGetList.mock.inspectFuncGetList != nil {
-		mmGetList.mock.t.Fatalf("Inspect function is already set for IDoramaRepoMock.GetList")
+		mmGetList.mock.t.Fatalf("Inspect function is already set for IDoramaRepoMock.GetStaffList")
 	}
 
 	mmGetList.mock.inspectFuncGetList = f
@@ -1006,10 +1006,10 @@ func (mmGetList *mIDoramaRepoMockGetList) Inspect(f func()) *mIDoramaRepoMockGet
 	return mmGetList
 }
 
-// Return sets up results that will be returned by IDoramaRepo.GetList
+// Return sets up results that will be returned by IDoramaRepo.GetStaffList
 func (mmGetList *mIDoramaRepoMockGetList) Return(da1 []model.Dorama, err error) *IDoramaRepoMock {
 	if mmGetList.mock.funcGetList != nil {
-		mmGetList.mock.t.Fatalf("IDoramaRepoMock.GetList mock is already set by Set")
+		mmGetList.mock.t.Fatalf("IDoramaRepoMock.GetStaffList mock is already set by Set")
 	}
 
 	if mmGetList.defaultExpectation == nil {
@@ -1019,14 +1019,14 @@ func (mmGetList *mIDoramaRepoMockGetList) Return(da1 []model.Dorama, err error) 
 	return mmGetList.mock
 }
 
-// Set uses given function f to mock the IDoramaRepo.GetList method
+// Set uses given function f to mock the IDoramaRepo.GetStaffList method
 func (mmGetList *mIDoramaRepoMockGetList) Set(f func() (da1 []model.Dorama, err error)) *IDoramaRepoMock {
 	if mmGetList.defaultExpectation != nil {
-		mmGetList.mock.t.Fatalf("Default expectation is already set for the IDoramaRepo.GetList method")
+		mmGetList.mock.t.Fatalf("Default expectation is already set for the IDoramaRepo.GetStaffList method")
 	}
 
 	if len(mmGetList.expectations) > 0 {
-		mmGetList.mock.t.Fatalf("Some expectations are already set for the IDoramaRepo.GetList method")
+		mmGetList.mock.t.Fatalf("Some expectations are already set for the IDoramaRepo.GetStaffList method")
 	}
 
 	mmGetList.mock.funcGetList = f
@@ -1047,14 +1047,14 @@ func (mmGetList *IDoramaRepoMock) GetList() (da1 []model.Dorama, err error) {
 
 		mm_results := mmGetList.GetListMock.defaultExpectation.results
 		if mm_results == nil {
-			mmGetList.t.Fatal("No results are set for the IDoramaRepoMock.GetList")
+			mmGetList.t.Fatal("No results are set for the IDoramaRepoMock.GetStaffList")
 		}
 		return (*mm_results).da1, (*mm_results).err
 	}
 	if mmGetList.funcGetList != nil {
 		return mmGetList.funcGetList()
 	}
-	mmGetList.t.Fatalf("Unexpected call to IDoramaRepoMock.GetList.")
+	mmGetList.t.Fatalf("Unexpected call to IDoramaRepoMock.GetStaffList.")
 	return
 }
 
@@ -1092,17 +1092,17 @@ func (m *IDoramaRepoMock) MinimockGetListDone() bool {
 func (m *IDoramaRepoMock) MinimockGetListInspect() {
 	for _, e := range m.GetListMock.expectations {
 		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to IDoramaRepoMock.GetList")
+			m.t.Error("Expected call to IDoramaRepoMock.GetStaffList")
 		}
 	}
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GetListMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetListCounter) < 1 {
-		m.t.Error("Expected call to IDoramaRepoMock.GetList")
+		m.t.Error("Expected call to IDoramaRepoMock.GetStaffList")
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGetList != nil && mm_atomic.LoadUint64(&m.afterGetListCounter) < 1 {
-		m.t.Error("Expected call to IDoramaRepoMock.GetList")
+		m.t.Error("Expected call to IDoramaRepoMock.GetStaffList")
 	}
 }
 

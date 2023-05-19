@@ -1,0 +1,22 @@
+.modal {
+    border: 1px solid gray;
+    border-radius: 20px;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px;
+    padding: 10px 20px;
+}
+
+.modal > h1 {
+    font-size: 25px/* 20px */;
+    line-height: 1.75rem/* 28px */;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.modal > button {
+    margin-top: 20px;
+    height: auto;
+}

@@ -6,12 +6,12 @@ import (
 )
 
 type BalanceError struct {
-	Have int
-	Want int
+	Have int `json:"have"`
+	Want int `json:"want"`
 }
 
 func (b BalanceError) Error() string {
-	return fmt.Sprintf("insufficient funds: you have %d, except %d", b.Have, b.Want)
+	return fmt.Sprintf("you have %d scores, but you need %d scores", b.Have, b.Want)
 }
 
 type LoginLenError struct {

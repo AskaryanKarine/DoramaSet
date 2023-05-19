@@ -10,6 +10,7 @@ import (
 	"DoramaSet/internal/repository/postgres"
 	"context"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 )
@@ -36,8 +37,9 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 		everyYearPoint:   10,
 		longNoLoginPoint: 50,
 		longNoLoginHours: 4400.0,
+		log:              &logrus.Logger{},
 	}
-	userC := UserController{repo: urepo, pc: &pointC, secretKey: "qwerty"}
+	userC := UserController{repo: urepo, pc: &pointC, secretKey: "qwerty", log: &logrus.Logger{}}
 	token := getToken(model.User{Username: "test"}, "qwerty", tokenExpiration)
 	type fields struct {
 		repo  repository.ISubscriptionRepo
@@ -85,6 +87,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 				urepo: tt.fields.urepo,
 				pc:    tt.fields.pc,
 				uc:    tt.fields.uc,
+				log:   &logrus.Logger{},
 			}
 			if err := s.SubscribeUser(tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)

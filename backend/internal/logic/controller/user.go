@@ -6,11 +6,11 @@ import (
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"net/mail"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -37,7 +37,7 @@ func NewUserController(UR repository.IUserRepo, pc controller.IPointsController,
 	}
 }
 
-func (u *UserController) Registration(newUser model.User) (string, error) {
+func (u *UserController) Registration(newUser *model.User) (string, error) {
 	res, err := u.repo.GetUser(newUser.Username)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
@@ -75,20 +75,22 @@ func (u *UserController) Registration(newUser model.User) (string, error) {
 
 	newUser.Password = string(hash)
 
-	err = u.repo.CreateUser(&newUser)
+	err = u.repo.CreateUser(newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("createUser: %w", err)
 	}
 
-	err = u.pc.EarnPointForLogin(&newUser)
+	err = u.pc.EarnPointForLogin(newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
 	newUser.LastActive = time.Now()
-	err = u.repo.UpdateUser(newUser)
+	newUser.Color = "#000000"
+	newUser.Emoji = "2b50"
+	err = u.repo.UpdateUser(*newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("updateUser: %w", err)
@@ -112,6 +114,11 @@ func (u *UserController) Login(username, password string) (string, error) {
 	if err != nil {
 		u.log.Warnf("login err %s, value %s", err, username)
 		return "", fmt.Errorf("getUser: %w", err)
+	}
+
+	if user == nil {
+		u.log.Warnf("login err %s, value %s", err, username)
+		return "", fmt.Errorf("%w", errors.ErrorWrongLogin)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
@@ -184,10 +191,41 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 	}
 
 	user, err := u.repo.GetUser(claims.ID)
-	if err != nil {
+	if err != nil || user == nil {
 		u.log.Warnf("auth by token err %s, username %s", err, claims.ID)
 		return nil, fmt.Errorf("getUser: %w", err)
 	}
 	u.log.Infof("auth by token user %s", user.Username)
 	return user, nil
+}
+
+func (u *UserController) ChangeEmoji(token, emojiCode string) error {
+	user, err := u.AuthByToken(token)
+	if err != nil {
+		u.log.Warnf("change emoji auth err %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	user.Emoji = emojiCode
+	err = u.repo.UpdateUser(*user)
+	if err != nil {
+		u.log.Warnf("chande emoji err %s, user %s, value %s", err, user.Username, emojiCode)
+		return fmt.Errorf("updateUser: %w", err)
+	}
+	u.log.Infof("user %s change emoji to %s", user.Username, emojiCode)
+	return nil
+}
+func (u *UserController) ChangeAvatarColor(token, color string) error {
+	user, err := u.AuthByToken(token)
+	if err != nil {
+		u.log.Warnf("change acatar color auth err %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	user.Color = color
+	err = u.repo.UpdateUser(*user)
+	if err != nil {
+		u.log.Warnf("chande emoji err %s, user %s, value %s", err, user.Username, color)
+		return fmt.Errorf("updateUser: %w", err)
+	}
+	u.log.Infof("user %s change color avatar to %s", user.Username, color)
+	return nil
 }

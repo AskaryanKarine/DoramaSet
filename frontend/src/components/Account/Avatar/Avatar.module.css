@@ -1,0 +1,29 @@
+.iconName {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown_content {
+    display: none;
+    position: absolute;
+    /*top: 125px;*/
+    top: 0;
+    left: 125px;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.show {
+    composes: dropdown_content;
+    display:block;
+}

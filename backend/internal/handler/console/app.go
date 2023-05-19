@@ -1,18 +1,18 @@
 package console
 
 import (
+	"DoramaSet/internal/config"
 	"DoramaSet/internal/handler/console/admin"
 	"DoramaSet/internal/handler/console/general"
 	"DoramaSet/internal/handler/console/guest"
 	"DoramaSet/internal/handler/console/user"
+	logger2 "DoramaSet/internal/logger"
 	"DoramaSet/internal/logic/controller"
 	postgres2 "DoramaSet/internal/repository/postgres"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	easy "github.com/t-tomalak/logrus-easy-formatter"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"io"
+	"gorm.io/gorm/logger"
 	"os"
 )
 
@@ -37,30 +37,21 @@ type App struct {
 }
 
 func NewApp() (*App, error) {
-	cfg, err := initConfig()
+	cfg, err := config.Init()
 	if err != nil {
 		return nil, err
 	}
 
-	f, err := os.OpenFile(cfg.Logger.FileName, os.O_CREATE|os.O_APPEND, os.ModePerm)
+	log, err := logger2.Init(cfg)
 	if err != nil {
 		return nil, err
-	}
-
-	log := logrus.Logger{
-		Out: io.Writer(f),
-		Formatter: &easy.Formatter{
-			TimestampFormat: "2006-01-02 15:04:05",
-			LogFormat:       "[%lvl%]: %time% - %msg%\n",
-		},
-		Level: logrus.Level(cfg.Logger.Level),
 	}
 
 	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"
 	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
-		log.Fatalf("DB can't connect: %s", err)
+		log.Logger.Fatalf("DB can't connect: %s", err)
 		return nil, err
 	}
 
@@ -73,15 +64,15 @@ func NewApp() (*App, error) {
 	uRepo := postgres2.NewUserRepo(db, subRepo, lRepo)
 
 	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
-		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, &log)
+		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log.Logger)
 	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
-		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, &log)
-	dc := controller.NewDoramaController(dRepo, uc, &log)
-	ec := controller.NewEpisodeController(eRepo, uc, &log)
-	lc := controller.NewListController(lRepo, dRepo, uc, &log)
-	picC := controller.NewPictureController(picRepo, uc, &log)
-	staffC := controller.NewStaffController(staffRepo, uc, &log)
-	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, &log)
+		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log.Logger)
+	dc := controller.NewDoramaController(dRepo, uc, log.Logger)
+	ec := controller.NewEpisodeController(eRepo, uc, log.Logger)
+	lc := controller.NewListController(lRepo, dRepo, uc, log.Logger)
+	picC := controller.NewPictureController(picRepo, uc, log.Logger)
+	staffC := controller.NewStaffController(staffRepo, uc, log.Logger)
+	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, log.Logger)
 
 	generalOp := general.New(dc, staffC, lc)
 	guestOp := guest.New(uc)
@@ -91,7 +82,7 @@ func NewApp() (*App, error) {
 	a := App{
 		token:   "",
 		admin:   false,
-		logFile: f,
+		logFile: log.File,
 	}
 
 	a.generalOptions = []handler{

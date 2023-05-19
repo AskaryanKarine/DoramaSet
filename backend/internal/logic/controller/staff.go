@@ -24,7 +24,7 @@ func NewStaffController(SRepo repository.IStaffRepo, uc controller.IUserControll
 	}
 }
 
-func (s *StaffController) GetList() ([]model.Staff, error) {
+func (s *StaffController) GetStaffList() ([]model.Staff, error) {
 	res, err := s.repo.GetList()
 	if err != nil {
 		s.log.Warnf("get staff list err %s", err)
@@ -44,7 +44,7 @@ func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
+func (s *StaffController) GetStaffListByDorama(idD int) ([]model.Staff, error) {
 	res, err := s.repo.GetListDorama(idD)
 	if err != nil {
 		s.log.Warnf("get list staff by dorama err %s, value %d", err, idD)
@@ -54,7 +54,7 @@ func (s *StaffController) GetListByDorama(idD int) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffController) CreateStaff(token string, record model.Staff) error {
+func (s *StaffController) CreateStaff(token string, record *model.Staff) error {
 	user, err := s.uc.AuthByToken(token)
 	if err != nil {
 		s.log.Warnf("create staff auth err %s, token %s, value %v", err, token, record)
@@ -66,11 +66,12 @@ func (s *StaffController) CreateStaff(token string, record model.Staff) error {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	_, err = s.repo.CreateStaff(record)
+	id, err := s.repo.CreateStaff(*record)
 	if err != nil {
 		s.log.Warnf("create staff err %s, user %s, value %v", err, user.Username, record)
 		return fmt.Errorf("createStaff: %w", err)
 	}
+	record.Id = id
 	s.log.Infof("create ctaff user %s, record %v", user.Username, record)
 	return nil
 }

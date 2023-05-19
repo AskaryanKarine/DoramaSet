@@ -32,7 +32,7 @@ func (g *Guest) Registration() (string, bool, error) {
 		return "", false, err
 	}
 
-	result, err := g.uc.Registration(newUser)
+	result, err := g.uc.Registration(&newUser)
 	if err != nil {
 		return "", false, err
 	}

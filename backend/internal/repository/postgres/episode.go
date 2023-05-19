@@ -79,3 +79,16 @@ func (e *EpisodeRepo) MarkEpisode(idEp int, username string) error {
 	}
 	return nil
 }
+
+func (e *EpisodeRepo) GetWatchingList(username string, idD int) ([]model.Episode, error) {
+	var resDB []model.Episode
+	result := e.db.Table("dorama_set.episode e").Select("e.*").
+		Joins("join dorama_set.userepisode ue on ue.id_episode = e.id").
+		Where("ue.username = ? and e.id_dorama = ?", username, idD).Find(&resDB)
+
+	if result.Error != nil {
+		return nil, fmt.Errorf("db: %w", result.Error)
+	}
+
+	return resDB, nil
+}

@@ -1,0 +1,9 @@
+.menu {
+    width: 80%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.menu > button {
+    margin: 0 50px;
+}

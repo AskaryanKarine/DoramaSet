@@ -3,23 +3,24 @@ package controller
 import "DoramaSet/internal/logic/model"
 
 type IDoramaController interface {
-	GetAll() ([]model.Dorama, error)
-	GetByName(name string) ([]model.Dorama, error)
-	GetById(id int) (*model.Dorama, error)
-	CreateDorama(token string, record model.Dorama) error
+	GetAllDorama() ([]model.Dorama, error)
+	GetDoramaByName(name string) ([]model.Dorama, error)
+	GetDoramaById(id int) (*model.Dorama, error)
+	CreateDorama(token string, record *model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
-	AddStaffToDorama(idD, idS int) error
+	AddStaffToDorama(token string, idD, idS int) error
 }
 
 type IEpisodeController interface {
 	GetEpisodeList(idD int) ([]model.Episode, error)
 	GetEpisode(id int) (*model.Episode, error)
 	MarkWatchingEpisode(token string, idEp int) error
-	CreateEpisode(record model.Episode, idD int) error
+	GetWatchingEpisode(token string, idD int) ([]model.Episode, error)
+	CreateEpisode(token string, record *model.Episode, idD int) error
 }
 
 type IListController interface {
-	CreateList(token string, record model.List) error
+	CreateList(token string, record *model.List) error
 	GetUserLists(token string) ([]model.List, error)
 	GetPublicLists() ([]model.List, error)
 	GetListById(token string, id int) (*model.List, error)
@@ -45,11 +46,11 @@ type IPointsController interface {
 }
 
 type IStaffController interface {
-	GetList() ([]model.Staff, error)
+	GetStaffList() ([]model.Staff, error)
 	GetListByName(name string) ([]model.Staff, error)
-	GetListByDorama(idD int) ([]model.Staff, error)
+	GetStaffListByDorama(idD int) ([]model.Staff, error)
 	GetStaffById(id int) (*model.Staff, error)
-	CreateStaff(token string, record model.Staff) error
+	CreateStaff(token string, record *model.Staff) error
 	UpdateStaff(token string, record model.Staff) error
 }
 
@@ -58,11 +59,14 @@ type ISubscriptionController interface {
 	GetInfo(id int) (*model.Subscription, error)
 	SubscribeUser(token string, id int) error
 	UnsubscribeUser(token string) error
+	UpdateSubscribe(token string) error
 }
 
 type IUserController interface {
-	Registration(record model.User) (string, error)
+	Registration(record *model.User) (string, error)
 	Login(username, password string) (string, error)
 	UpdateActive(token string) error
 	AuthByToken(token string) (*model.User, error)
+	ChangeEmoji(token, emojiCode string) error
+	ChangeAvatarColor(token, color string) error
 }

@@ -39,7 +39,7 @@ func printDorama(dorama model.Dorama) {
 }
 
 func (g *General) GetAllDorama(token string) error {
-	result, err := g.dc.GetAll()
+	result, err := g.dc.GetAllDorama()
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (g *General) GetDoramaById(token string) error {
 		return err
 	}
 
-	result, err := g.dc.GetById(id)
+	result, err := g.dc.GetDoramaById(id)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (g *General) GetDoramaByName(token string) error {
 		return err
 	}
 	fmt.Printf("Результаты:\n")
-	result, err := g.dc.GetByName(line)
+	result, err := g.dc.GetDoramaByName(line)
 	for _, r := range result {
 		fmt.Printf("%d: %s\n", r.Id, r.Name)
 	}
@@ -83,7 +83,7 @@ func (g *General) GetDoramaByName(token string) error {
 }
 
 func (g *General) GetAllStaff(token string) error {
-	result, err := g.sc.GetList()
+	result, err := g.sc.GetStaffList()
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (g *General) GetStaffByDorama(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
-	res, err := g.sc.GetListByDorama(id)
+	res, err := g.sc.GetStaffListByDorama(id)
 	if err != nil {
 		return err
 	}

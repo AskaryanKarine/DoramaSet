@@ -11,6 +11,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 )
@@ -36,6 +37,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 		everyYearPoint:   10,
 		longNoLoginPoint: 50,
 		longNoLoginHours: 4400.0,
+		log:              &logrus.Logger{},
 	}
 
 	type fields struct {
@@ -81,6 +83,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 				repo:      tt.fields.repo,
 				pc:        tt.fields.pc,
 				secretKey: tt.fields.secretKey,
+				log:       &logrus.Logger{},
 			}
 			if err := u.UpdateActive(tt.args.token); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateActiveIntegrate() error = %v, wantErr %v", err, tt.wantErr)

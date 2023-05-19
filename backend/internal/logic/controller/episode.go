@@ -3,6 +3,7 @@ package controller
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
+	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -58,12 +59,36 @@ func (e *EpisodeController) MarkWatchingEpisode(token string, idEp int) error {
 	return nil
 }
 
-func (e *EpisodeController) CreateEpisode(record model.Episode, idD int) error {
-	_, err := e.repo.CreateEpisode(record, idD)
+func (e *EpisodeController) CreateEpisode(token string, record *model.Episode, idD int) error {
+	user, err := e.uc.AuthByToken(token)
+	if err != nil {
+		e.log.Warnf("update dorama, auth err: %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	if !user.IsAdmin {
+		e.log.Warnf("update dorama, access err: %s username %s", err, user.Username)
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
+	}
+	id, err := e.repo.CreateEpisode(*record, idD)
 	if err != nil {
 		e.log.Warnf("create episode err %s, value %v %d", err, record, idD)
 		return fmt.Errorf("createEpisode: %w", err)
 	}
+	record.Id = id
 	e.log.Infof("created episode value %v %d", record, idD)
 	return nil
+}
+
+func (e *EpisodeController) GetWatchingEpisode(token string, idD int) ([]model.Episode, error) {
+	user, err := e.uc.AuthByToken(token)
+	if err != nil {
+		return nil, fmt.Errorf("authByToken: %w", err)
+	}
+
+	res, err := e.repo.GetWatchingList(user.Username, idD)
+	if err != nil {
+		return nil, fmt.Errorf("getWatchingList: %w", err)
+	}
+
+	return res, nil
 }

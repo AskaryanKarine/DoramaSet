@@ -1,7 +1,6 @@
-package console
+package config
 
 import (
-	"DoramaSet/internal/config"
 	"errors"
 	"flag"
 	"fmt"
@@ -12,8 +11,8 @@ var errorConfigRead = errors.New("can't read config file")
 
 var configPath = flag.String("config", "./configs/config.yml", "config file path")
 
-func initConfig() (*config.Config, error) {
-	var cfg config.Config
+func Init() (*Config, error) {
+	var cfg Config
 
 	flag.Parse()
 	viper.SetConfigFile(*configPath)

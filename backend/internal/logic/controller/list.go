@@ -27,7 +27,7 @@ func NewListController(LRepo repository.IListRepo, DRepo repository.IDoramaRepo,
 	}
 }
 
-func (l *ListController) CreateList(token string, record model.List) error {
+func (l *ListController) CreateList(token string, record *model.List) error {
 	user, err := l.uc.AuthByToken(token)
 	if err != nil {
 		l.log.Warnf("create list, auth err %s, token %s", err, token)
@@ -36,11 +36,12 @@ func (l *ListController) CreateList(token string, record model.List) error {
 
 	record.CreatorName = user.Username
 
-	_, err = l.repo.CreateList(record)
+	id, err := l.repo.CreateList(*record)
 	if err != nil {
 		l.log.Warnf("create list err %s username %s, record %v", err, user.Username, record)
 		return fmt.Errorf("createList: %w", err)
 	}
+	record.Id = id
 	l.log.Infof("created list username %s, record %v", user.Username, record)
 	return nil
 }

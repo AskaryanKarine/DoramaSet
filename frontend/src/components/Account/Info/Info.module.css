@@ -1,0 +1,19 @@
+.rightContainer {
+    border: 1px solid gray;
+    border-radius: 20px;
+    padding: 40px;
+    width: 58%;
+}
+
+.rightContainer > h2 {
+    font-size: 1.875rem; /* 30px */
+    line-height: 2.25rem; /* 36px */
+    margin-top: 25px;
+    font-weight: bolder;
+}
+
+.rightContainer > p {
+    margin: 10px;
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem; /* 28px */
+}

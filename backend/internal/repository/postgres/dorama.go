@@ -56,6 +56,7 @@ func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 			Name:        r.Name,
 			Description: r.Description,
 			Genre:       r.Genre,
+			Status:      r.Status,
 			ReleaseYear: r.ReleaseYear,
 			Episodes:    ep,
 			Posters:     photo,

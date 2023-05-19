@@ -76,7 +76,7 @@ func (u *User) CreateList(token string) error {
 	tl := constant.ListType[typeList]
 	list.Type = tl
 
-	err = u.lc.CreateList(token, list)
+	err = u.lc.CreateList(token, &list)
 	if err != nil {
 		return err
 	}

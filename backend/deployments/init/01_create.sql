@@ -4,9 +4,11 @@ create schema if not exists dorama_set;
 
 create table if not exists dorama_set.Subscription (
     id serial primary key,
+    name text not null,
     cost int not null ,
     description text not null,
-    duration int not null
+    duration int not null,
+    access_lvl int not null 
 );
 
 create table if not exists dorama_set.User (
@@ -19,6 +21,8 @@ create table if not exists dorama_set.User (
     last_subscribe date not null,
     points int not null default 0,
     is_admin bool not null default false,
+    emoji text default '2b50',
+    color text not null default '#000000',
     foreign key (sub_id) references dorama_set.Subscription(id) on delete cascade
 );
 

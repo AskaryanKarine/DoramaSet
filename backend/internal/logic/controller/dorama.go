@@ -20,7 +20,7 @@ func NewDoramaController(DRepo repository.IDoramaRepo, uc controller.IUserContro
 	return &DoramaController{repo: DRepo, uc: uc, log: log}
 }
 
-func (d *DoramaController) GetAll() ([]model.Dorama, error) {
+func (d *DoramaController) GetAllDorama() ([]model.Dorama, error) {
 	res, err := d.repo.GetList()
 	if err != nil {
 		d.log.Warnf("get all dorama, get list err %s", err)
@@ -30,7 +30,7 @@ func (d *DoramaController) GetAll() ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
+func (d *DoramaController) GetDoramaByName(name string) ([]model.Dorama, error) {
 
 	res, err := d.repo.GetListName(name)
 	if err != nil {
@@ -41,7 +41,7 @@ func (d *DoramaController) GetByName(name string) ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaController) GetById(id int) (*model.Dorama, error) {
+func (d *DoramaController) GetDoramaById(id int) (*model.Dorama, error) {
 	res, err := d.repo.GetDorama(id)
 	if err != nil {
 		d.log.Warnf("get dorama by id error: %s, value: %d", err, id)
@@ -51,7 +51,7 @@ func (d *DoramaController) GetById(id int) (*model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaController) CreateDorama(token string, record model.Dorama) error {
+func (d *DoramaController) CreateDorama(token string, record *model.Dorama) error {
 	user, err := d.uc.AuthByToken(token)
 	if err != nil {
 		d.log.Warnf("create dorama, auth err: %s, token %s", err, token)
@@ -63,11 +63,12 @@ func (d *DoramaController) CreateDorama(token string, record model.Dorama) error
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	_, err = d.repo.CreateDorama(record)
+	id, err := d.repo.CreateDorama(*record)
 	if err != nil {
 		d.log.Warnf("create dorama, err %s, username %s, value %v", err, user.Username, record)
 		return fmt.Errorf("createDorama: %w", err)
 	}
+	record.Id = id
 	d.log.Infof("created dorama, username %s, record %v", user.Username, record)
 	return nil
 }
@@ -92,8 +93,17 @@ func (d *DoramaController) UpdateDorama(token string, record model.Dorama) error
 	return nil
 }
 
-func (d *DoramaController) AddStaffToDorama(idD, idS int) error {
-	err := d.repo.AddStaff(idD, idS)
+func (d *DoramaController) AddStaffToDorama(token string, idD, idS int) error {
+	user, err := d.uc.AuthByToken(token)
+	if err != nil {
+		d.log.Warnf("update dorama, auth err: %s, token %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	if !user.IsAdmin {
+		d.log.Warnf("update dorama, access err: %s username %s", err, user.Username)
+		return fmt.Errorf("%w", errors.ErrorAdminAccess)
+	}
+	err = d.repo.AddStaff(idD, idS)
 	if err != nil {
 		d.log.Warnf("add staff to dorama, add err: %s values %d %d", err, idD, idS)
 		return fmt.Errorf("addStaff: %w", err)

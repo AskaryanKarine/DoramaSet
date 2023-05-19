@@ -22,11 +22,17 @@ type appConfig struct {
 
 type loggerConfig struct {
 	FileName string
-	Level    int
+	Level    string
+}
+
+type serverConfig struct {
+	Port string
+	Mode string
 }
 
 type Config struct {
 	DB     dbConfig
 	App    appConfig
 	Logger loggerConfig
+	Server serverConfig
 }
