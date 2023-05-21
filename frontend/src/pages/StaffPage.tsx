@@ -6,8 +6,6 @@ import {StaffPreview} from "../components/Staff/Preview/StaffPreview";
 import {Search} from "../components/Search/Search";
 import {AddButton} from "../components/Admin/AddButton/AddButton";
 import {Modal} from "../components/Modal/Modal";
-import {DoramaCreate} from "../components/Dorama/Form/DoramaCreate";
-import {IDorama} from "../models/IDorama";
 import {IStaff} from "../models/IStaff";
 import {StaffForm} from "../components/Staff/Form/StaffForm";
 

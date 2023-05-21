@@ -4,6 +4,7 @@ import {IList} from "../../../models/IList";
 import {IPhoto} from "../../../models/IPhoto";
 import {instance} from "../../../http-common";
 import {errorHandler} from "../../../hooks/errorHandler";
+import {useState} from "react";
 
 interface ListShortProps {
     list: IList
@@ -12,16 +13,23 @@ interface ListShortProps {
 }
 
 export function ListShort({list, isEdit, idDorama}:ListShortProps) {
-
-    let lenList = list.doramas ? list.doramas.length : 0
+    const [lenList, setLenList] = useState(list.doramas ? list.doramas.length : 0)
     const onCreate = async () => {
         const url = ["/list/", list.id].join("")
         try {
             await instance.post<void>(url, {
                 id: idDorama
-            }).then(_ => {lenList = lenList +1})
+            }).then(_ => {setLenList(lenList + 1)})
         } catch (e:unknown) {
             errorHandler(e)
+        }
+    }
+
+    let disable = false
+    for (let i = 0; list.doramas && i < list.doramas.length; i++) {
+        if (list.doramas[i].id === idDorama) {
+            disable = true
+            break
         }
     }
 
@@ -31,7 +39,7 @@ export function ListShort({list, isEdit, idDorama}:ListShortProps) {
                 <p>{list.name}</p>
                 <p>Количество: {lenList}</p>
                 {isEdit &&
-                    <button onClick={onCreate}>Добавить в список</button>}
+                    <button disabled={disable} onClick={onCreate}>Добавить в список</button>}
             </div>
         </>
     )
