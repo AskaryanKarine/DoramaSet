@@ -1,7 +1,7 @@
 import {IDorama} from "../../../models/IDorama";
 import React, {useState} from "react";
 import {instance} from "../../../http-common";
-import {useDorama} from "../../../hooks/dorama";
+import {useAllDorama} from "../../../hooks/dorama";
 import {errorHandler} from "../../../hooks/errorHandler";
 
 interface DoramaFormProps {
@@ -38,8 +38,8 @@ export function DoramaCreate({isEdit, dorama, onCreate}:DoramaFormProps) {
 
         try {
             if (isEdit) {
-                await instance.put('/dorama/', request)
-                    .then(_ => {onCreate(request)})
+                await instance.put<{data:IDorama}>('/dorama/', request)
+                    .then(r => {onCreate(r.data.data)})
             } else {
                 const response = await instance.post<{data:IDorama}>('/dorama/', request)
                     .then(r => {onCreate(r.data.data)})

@@ -10,13 +10,15 @@ import {EpisodeInfo} from "../Info/EpisodeInfo";
 import {StaffInfo} from "../Info/StaffInfo";
 import {DoramaCreate} from "./DoramaCreate";
 import {errorHandler} from "../../../hooks/errorHandler";
+import {IEpisode} from "../../../models/IEpisode";
 
 interface UpdateFormProps {
     dorama:IDorama
     onClose:(dorama:IDorama)=>void
+    addEpisode?:(ep:IEpisode)=>void
 }
 
-export function DoramaUpdate({dorama, onClose}:UpdateFormProps) {
+export function DoramaUpdate({dorama, onClose, addEpisode}:UpdateFormProps) {
     const [error, setError] = useState("")
     const [photoVisible, setPhotoVisible] = useState(false)
 
@@ -57,7 +59,7 @@ export function DoramaUpdate({dorama, onClose}:UpdateFormProps) {
             <DoramaCreate dorama={dorama} isEdit={true} onCreate={onClose}/>
             </div>
         </div>
-        <EpisodeInfo id={dorama.id} isEdit={true}/>
+        <EpisodeInfo id={dorama.id} isEdit={true} add={addEpisode}/>
         <StaffInfo id={dorama.id} isEdit={true} idDorama={dorama.id}/>
         {photoVisible && <
             CreatePhoto

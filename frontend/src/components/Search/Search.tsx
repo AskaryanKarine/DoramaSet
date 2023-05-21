@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import styles from "./Search.module.css"
 
 interface SearchProps {
@@ -19,6 +19,10 @@ export function Search({findFunc, resetFunc}:SearchProps) {
         setFind("")
         resetFunc()
     }
+
+    useEffect(()=>{
+        return resetFunc()
+    }, [])
 
     return (<>
         <form className="flex items-center flex-row justify-center"

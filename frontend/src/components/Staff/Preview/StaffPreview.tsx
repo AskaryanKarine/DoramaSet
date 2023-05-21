@@ -7,6 +7,7 @@ import {Dorama} from "../../Dorama/Dorama";
 import {DoramaUpdate} from "../../Dorama/Form/DoramaUpdate";
 import {UpdateStaff} from "../Form/UpdateStaff";
 import {Staff} from "../Staff";
+import {IDorama} from "../../../models/IDorama";
 
 interface StaffPreviewProps {
     staff:IStaff
@@ -15,7 +16,12 @@ interface StaffPreviewProps {
 export function StaffPreview({staff}:StaffPreviewProps) {
     const [modalVisible, setModalVisible] = useState(false)
     const [editVisible, setEditVisible] = useState(false)
+    const [current, setCurrent] = useState(staff)
 
+    const onUpdate = (staff:IStaff) => {
+        setCurrent(staff)
+        setEditVisible(false)
+    }
 
     return (<>{staff && <>
         <div className={styles.container}>
@@ -27,9 +33,9 @@ export function StaffPreview({staff}:StaffPreviewProps) {
             </div>
             <div className={styles.info}>
                 <div>
-                    <p className="text-3xl">{staff.name}</p>
-                    <p>{staff.gender}</p>
-                    <p>Дата рождения {staff.birthday}</p>
+                    <p className="text-3xl">{current.name}</p>
+                    <p>{current.gender}</p>
+                    <p>Дата рождения {current.birthday}</p>
                 </div>
                 <button
                     className={styles.more}
@@ -54,7 +60,7 @@ export function StaffPreview({staff}:StaffPreviewProps) {
                 onClose={() => {setEditVisible(false)
                 }}
             >
-                <UpdateStaff staff={staff}/>
+                <UpdateStaff staff={current} close={onUpdate}/>
             </Modal>}
     </>}</>)
 }

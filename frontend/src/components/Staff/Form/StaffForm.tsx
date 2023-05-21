@@ -18,7 +18,6 @@ export function StaffForm({isEdit, staff, onCreate}:StaffFormProps) {
     const [gender, setGender] = useState(staff ? staff.gender : "м")
     const [status, setStatus] = useState(staff ? staff.type : "actor")
     const [error, setError] = useState("")
-    const {updateStaff} = useStaff()
     const [bDay, setBDay] = useState(staff ? new Date(staff.birthday) : new Date());
 
     const submitHandler = async (event: React.FormEvent) => {
@@ -39,11 +38,11 @@ export function StaffForm({isEdit, staff, onCreate}:StaffFormProps) {
 
         try {
             if (isEdit) {
-                await instance.put('/staff/', request)
-                    .then(_ => {updateStaff(request)})
+                await instance.put<{data:IStaff}>('/staff/', request)
+                    .then(r => {onCreate(r.data.data)})
             } else {
-                await instance.post<IStaff>('/staff/', request)
-                    .then(_ => {onCreate(request)})
+                await instance.post<{ data: IStaff }>('/staff/', request)
+                    .then(r => {onCreate(r.data.data)})
             }
         } catch (e:unknown) {
             errorHandler(e)

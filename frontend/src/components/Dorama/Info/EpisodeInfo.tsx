@@ -6,24 +6,37 @@ import {Loading} from "../../Loading/Loading";
 import {Modal} from "../../Modal/Modal";
 import {instance} from "../../../http-common";
 import {IEpisode} from "../../../models/IEpisode";
+import {IDorama} from "../../../models/IDorama";
 
 interface EpisodeInfoProps {
     id?:number
     isEdit:boolean
+    add?:(ep:IEpisode)=>void
 }
 
-export function EpisodeInfo({id, isEdit}:EpisodeInfoProps) {
+export function EpisodeInfo({id, isEdit, add}:EpisodeInfoProps) {
     const {episodeWithStatus, loading, epErr, createEpisode} = useEpisodeWithStatus(id)
     const [modal, setModal] = useState(false)
     const [ep, setEp] = useState("")
     const [season, setSeason] = useState("")
+    const [error, setError] = useState("")
 
-    console.log(episodeWithStatus)
 
     const submitHandler = (event: React.FormEvent) => {
         event.preventDefault()
+        setError('')
+        if (isNaN(parseInt(ep.trim())) || isNaN(parseInt(season.trim()))) {
+            setError("Пожалуйста, введите корректные данные")
+        }
+
+
         if (id) {
-            createEpisode(id, ep, season).then(_=>{setModal(false)})
+            createEpisode(id, ep, season).then(r=>{setModal(false)
+                if (add && r) {
+                    add(r)
+                }
+                console.log(r)
+            })
         }
     }
     
