@@ -16,17 +16,19 @@ type User struct {
 	sc controller.ISubscriptionController
 	uc controller.IUserController
 	pc controller.IPointsController
+	dc controller.IDoramaController
 }
 
 func New(lc controller.IListController, ec controller.IEpisodeController,
 	sc controller.ISubscriptionController, uc controller.IUserController,
-	pc controller.IPointsController) *User {
+	pc controller.IPointsController, dc controller.IDoramaController) *User {
 	return &User{
 		lc: lc,
 		ec: ec,
 		sc: sc,
 		uc: uc,
 		pc: pc,
+		dc: dc,
 	}
 }
 
@@ -235,5 +237,47 @@ func (u *User) TopUpBalance(token string) error {
 		return err
 	}
 	fmt.Printf("Баланс успешно пополнен")
+	return nil
+}
+
+func (u *User) DeleteReview(token string) error {
+	var idD int
+	fmt.Print("Введите ID дорамы, у которой хотите удалить отзыв: ")
+	if _, err := fmt.Scan(&idD); err != nil {
+		return err
+	}
+	err := u.dc.DeleteReview(token, idD)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Отзыв успешно удален!")
+	return nil
+}
+
+func (u *User) AddReview(token string) error {
+	var idD int
+	var review model.Review
+	in := bufio.NewReader(os.Stdin)
+	fmt.Print("Введите ID дорамы, которой хотите оставить отзыв: ")
+	if _, err := fmt.Scan(&idD); err != nil {
+		return err
+	}
+	fmt.Print("Введите оценку (от 1 до 5): ")
+	if _, err := fmt.Scan(&review.Mark); err != nil {
+		return err
+	}
+	_, _ = fmt.Scanf("/n")
+	fmt.Print("Введите содержание отзыва: ")
+	line, err := in.ReadString('\n')
+	if err != nil {
+		return err
+	}
+	review.Content = line
+
+	err = u.dc.AddReview(token, idD, &review)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Отзыв успешно добавлен!")
 	return nil
 }

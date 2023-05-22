@@ -10,14 +10,15 @@ import (
 )
 
 type DoramaController struct {
-	repo repository.IDoramaRepo
-	uc   controller.IUserController
-	log  *logrus.Logger
+	repo    repository.IDoramaRepo
+	revRepo repository.IReviewRepo
+	uc      controller.IUserController
+	log     *logrus.Logger
 }
 
-func NewDoramaController(DRepo repository.IDoramaRepo, uc controller.IUserController,
-	log *logrus.Logger) *DoramaController {
-	return &DoramaController{repo: DRepo, uc: uc, log: log}
+func NewDoramaController(DRepo repository.IDoramaRepo, RRepo repository.IReviewRepo,
+	uc controller.IUserController, log *logrus.Logger) *DoramaController {
+	return &DoramaController{repo: DRepo, uc: uc, log: log, revRepo: RRepo}
 }
 
 func (d *DoramaController) GetAllDorama() ([]model.Dorama, error) {
@@ -111,10 +112,33 @@ func (d *DoramaController) AddStaffToDorama(token string, idD, idS int) error {
 	return nil
 }
 
-func (d *DoramaController) AddReview(token string, review model.Review) error {
+func (d *DoramaController) AddReview(token string, idD int, review *model.Review) error {
+	user, err := d.uc.AuthByToken(token)
+	if err != nil {
+		d.log.Warnf("add review, auth err: %s, token: %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	review.Username = user.Username
+	err = d.revRepo.CreateReview(idD, review)
+	if err != nil {
+		d.log.Warnf("add review, create err: %s, value %d %v", err, idD, review)
+		return fmt.Errorf("createReview: %w", err)
+	}
+	d.log.Infof("added new review into dorama %d by user %s", idD, user.Username)
 	return nil
 }
 
 func (d *DoramaController) DeleteReview(token string, idD int) error {
+	user, err := d.uc.AuthByToken(token)
+	if err != nil {
+		d.log.Warnf("delete review, auth err: %s, token: %s", err, token)
+		return fmt.Errorf("authToken: %w", err)
+	}
+	err = d.revRepo.DeleteReview(user.Username, idD)
+	if err != nil {
+		d.log.Warnf("delete review, delete err: %s, user %s, id %d", err, user.Username, idD)
+		return fmt.Errorf("deleteReview: %w", err)
+	}
+	d.log.Infof("deleted review from dorama %d by user %s", idD, user.Username)
 	return nil
 }

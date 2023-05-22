@@ -56,8 +56,9 @@ func NewApp() (*App, error) {
 	}
 
 	picRepo := postgres2.NewPictureRepo(db)
+	revRepo := postgres2.NewReviewRepo(db)
 	eRepo := postgres2.NewEpisodeRepo(db)
-	dRepo := postgres2.NewDoramaRepo(db, picRepo, eRepo)
+	dRepo := postgres2.NewDoramaRepo(db, picRepo, eRepo, revRepo)
 	lRepo := postgres2.NewListRepo(db, dRepo)
 	staffRepo := postgres2.NewStaffRepo(db, picRepo)
 	subRepo := postgres2.NewSubscriptionRepo(db)
@@ -67,7 +68,7 @@ func NewApp() (*App, error) {
 		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log.Logger)
 	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
 		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log.Logger)
-	dc := controller.NewDoramaController(dRepo, uc, log.Logger)
+	dc := controller.NewDoramaController(dRepo, revRepo, uc, log.Logger)
 	ec := controller.NewEpisodeController(eRepo, uc, log.Logger)
 	lc := controller.NewListController(lRepo, dRepo, uc, log.Logger)
 	picC := controller.NewPictureController(picRepo, uc, log.Logger)
@@ -77,7 +78,7 @@ func NewApp() (*App, error) {
 	generalOp := general.New(dc, staffC, lc)
 	guestOp := guest.New(uc)
 	adminOp := admin.New(dc, staffC, picC, ec)
-	userOp := user.New(lc, ec, subC, uc, pc)
+	userOp := user.New(lc, ec, subC, uc, pc, dc)
 
 	a := App{
 		token:   "",
@@ -206,6 +207,14 @@ func NewApp() (*App, error) {
 		{
 			name: "Пополнить баланс",
 			f:    userOp.TopUpBalance,
+		},
+		{
+			name: "Добавить отзыв",
+			f:    userOp.AddReview,
+		},
+		{
+			name: "Удалить отзыв",
+			f:    userOp.DeleteReview,
 		},
 	}
 	return &a, nil

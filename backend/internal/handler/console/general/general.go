@@ -28,6 +28,8 @@ func printDorama(dorama model.Dorama) {
 	fmt.Printf("Год выхода: %d\n", dorama.ReleaseYear)
 	fmt.Printf("Статус: %s\n", dorama.Status)
 	fmt.Printf("Жанр: %s\n", dorama.Genre)
+	fmt.Printf("Рейтинг: %.2f\n", dorama.Rate)
+	fmt.Printf("Количество оценок: %d\n", dorama.CntRate)
 	fmt.Printf("Количество серий: %d\n", len(dorama.Episodes))
 	for _, e := range dorama.Episodes {
 		fmt.Printf("%d. Сезон %d серия %d\n", e.Id, e.NumSeason, e.NumEpisode)
@@ -35,6 +37,10 @@ func printDorama(dorama model.Dorama) {
 	fmt.Printf("Постеры:\n")
 	for _, p := range dorama.Posters {
 		fmt.Printf("%s\n", p.URL)
+	}
+	fmt.Printf("Отзывы:\n")
+	for _, r := range dorama.Reviews {
+		fmt.Printf("%s, %d/5\n%s\n", r.Username, r.Mark, r.Content)
 	}
 }
 

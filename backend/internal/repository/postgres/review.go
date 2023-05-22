@@ -43,6 +43,22 @@ func (r *ReviewRepo) GetAllReview(idD int) ([]model.Review, error) {
 	return res, nil
 }
 
+func (r *ReviewRepo) GetReview(username string, idD int) (*model.Review, error) {
+	var resDB reviewModel
+	result := r.db.Table("dorama_set.review").
+		Where("id_dorama = ? and username = ?", idD, username).
+		Take(&resDB)
+	if result.Error != nil {
+		return nil, fmt.Errorf("db: %w", result.Error)
+	}
+	m := model.Review{
+		Username: resDB.Username,
+		Mark:     resDB.Mark,
+		Content:  resDB.Content,
+	}
+	return &m, nil
+}
+
 func (r *ReviewRepo) CreateReview(idD int, record *model.Review) error {
 	m := reviewModel{
 		IdDorama: idD,

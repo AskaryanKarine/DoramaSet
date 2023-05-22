@@ -71,4 +71,5 @@ type IReviewRepo interface {
 	CreateReview(idD int, record *model.Review) error
 	DeleteReview(username string, idD int) error
 	AggregateRate(idD int) (float64, int, error)
+	GetReview(username string, idD int) (*model.Review, error)
 }
