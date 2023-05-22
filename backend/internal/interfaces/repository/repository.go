@@ -64,6 +64,7 @@ type IUserRepo interface {
 	CreateUser(record *model.User) error
 	UpdateUser(record model.User) error
 	DeleteUser(username string) error
+	GetPublicInfo(username string) (*model.User, error)
 }
 
 type IReviewRepo interface {

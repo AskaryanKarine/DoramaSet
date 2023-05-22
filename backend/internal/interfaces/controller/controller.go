@@ -71,4 +71,5 @@ type IUserController interface {
 	AuthByToken(token string) (*model.User, error)
 	ChangeEmoji(token, emojiCode string) error
 	ChangeAvatarColor(token, color string) error
+	GetPublicInfo(username string) (*model.User, error)
 }

@@ -17,7 +17,18 @@ func (h *Handler) getAllDorama(c *gin.Context) {
 
 	var response []DTO.Dorama
 	for _, d := range dorama {
-		response = append(response, DTO.MakeDoramaResponse(d))
+		var review []DTO.Review
+		for _, r := range d.Reviews {
+			info, err := h.Services.GetPublicInfo(r.Username)
+			if err != nil {
+				_ = c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			review = append(review, DTO.MakeReviewResponse(r, *info))
+		}
+		res := DTO.MakeDoramaResponse(d)
+		res.Reviews = review
+		response = append(response, res)
 	}
 	c.JSON(http.StatusOK, gin.H{"data": response})
 }
@@ -165,4 +176,62 @@ func (h *Handler) getStaffListByDorama(c *gin.Context) {
 		response = append(response, DTO.MakeStaffResponse(d))
 	}
 	c.JSON(http.StatusOK, gin.H{"data": response})
+}
+
+func (h *Handler) CreateReview(c *gin.Context) {
+	var req DTO.Review
+	rowDId := c.Param("id")
+	DId, err := strconv.Atoi(rowDId)
+	if err != nil {
+		return
+	}
+
+	if err := c.BindJSON(&req); err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	token, err := middleware.GetUserToken(c)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
+	err = h.Services.AddReview(token, DId, DTO.MakeReview(req))
+	if err != nil && fatalDB(err) {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+func (h *Handler) DeleteReview(c *gin.Context) {
+	rowDId := c.Param("id")
+	DId, err := strconv.Atoi(rowDId)
+	if err != nil {
+		return
+	}
+
+	token, err := middleware.GetUserToken(c)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
+	err = h.Services.DeleteReview(token, DId)
+	if err != nil && fatalDB(err) {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
 }

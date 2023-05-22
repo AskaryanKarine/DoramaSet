@@ -35,6 +35,12 @@ type IUserControllerMock struct {
 	beforeChangeEmojiCounter uint64
 	ChangeEmojiMock          mIUserControllerMockChangeEmoji
 
+	funcGetPublicInfo          func(username string) (up1 *model.User, err error)
+	inspectFuncGetPublicInfo   func(username string)
+	afterGetPublicInfoCounter  uint64
+	beforeGetPublicInfoCounter uint64
+	GetPublicInfoMock          mIUserControllerMockGetPublicInfo
+
 	funcLogin          func(username string, password string) (s1 string, err error)
 	inspectFuncLogin   func(username string, password string)
 	afterLoginCounter  uint64
@@ -69,6 +75,9 @@ func NewIUserControllerMock(t minimock.Tester) *IUserControllerMock {
 
 	m.ChangeEmojiMock = mIUserControllerMockChangeEmoji{mock: m}
 	m.ChangeEmojiMock.callArgs = []*IUserControllerMockChangeEmojiParams{}
+
+	m.GetPublicInfoMock = mIUserControllerMockGetPublicInfo{mock: m}
+	m.GetPublicInfoMock.callArgs = []*IUserControllerMockGetPublicInfoParams{}
 
 	m.LoginMock = mIUserControllerMockLogin{mock: m}
 	m.LoginMock.callArgs = []*IUserControllerMockLoginParams{}
@@ -730,6 +739,222 @@ func (m *IUserControllerMock) MinimockChangeEmojiInspect() {
 	}
 }
 
+type mIUserControllerMockGetPublicInfo struct {
+	mock               *IUserControllerMock
+	defaultExpectation *IUserControllerMockGetPublicInfoExpectation
+	expectations       []*IUserControllerMockGetPublicInfoExpectation
+
+	callArgs []*IUserControllerMockGetPublicInfoParams
+	mutex    sync.RWMutex
+}
+
+// IUserControllerMockGetPublicInfoExpectation specifies expectation struct of the IUserController.GetPublicInfo
+type IUserControllerMockGetPublicInfoExpectation struct {
+	mock    *IUserControllerMock
+	params  *IUserControllerMockGetPublicInfoParams
+	results *IUserControllerMockGetPublicInfoResults
+	Counter uint64
+}
+
+// IUserControllerMockGetPublicInfoParams contains parameters of the IUserController.GetPublicInfo
+type IUserControllerMockGetPublicInfoParams struct {
+	username string
+}
+
+// IUserControllerMockGetPublicInfoResults contains results of the IUserController.GetPublicInfo
+type IUserControllerMockGetPublicInfoResults struct {
+	up1 *model.User
+	err error
+}
+
+// Expect sets up expected params for IUserController.GetPublicInfo
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Expect(username string) *mIUserControllerMockGetPublicInfo {
+	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
+		mmGetPublicInfo.mock.t.Fatalf("IUserControllerMock.GetPublicInfo mock is already set by Set")
+	}
+
+	if mmGetPublicInfo.defaultExpectation == nil {
+		mmGetPublicInfo.defaultExpectation = &IUserControllerMockGetPublicInfoExpectation{}
+	}
+
+	mmGetPublicInfo.defaultExpectation.params = &IUserControllerMockGetPublicInfoParams{username}
+	for _, e := range mmGetPublicInfo.expectations {
+		if minimock.Equal(e.params, mmGetPublicInfo.defaultExpectation.params) {
+			mmGetPublicInfo.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetPublicInfo.defaultExpectation.params)
+		}
+	}
+
+	return mmGetPublicInfo
+}
+
+// Inspect accepts an inspector function that has same arguments as the IUserController.GetPublicInfo
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Inspect(f func(username string)) *mIUserControllerMockGetPublicInfo {
+	if mmGetPublicInfo.mock.inspectFuncGetPublicInfo != nil {
+		mmGetPublicInfo.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.GetPublicInfo")
+	}
+
+	mmGetPublicInfo.mock.inspectFuncGetPublicInfo = f
+
+	return mmGetPublicInfo
+}
+
+// Return sets up results that will be returned by IUserController.GetPublicInfo
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Return(up1 *model.User, err error) *IUserControllerMock {
+	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
+		mmGetPublicInfo.mock.t.Fatalf("IUserControllerMock.GetPublicInfo mock is already set by Set")
+	}
+
+	if mmGetPublicInfo.defaultExpectation == nil {
+		mmGetPublicInfo.defaultExpectation = &IUserControllerMockGetPublicInfoExpectation{mock: mmGetPublicInfo.mock}
+	}
+	mmGetPublicInfo.defaultExpectation.results = &IUserControllerMockGetPublicInfoResults{up1, err}
+	return mmGetPublicInfo.mock
+}
+
+// Set uses given function f to mock the IUserController.GetPublicInfo method
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Set(f func(username string) (up1 *model.User, err error)) *IUserControllerMock {
+	if mmGetPublicInfo.defaultExpectation != nil {
+		mmGetPublicInfo.mock.t.Fatalf("Default expectation is already set for the IUserController.GetPublicInfo method")
+	}
+
+	if len(mmGetPublicInfo.expectations) > 0 {
+		mmGetPublicInfo.mock.t.Fatalf("Some expectations are already set for the IUserController.GetPublicInfo method")
+	}
+
+	mmGetPublicInfo.mock.funcGetPublicInfo = f
+	return mmGetPublicInfo.mock
+}
+
+// When sets expectation for the IUserController.GetPublicInfo which will trigger the result defined by the following
+// Then helper
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) When(username string) *IUserControllerMockGetPublicInfoExpectation {
+	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
+		mmGetPublicInfo.mock.t.Fatalf("IUserControllerMock.GetPublicInfo mock is already set by Set")
+	}
+
+	expectation := &IUserControllerMockGetPublicInfoExpectation{
+		mock:   mmGetPublicInfo.mock,
+		params: &IUserControllerMockGetPublicInfoParams{username},
+	}
+	mmGetPublicInfo.expectations = append(mmGetPublicInfo.expectations, expectation)
+	return expectation
+}
+
+// Then sets up IUserController.GetPublicInfo return parameters for the expectation previously defined by the When method
+func (e *IUserControllerMockGetPublicInfoExpectation) Then(up1 *model.User, err error) *IUserControllerMock {
+	e.results = &IUserControllerMockGetPublicInfoResults{up1, err}
+	return e.mock
+}
+
+// GetPublicInfo implements IUserController
+func (mmGetPublicInfo *IUserControllerMock) GetPublicInfo(username string) (up1 *model.User, err error) {
+	mm_atomic.AddUint64(&mmGetPublicInfo.beforeGetPublicInfoCounter, 1)
+	defer mm_atomic.AddUint64(&mmGetPublicInfo.afterGetPublicInfoCounter, 1)
+
+	if mmGetPublicInfo.inspectFuncGetPublicInfo != nil {
+		mmGetPublicInfo.inspectFuncGetPublicInfo(username)
+	}
+
+	mm_params := &IUserControllerMockGetPublicInfoParams{username}
+
+	// Record call args
+	mmGetPublicInfo.GetPublicInfoMock.mutex.Lock()
+	mmGetPublicInfo.GetPublicInfoMock.callArgs = append(mmGetPublicInfo.GetPublicInfoMock.callArgs, mm_params)
+	mmGetPublicInfo.GetPublicInfoMock.mutex.Unlock()
+
+	for _, e := range mmGetPublicInfo.GetPublicInfoMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.up1, e.results.err
+		}
+	}
+
+	if mmGetPublicInfo.GetPublicInfoMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.Counter, 1)
+		mm_want := mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.params
+		mm_got := IUserControllerMockGetPublicInfoParams{username}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGetPublicInfo.t.Errorf("IUserControllerMock.GetPublicInfo got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.results
+		if mm_results == nil {
+			mmGetPublicInfo.t.Fatal("No results are set for the IUserControllerMock.GetPublicInfo")
+		}
+		return (*mm_results).up1, (*mm_results).err
+	}
+	if mmGetPublicInfo.funcGetPublicInfo != nil {
+		return mmGetPublicInfo.funcGetPublicInfo(username)
+	}
+	mmGetPublicInfo.t.Fatalf("Unexpected call to IUserControllerMock.GetPublicInfo. %v", username)
+	return
+}
+
+// GetPublicInfoAfterCounter returns a count of finished IUserControllerMock.GetPublicInfo invocations
+func (mmGetPublicInfo *IUserControllerMock) GetPublicInfoAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetPublicInfo.afterGetPublicInfoCounter)
+}
+
+// GetPublicInfoBeforeCounter returns a count of IUserControllerMock.GetPublicInfo invocations
+func (mmGetPublicInfo *IUserControllerMock) GetPublicInfoBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmGetPublicInfo.beforeGetPublicInfoCounter)
+}
+
+// Calls returns a list of arguments used in each call to IUserControllerMock.GetPublicInfo.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Calls() []*IUserControllerMockGetPublicInfoParams {
+	mmGetPublicInfo.mutex.RLock()
+
+	argCopy := make([]*IUserControllerMockGetPublicInfoParams, len(mmGetPublicInfo.callArgs))
+	copy(argCopy, mmGetPublicInfo.callArgs)
+
+	mmGetPublicInfo.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockGetPublicInfoDone returns true if the count of the GetPublicInfo invocations corresponds
+// the number of defined expectations
+func (m *IUserControllerMock) MinimockGetPublicInfoDone() bool {
+	for _, e := range m.GetPublicInfoMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetPublicInfoMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetPublicInfoCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetPublicInfo != nil && mm_atomic.LoadUint64(&m.afterGetPublicInfoCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockGetPublicInfoInspect logs each unmet expectation
+func (m *IUserControllerMock) MinimockGetPublicInfoInspect() {
+	for _, e := range m.GetPublicInfoMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to IUserControllerMock.GetPublicInfo with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.GetPublicInfoMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetPublicInfoCounter) < 1 {
+		if m.GetPublicInfoMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to IUserControllerMock.GetPublicInfo")
+		} else {
+			m.t.Errorf("Expected call to IUserControllerMock.GetPublicInfo with params: %#v", *m.GetPublicInfoMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcGetPublicInfo != nil && mm_atomic.LoadUint64(&m.afterGetPublicInfoCounter) < 1 {
+		m.t.Error("Expected call to IUserControllerMock.GetPublicInfo")
+	}
+}
+
 type mIUserControllerMockLogin struct {
 	mock               *IUserControllerMock
 	defaultExpectation *IUserControllerMockLoginExpectation
@@ -1387,6 +1612,8 @@ func (m *IUserControllerMock) MinimockFinish() {
 
 		m.MinimockChangeEmojiInspect()
 
+		m.MinimockGetPublicInfoInspect()
+
 		m.MinimockLoginInspect()
 
 		m.MinimockRegistrationInspect()
@@ -1418,6 +1645,7 @@ func (m *IUserControllerMock) minimockDone() bool {
 		m.MinimockAuthByTokenDone() &&
 		m.MinimockChangeAvatarColorDone() &&
 		m.MinimockChangeEmojiDone() &&
+		m.MinimockGetPublicInfoDone() &&
 		m.MinimockLoginDone() &&
 		m.MinimockRegistrationDone() &&
 		m.MinimockUpdateActiveDone()

@@ -138,3 +138,17 @@ func (u *UserRepo) DeleteUser(username string) error {
 	}
 	return nil
 }
+
+func (u *UserRepo) GetPublicInfo(username string) (*model.User, error) {
+	var resDB userModel
+	result := u.db.Table("dorama_set.user").Where("username = ?", username).Take(&resDB)
+	if result.Error != nil {
+		return nil, fmt.Errorf("db: %w", result.Error)
+	}
+	m := model.User{
+		Username: resDB.Username,
+		Color:    resDB.Color,
+		Emoji:    resDB.Emoji,
+	}
+	return &m, nil
+}
