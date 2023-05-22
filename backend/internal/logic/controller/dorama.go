@@ -31,7 +31,6 @@ func (d *DoramaController) GetAllDorama() ([]model.Dorama, error) {
 }
 
 func (d *DoramaController) GetDoramaByName(name string) ([]model.Dorama, error) {
-
 	res, err := d.repo.GetListName(name)
 	if err != nil {
 		d.log.Warnf("get dorama by name, get list name error: %s, value: %s", err, name)
@@ -109,5 +108,13 @@ func (d *DoramaController) AddStaffToDorama(token string, idD, idS int) error {
 		return fmt.Errorf("addStaff: %w", err)
 	}
 	d.log.Infof("added staff to dorama, value %d %d", idD, idS)
+	return nil
+}
+
+func (d *DoramaController) AddReview(token string, review model.Review) error {
+	return nil
+}
+
+func (d *DoramaController) DeleteReview(token string, idD int) error {
 	return nil
 }

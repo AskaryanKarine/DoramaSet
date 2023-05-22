@@ -9,6 +9,8 @@ type IDoramaController interface {
 	CreateDorama(token string, record *model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
 	AddStaffToDorama(token string, idD, idS int) error
+	AddReview(token string, review model.Review) error
+	DeleteReview(token string, idD int) error
 }
 
 type IEpisodeController interface {

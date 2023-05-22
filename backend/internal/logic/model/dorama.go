@@ -7,6 +7,9 @@ type Dorama struct {
 	Genre       string
 	Status      string
 	ReleaseYear int
+	Rate        float64
+	CntRate     int
 	Posters     []Picture
 	Episodes    []Episode
+	Reviews     []Review
 }

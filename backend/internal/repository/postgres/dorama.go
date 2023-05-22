@@ -13,6 +13,7 @@ type DoramaRepo struct {
 	db      *gorm.DB
 	picRepo repository.IPictureRepo
 	epRepo  repository.IEpisodeRepo
+	revRepo repository.IReviewRepo
 }
 
 type doramaModel struct {
@@ -24,8 +25,8 @@ type doramaModel struct {
 	Genre       string
 }
 
-func NewDoramaRepo(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo) *DoramaRepo {
-	return &DoramaRepo{db, PR, ER}
+func NewDoramaRepo(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo, RR repository.IReviewRepo) *DoramaRepo {
+	return &DoramaRepo{db, PR, ER, RR} // TODO
 }
 
 func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
