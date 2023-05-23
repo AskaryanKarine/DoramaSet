@@ -12,17 +12,20 @@ type General struct {
 	dc controller.IDoramaController
 	sc controller.IStaffController
 	lc controller.IListController
+	uc controller.IUserController
 }
 
-func New(dc controller.IDoramaController, sc controller.IStaffController, lc controller.IListController) *General {
+func New(dc controller.IDoramaController, sc controller.IStaffController,
+	lc controller.IListController, uc controller.IUserController) *General {
 	return &General{
 		dc: dc,
 		sc: sc,
 		lc: lc,
+		uc: uc,
 	}
 }
 
-func printDorama(dorama model.Dorama) {
+func printDorama(dorama model.Dorama, user *model.User) {
 	fmt.Printf("Навание: %s\n", dorama.Name)
 	fmt.Printf("Описание: %s\n", dorama.Description)
 	fmt.Printf("Год выхода: %d\n", dorama.ReleaseYear)
@@ -40,7 +43,9 @@ func printDorama(dorama model.Dorama) {
 	}
 	fmt.Printf("Отзывы:\n")
 	for _, r := range dorama.Reviews {
-		fmt.Printf("%s, %d/5\n%s\n", r.Username, r.Mark, r.Content)
+		if len(r.Content) > 0 || (user != nil && user.Username == r.Username) {
+			fmt.Printf("%s, %d/5\n%s\n", r.Username, r.Mark, r.Content)
+		}
 	}
 }
 
@@ -63,13 +68,19 @@ func (g *General) GetDoramaById(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
+	if token != "" {
 
+	}
 	result, err := g.dc.GetDoramaById(id)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("Результат:\n")
-	printDorama(*result)
+	user, err := g.uc.AuthByToken(token)
+	if token != "" && err != nil {
+		return err
+	}
+	printDorama(*result, user)
 	return nil
 }
 

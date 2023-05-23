@@ -75,7 +75,7 @@ func NewApp() (*App, error) {
 	staffC := controller.NewStaffController(staffRepo, uc, log.Logger)
 	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, log.Logger)
 
-	generalOp := general.New(dc, staffC, lc)
+	generalOp := general.New(dc, staffC, lc, uc)
 	guestOp := guest.New(uc)
 	adminOp := admin.New(dc, staffC, picC, ec)
 	userOp := user.New(lc, ec, subC, uc, pc, dc)

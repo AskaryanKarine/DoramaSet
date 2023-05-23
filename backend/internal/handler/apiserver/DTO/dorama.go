@@ -35,7 +35,6 @@ func MakeDoramaResponse(dorama model.Dorama) Dorama {
 	for _, e := range dorama.Episodes {
 		episode = append(episode, MakeEpisodeRequest(e))
 	}
-	//str, _ := strconv.
 	return Dorama{
 		Id:          dorama.Id,
 		Name:        dorama.Name,
