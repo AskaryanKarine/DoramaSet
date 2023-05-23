@@ -4,9 +4,7 @@ import React, {useState} from "react";
 import {useEpisodeWithStatus} from "../../../hooks/episodeWithStatus";
 import {Loading} from "../../Loading/Loading";
 import {Modal} from "../../Modal/Modal";
-import {instance} from "../../../http-common";
 import {IEpisode} from "../../../models/IEpisode";
-import {IDorama} from "../../../models/IDorama";
 
 interface EpisodeInfoProps {
     id?:number
@@ -20,7 +18,6 @@ export function EpisodeInfo({id, isEdit, add}:EpisodeInfoProps) {
     const [ep, setEp] = useState("")
     const [season, setSeason] = useState("")
     const [error, setError] = useState("")
-
 
     const submitHandler = (event: React.FormEvent) => {
         event.preventDefault()
@@ -49,12 +46,14 @@ export function EpisodeInfo({id, isEdit, add}:EpisodeInfoProps) {
                     <i className="fa-solid fa-plus fa-border border-2 rounded-full bg-white border-black"></i>
                 </button>}
             </div>
-            {episodeWithStatus ? [...episodeWithStatus].map(ep =>
-                <Episode
-                    ep={ep.episode}
-                    flag={ep.watching}
-                    key={ep.episode.id}
-                />) : "Нет эпизодов"}
+            <div className="grid grid-cols-3">
+                {episodeWithStatus ? [...episodeWithStatus].map(ep =>
+                    <Episode
+                        ep={ep.episode}
+                        flag={ep.watching}
+                        key={ep.episode.id}
+                    />) : "Нет эпизодов"}
+            </div>
         </div>
         {modal && <Modal title={"Добавить эпизод"} onClose={()=>{setModal(false)}}>
             <form onSubmit={submitHandler}>

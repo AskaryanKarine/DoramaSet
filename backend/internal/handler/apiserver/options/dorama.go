@@ -197,7 +197,8 @@ func (h *Handler) CreateReview(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddReview(token, DId, DTO.MakeReview(req))
+	newReview := DTO.MakeReview(req)
+	err = h.Services.AddReview(token, DId, newReview)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -207,7 +208,14 @@ func (h *Handler) CreateReview(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	info, err := h.Services.GetPublicInfo(req.Username)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	response := DTO.MakeReviewResponse(*newReview, *info)
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 func (h *Handler) DeleteReview(c *gin.Context) {
