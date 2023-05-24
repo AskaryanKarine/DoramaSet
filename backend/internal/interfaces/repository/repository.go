@@ -64,4 +64,13 @@ type IUserRepo interface {
 	CreateUser(record *model.User) error
 	UpdateUser(record model.User) error
 	DeleteUser(username string) error
+	GetPublicInfo(username string) (*model.User, error)
+}
+
+type IReviewRepo interface {
+	GetAllReview(idD int) ([]model.Review, error)
+	CreateReview(idD int, record *model.Review) error
+	DeleteReview(username string, idD int) error
+	AggregateRate(idD int) (float64, int, error)
+	GetReview(username string, idD int) (*model.Review, error)
 }

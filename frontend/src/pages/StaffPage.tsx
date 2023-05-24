@@ -6,21 +6,19 @@ import {StaffPreview} from "../components/Staff/Preview/StaffPreview";
 import {Search} from "../components/Search/Search";
 import {AddButton} from "../components/Admin/AddButton/AddButton";
 import {Modal} from "../components/Modal/Modal";
-import {DoramaCreate} from "../components/Dorama/Form/DoramaCreate";
-import {IDorama} from "../models/IDorama";
 import {IStaff} from "../models/IStaff";
 import {StaffForm} from "../components/Staff/Form/StaffForm";
 
 export function StaffPage() {
     const {user} = useAppSelector(state => state.userReducer)
-    const {staff, staffErr, staffLoading, addStaff, findStaff, resetStaff} = useStaff()
+    const {staff, staffErr, staffLoading, addAllStaff, findStaff, resetStaff} = useStaff()
     const [modalVisible, setModalVisible] = useState(false)
 
     const createHandler = (staff: IStaff) => {
         setModalVisible(false)
-        addStaff(staff)
+        addAllStaff(staff)
     }
-
+    console.log(staff ? "q" : "b")
     return (
         <>
             {staffLoading && <Loading/>}
@@ -29,9 +27,11 @@ export function StaffPage() {
                 <Search findFunc={findStaff} resetFunc={resetStaff}/>
             </div>
             <div className="grid grid-cols-2">
-                {staff ?[...staff].map(
+                {staff.length > 0 ?[...staff].map(
                     stf => <StaffPreview staff={stf} key={stf.id}/>
-                ) : "Ничего не найдено"}
+                ) : <p className="relative block text-center mt-5 text-xl">
+                    Ничего не найдено
+                </p>}
             </div>
             {user.isAdmin &&
                 <AddButton onOpen={()=>{setModalVisible(true)}}/>
@@ -39,7 +39,7 @@ export function StaffPage() {
             {modalVisible &&
                 <Modal title="Добавить нового стаффа"
                        onClose={()=>{setModalVisible(false)}}>
-                    <StaffForm onCreate={createHandler} isEdit={false}></StaffForm>
+                    <StaffForm onCreate={createHandler} isEdit={false}/>
                 </Modal>}
         </>
     )

@@ -11,6 +11,9 @@ type Dorama struct {
 	ReleaseYear int       `json:"release_year"`
 	Posters     []Picture `json:"posters,omitempty"`
 	Episodes    []Episode `json:"episodes,omitempty"`
+	Rate        float64   `json:"rate,omitempty"`
+	CntRate     int       `json:"cnt_rate,omitempty"`
+	Reviews     []Review  `json:"reviews,omitempty"`
 }
 
 func MakeDorama(request Dorama) *model.Dorama {
@@ -32,7 +35,6 @@ func MakeDoramaResponse(dorama model.Dorama) Dorama {
 	for _, e := range dorama.Episodes {
 		episode = append(episode, MakeEpisodeRequest(e))
 	}
-
 	return Dorama{
 		Id:          dorama.Id,
 		Name:        dorama.Name,
@@ -42,5 +44,7 @@ func MakeDoramaResponse(dorama model.Dorama) Dorama {
 		ReleaseYear: dorama.ReleaseYear,
 		Posters:     posters,
 		Episodes:    episode,
+		Rate:        dorama.Rate,
+		CntRate:     dorama.CntRate,
 	}
 }

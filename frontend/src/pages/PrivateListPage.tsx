@@ -22,9 +22,9 @@ export function PrivateListPage() {
         <>
             <h1>Мои коллекции</h1>
             <div className="grid grid-cols-3">
-                {[...userCollection].map(
-                    lst => <ListPreview list={lst} key={lst.id} isPublic={false}/>
-                )}
+                {userCollection ? [...userCollection].map(
+                    lst => <ListPreview list={lst} key={lst.id}/>
+                ) : <p>Нет списков. Создайте!</p>}
             </div>
             <AddButton onOpen={()=>{setModalVisible(true)}}/>
             {modalVisible &&

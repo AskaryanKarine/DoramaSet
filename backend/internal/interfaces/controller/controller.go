@@ -9,6 +9,8 @@ type IDoramaController interface {
 	CreateDorama(token string, record *model.Dorama) error
 	UpdateDorama(token string, record model.Dorama) error
 	AddStaffToDorama(token string, idD, idS int) error
+	AddReview(token string, idD int, review *model.Review) error
+	DeleteReview(token string, idD int) error
 }
 
 type IEpisodeController interface {
@@ -69,4 +71,5 @@ type IUserController interface {
 	AuthByToken(token string) (*model.User, error)
 	ChangeEmoji(token, emojiCode string) error
 	ChangeAvatarColor(token, color string) error
+	GetPublicInfo(username string) (*model.User, error)
 }

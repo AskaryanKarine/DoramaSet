@@ -7,11 +7,13 @@ import {useAppSelector} from "../../../hooks/redux";
 
 interface ListPreviewProps {
     list:IList
-    isPublic:boolean
+    inFav?:boolean
 }
 
-export function ListPreview({list, isPublic}:ListPreviewProps) {
+export function ListPreview({list, inFav}:ListPreviewProps) {
+    const [listLen, setListLen] = useState(list.doramas ? list.doramas.length : 0)
     const [modalVisible, setModalVisible] = useState(false)
+
     return (<>{list && <>
         <div className={styles.container}>
             <div className={styles.info}>
@@ -19,7 +21,7 @@ export function ListPreview({list, isPublic}:ListPreviewProps) {
                     <p className="text-3xl">{list.name}</p>
                     <p>Создатель: {list.creator_name}</p>
                     <p>Тип: {list.type}</p>
-                    <p>Количество дорам: {list.doramas ? list.doramas.length : 0}</p>
+                    <p>Количество дорам: {listLen}</p>
                 </div>
                 <button
                     className={styles.more}
@@ -32,7 +34,7 @@ export function ListPreview({list, isPublic}:ListPreviewProps) {
                 title={list.name}
                 onClose={()=>{setModalVisible(false)}}
             >
-                <List list={list}/>
+                <List list={list} onDelete={()=>setListLen(listLen - 1)} inFav={inFav}/>
             </Modal>}
     </>}</>)
 }

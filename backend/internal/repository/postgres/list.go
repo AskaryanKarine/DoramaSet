@@ -33,7 +33,7 @@ func (l *ListRepo) GetUserLists(username string) ([]model.List, error) {
 	)
 	result := l.db.Table("dorama_set.list l").Select("l.*").
 		Joins("join dorama_set.userlist ul on l.id = ul.id_list").
-		Where("ul.username = ?", username).Find(&resDB)
+		Where("ul.username = ? and ul.username = l.name_creator", username).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}

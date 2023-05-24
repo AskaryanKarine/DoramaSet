@@ -4,26 +4,36 @@ import React, {useState} from "react";
 import {useEpisodeWithStatus} from "../../../hooks/episodeWithStatus";
 import {Loading} from "../../Loading/Loading";
 import {Modal} from "../../Modal/Modal";
-import {instance} from "../../../http-common";
 import {IEpisode} from "../../../models/IEpisode";
 
 interface EpisodeInfoProps {
     id?:number
     isEdit:boolean
+    add?:(ep:IEpisode)=>void
 }
 
-export function EpisodeInfo({id, isEdit}:EpisodeInfoProps) {
+export function EpisodeInfo({id, isEdit, add}:EpisodeInfoProps) {
     const {episodeWithStatus, loading, epErr, createEpisode} = useEpisodeWithStatus(id)
     const [modal, setModal] = useState(false)
     const [ep, setEp] = useState("")
     const [season, setSeason] = useState("")
-
-    console.log(episodeWithStatus)
+    const [error, setError] = useState("")
 
     const submitHandler = (event: React.FormEvent) => {
         event.preventDefault()
+        setError('')
+        if (isNaN(parseInt(ep.trim())) || isNaN(parseInt(season.trim()))) {
+            setError("Пожалуйста, введите корректные данные")
+        }
+
+
         if (id) {
-            createEpisode(id, ep, season).then(_=>{setModal(false)})
+            createEpisode(id, ep, season).then(r=>{setModal(false)
+                if (add && r) {
+                    add(r)
+                }
+                console.log(r)
+            })
         }
     }
     
@@ -36,12 +46,14 @@ export function EpisodeInfo({id, isEdit}:EpisodeInfoProps) {
                     <i className="fa-solid fa-plus fa-border border-2 rounded-full bg-white border-black"></i>
                 </button>}
             </div>
-            {episodeWithStatus ? [...episodeWithStatus].map(ep =>
-                <Episode
-                    ep={ep.episode}
-                    flag={ep.watching}
-                    key={ep.episode.id}
-                />) : "Нет эпизодов"}
+            <div className="grid grid-cols-3">
+                {episodeWithStatus ? [...episodeWithStatus].map(ep =>
+                    <Episode
+                        ep={ep.episode}
+                        flag={ep.watching}
+                        key={ep.episode.id}
+                    />) : "Нет эпизодов"}
+            </div>
         </div>
         {modal && <Modal title={"Добавить эпизод"} onClose={()=>{setModal(false)}}>
             <form onSubmit={submitHandler}>

@@ -1,6 +1,6 @@
-import {useDorama} from "../hooks/dorama";
+import {useAllDorama} from "../hooks/dorama";
 import {DoramaPreview} from "../components/Dorama/DoramaPreview/DoramaPreview";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Modal} from "../components/Modal/Modal";
 import {useAppSelector} from "../hooks/redux";
 import {IDorama} from "../models/IDorama";
@@ -10,9 +10,9 @@ import {Search} from "../components/Search/Search";
 import {AddButton} from "../components/Admin/AddButton/AddButton";
 
 export function DoramaPage() {
-    const {dorama, doramaErr, loading, addDorama, findDorama, resetDorama} = useDorama()
-    const [modalVisible, setModalVisible] = useState(false)
     const {user} = useAppSelector(state => state.userReducer)
+    const {allDorama, doramaErr, loading, addDorama, findDorama, resetDorama} = useAllDorama()
+    const [modalVisible, setModalVisible] = useState(false)
 
     const createHandler = (dorama: IDorama) => {
         setModalVisible(false)
@@ -27,9 +27,11 @@ export function DoramaPage() {
                 <Search findFunc={findDorama} resetFunc={resetDorama}/>
             </div>
             <div className="grid grid-cols-2">
-                {dorama ? [...dorama].map(
+                {allDorama.length > 0 ? [...allDorama].map(
                     drm => <DoramaPreview dorama={drm} key={drm.id}/>
-                ) : "Ничего не найдено"}
+                ) : <p className="relative block text-center mt-5 text-xl">
+                    Ничего не найдено
+                </p>}
             </div>
             {user.isAdmin &&
                 <AddButton onOpen={()=>{setModalVisible(true)}}/>

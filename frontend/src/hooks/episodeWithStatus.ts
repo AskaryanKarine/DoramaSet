@@ -4,6 +4,7 @@ import {instance} from "../http-common";
 import {AxiosError} from "axios";
 import {IError} from "../models/IError";
 import {IEpisode} from "../models/IEpisode";
+import {errorHandler} from "./errorHandler";
 
 interface episodeWithStatus {
     episode: IEpisode
@@ -33,19 +34,13 @@ export function useEpisodeWithStatus(id?:number) {
             setLoading(false)
         } catch (e: unknown) {
             setLoading(false)
-            const error = e as AxiosError<IError>
-            if (error.response) {
-                setEpErr(error.response.data.error)
-            } else {
-                setEpErr(error.message)
-            }
+            errorHandler(e)
         }
     }
 
     async function createEpisode(id:number, ep: string, season:string) {
-        const url = ["/dorama/", id, "/episode"].join("")
         try {
-            const response = await instance.post<{data: IEpisode}>(url, {
+            const response = await instance.post<{data: IEpisode}>(`/dorama/${id}/episode`, {
                 num_episode: parseInt(ep),
                 num_season: parseInt(season)
             })
@@ -53,10 +48,10 @@ export function useEpisodeWithStatus(id?:number) {
                 episode: response.data.data,
                 watching: false
             }
-            console.log(response.data.data, epSt)
             addEpisode(epSt)
+            return response.data.data
         } catch (e:unknown) {
-
+            errorHandler(e)
         }
     }
 

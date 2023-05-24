@@ -81,6 +81,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			dorama.GET("/:id/episode", h.getEpisodeList)      // guest
 			dorama.POST("/:id/episode", h.createEpisode)      // admin
 			dorama.POST("/:id/picture", h.addPictureToDorama) // admin
+			dorama.POST("/:id/review", h.CreateReview)
+			dorama.DELETE("/:id/review", h.DeleteReview)
 		}
 
 		list := home.Group("/list")

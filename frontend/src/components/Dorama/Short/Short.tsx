@@ -8,9 +8,10 @@ interface DoramaShortProps {
     dorama: IDorama
     isEdit: boolean
     idList?:number
+    onDelete?:(dorama:IDorama)=>void
 }
 
-export function DoramaShort({dorama, isEdit, idList}:DoramaShortProps) {
+export function DoramaShort({dorama, isEdit, idList, onDelete}:DoramaShortProps) {
     const onCreate = async () => {
         const url = ["/list/", idList].join("")
         console.log(url)
@@ -18,7 +19,10 @@ export function DoramaShort({dorama, isEdit, idList}:DoramaShortProps) {
             params: {
                 id: dorama.id
             }
-        }).then(_ => {})
+        }).then(_ => {
+            if (onDelete) {
+                onDelete(dorama)
+            }})
     }
 
     return (

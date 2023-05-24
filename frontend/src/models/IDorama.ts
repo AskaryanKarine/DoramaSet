@@ -1,5 +1,6 @@
 import {IPhoto} from "./IPhoto";
 import {IEpisode} from "./IEpisode";
+import {IReview} from "./IReview";
 
 export interface IDorama {
     id?: number
@@ -10,4 +11,7 @@ export interface IDorama {
     release_year: number
     posters?: IPhoto[]
     episodes?: IEpisode[]
+    rate?: number
+    cnt_rate?: number
+    reviews?: IReview[]
 }

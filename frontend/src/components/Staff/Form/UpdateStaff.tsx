@@ -10,12 +10,12 @@ import {CreatePhoto} from "../../CreatePhoto/CreatePhoto";
 
 interface UpdateStaffProps {
     staff:IStaff
+    close: (staff:IStaff)=>void
 }
 
-export function UpdateStaff({staff}:UpdateStaffProps) {
+export function UpdateStaff({staff, close}:UpdateStaffProps) {
     const [error, setError] = useState("")
     const [photoVisible, setPhotoVisible] = useState(false)
-
 
 
     const onCreate = async (photo:IPhoto) => {
@@ -48,7 +48,7 @@ export function UpdateStaff({staff}:UpdateStaffProps) {
                 <button className="w-[100%] mt-5" onClick={()=>{setPhotoVisible(true)}}>Добавить постер</button>
             </div>
             <div className={styles.info}>
-                <StaffForm staff={staff} isEdit={true} onCreate={()=>{}}/>
+                <StaffForm staff={staff} isEdit={true} onCreate={close}/>
             </div>
         </div>
         {photoVisible && <

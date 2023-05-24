@@ -13,6 +13,7 @@ type DoramaRepo struct {
 	db      *gorm.DB
 	picRepo repository.IPictureRepo
 	epRepo  repository.IEpisodeRepo
+	revRepo repository.IReviewRepo
 }
 
 type doramaModel struct {
@@ -24,8 +25,41 @@ type doramaModel struct {
 	Genre       string
 }
 
-func NewDoramaRepo(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo) *DoramaRepo {
-	return &DoramaRepo{db, PR, ER}
+func NewDoramaRepo(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpisodeRepo, RR repository.IReviewRepo) *DoramaRepo {
+	return &DoramaRepo{db, PR, ER, RR}
+}
+
+func (d *DoramaRepo) getDoramaModel(m doramaModel) (*model.Dorama, error) {
+	ep, err := d.epRepo.GetList(m.ID)
+	if err != nil {
+		return nil, fmt.Errorf("getListEp: %w", err)
+	}
+	photo, err := d.picRepo.GetListDorama(m.ID)
+	if err != nil {
+		return nil, fmt.Errorf("getListDorama: %w", err)
+	}
+	review, err := d.revRepo.GetAllReview(m.ID)
+	if err != nil {
+		return nil, fmt.Errorf("getAllReview: %w", err)
+	}
+	rate, cnt, err := d.revRepo.AggregateRate(m.ID)
+	if err != nil {
+		return nil, fmt.Errorf("aggregateRate: %w", err)
+	}
+	tmp := model.Dorama{
+		Id:          m.ID,
+		Name:        m.Name,
+		Description: m.Description,
+		Genre:       m.Genre,
+		Status:      m.Status,
+		ReleaseYear: m.ReleaseYear,
+		Episodes:    ep,
+		Posters:     photo,
+		Reviews:     review,
+		Rate:        rate,
+		CntRate:     cnt,
+	}
+	return &tmp, nil
 }
 
 func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
@@ -43,25 +77,11 @@ func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		ep, err := d.epRepo.GetList(r.ID)
+		tmp, err := d.getDoramaModel(r)
 		if err != nil {
-			return nil, fmt.Errorf("getListEp: %w", err)
+			return nil, fmt.Errorf("getDoramaModel: %w", err)
 		}
-		photo, err := d.picRepo.GetListDorama(r.ID)
-		if err != nil {
-			return nil, fmt.Errorf("getListDorama: %w", err)
-		}
-		tmp := model.Dorama{
-			Id:          r.ID,
-			Name:        r.Name,
-			Description: r.Description,
-			Genre:       r.Genre,
-			Status:      r.Status,
-			ReleaseYear: r.ReleaseYear,
-			Episodes:    ep,
-			Posters:     photo,
-		}
-		res = append(res, tmp)
+		res = append(res, *tmp)
 	}
 	return res, nil
 }
@@ -82,24 +102,11 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		ep, err := d.epRepo.GetList(r.ID)
+		tmp, err := d.getDoramaModel(r)
 		if err != nil {
-			return nil, fmt.Errorf("getListEp: %w", err)
+			return nil, fmt.Errorf("getDoramaModel: %w", err)
 		}
-		photo, err := d.picRepo.GetListDorama(r.ID)
-		if err != nil {
-			return nil, fmt.Errorf("getListDorama: %w", err)
-		}
-		tmp := model.Dorama{
-			Id:          r.ID,
-			Name:        r.Name,
-			Description: r.Description,
-			Genre:       r.Genre,
-			ReleaseYear: r.ReleaseYear,
-			Episodes:    ep,
-			Posters:     photo,
-		}
-		res = append(res, tmp)
+		res = append(res, *tmp)
 	}
 	return res, nil
 }
@@ -107,33 +114,18 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 	var (
 		resDB doramaModel
-		res   model.Dorama
 	)
 	result := d.db.Table("dorama_set.dorama").Where("id = ?", id).Take(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
-	ep, err := d.epRepo.GetList(resDB.ID)
+	tmp, err := d.getDoramaModel(resDB)
 	if err != nil {
-		return nil, fmt.Errorf("getListEp: %w", err)
-	}
-	photo, err := d.picRepo.GetListDorama(resDB.ID)
-	if err != nil {
-		return nil, fmt.Errorf("getListDorama: %w", err)
-	}
-	res = model.Dorama{
-		Id:          resDB.ID,
-		Name:        resDB.Name,
-		Description: resDB.Description,
-		Status:      resDB.Status,
-		Genre:       resDB.Genre,
-		ReleaseYear: resDB.ReleaseYear,
-		Episodes:    ep,
-		Posters:     photo,
+		return nil, fmt.Errorf("getDoramaModel: %w", err)
 	}
 
-	return &res, nil
+	return tmp, nil
 }
 
 func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {

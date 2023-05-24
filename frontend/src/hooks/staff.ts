@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {instance} from "../http-common";
 import {AxiosError} from "axios";
 import {IError} from "../models/IError";
@@ -67,13 +67,21 @@ export function useStaff(idDorama?:number) {
             const error = e as AxiosError<IError>
             setStaffLoading(false)
             if (error.response) {
-                if (error.status === 400) {
-                    setStaffDorama([])
+                if (error.response.status === 400) {
+                    setStaff([])
                 }
                 setStaffErr(error.response.data.error)
             } else {
                 setStaffErr(error.message)
             }
+        }
+    }
+
+    function addAllStaff(staff:IStaff) {
+        if (staff) {
+            setStaff(prev => [...prev, staff])
+        } else {
+            setStaff([staff])
         }
     }
 
@@ -89,13 +97,6 @@ export function useStaff(idDorama?:number) {
         fetchStaff().then(_ => {})
     }
 
-    const updateStaff = (upStaff:IStaff) => {
-        staffDorama.forEach(x => {
-            x = upStaff.id === x.id ? upStaff : x
-        })
-        setStaffDorama(staffDorama)
-    }
-    
     useEffect(()=>{
         if (idDorama) {
             getStaffByDoramaId(idDorama).then(()=>{setStaffErr(staffErr)})
@@ -104,5 +105,5 @@ export function useStaff(idDorama?:number) {
         fetchStaff().then()
     }, [])
 
-    return {staff, staffErr, staffLoading, addStaff, findStaff, resetStaff, updateStaff, staffDorama}
+    return {staff, staffErr, staffLoading, addStaff, findStaff, resetStaff, staffDorama, addAllStaff}
 }

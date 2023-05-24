@@ -42,7 +42,8 @@ func Init() (*App, error) {
 
 	picRepo := postgres.NewPictureRepo(db)
 	eRepo := postgres.NewEpisodeRepo(db)
-	dRepo := postgres.NewDoramaRepo(db, picRepo, eRepo)
+	revRepo := postgres.NewReviewRepo(db)
+	dRepo := postgres.NewDoramaRepo(db, picRepo, eRepo, revRepo)
 	lRepo := postgres.NewListRepo(db, dRepo)
 	staffRepo := postgres.NewStaffRepo(db, picRepo)
 	subRepo := postgres.NewSubscriptionRepo(db)
@@ -52,7 +53,7 @@ func Init() (*App, error) {
 		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log.Logger)
 	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
 		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log.Logger)
-	dc := controller.NewDoramaController(dRepo, uc, log.Logger)
+	dc := controller.NewDoramaController(dRepo, revRepo, uc, log.Logger)
 	ec := controller.NewEpisodeController(eRepo, uc, log.Logger)
 	lc := controller.NewListController(lRepo, dRepo, uc, log.Logger)
 	picC := controller.NewPictureController(picRepo, uc, log.Logger)

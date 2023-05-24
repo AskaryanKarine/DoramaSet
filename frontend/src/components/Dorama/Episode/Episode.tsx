@@ -33,7 +33,7 @@ export function Episode({ep, flag}:EpisodeProps) {
                 </button>
 
                 <p>
-                    Сезон {ep.num_episode} серия {ep.num_season}
+                    Сезон {ep.num_season} серия {ep.num_episode}
                 </p>
             </div>
         </>

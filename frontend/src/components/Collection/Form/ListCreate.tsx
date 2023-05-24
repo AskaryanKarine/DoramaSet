@@ -1,6 +1,6 @@
 import {IList} from "../../../models/IList";
 import React, {useState} from "react";
-import {useDorama} from "../../../hooks/dorama";
+import {useAllDorama} from "../../../hooks/dorama";
 import {IDorama} from "../../../models/IDorama";
 import {instance} from "../../../http-common";
 import {useCollection} from "../../../hooks/collection";

@@ -229,3 +229,12 @@ func (u *UserController) ChangeAvatarColor(token, color string) error {
 	u.log.Infof("user %s change color avatar to %s", user.Username, color)
 	return nil
 }
+
+func (u *UserController) GetPublicInfo(username string) (*model.User, error) {
+	info, err := u.repo.GetPublicInfo(username)
+	if err != nil {
+		u.log.Warnf("get public info err %s about user %s", err, username)
+		return nil, fmt.Errorf("getPublicInfo: %w", err)
+	}
+	return info, nil
+}

@@ -9,7 +9,7 @@ export function FavoritePage() {
             <h1>Избранное</h1>
             <div className="grid grid-cols-3">
                 {favCollection ? [...favCollection].map(
-                    lst => <ListPreview list={lst} key={lst.id} isPublic={true}/>
+                    lst => <ListPreview list={lst} key={lst.id}/>
                 ) : "В избранном пусто"}
             </div>
         </>

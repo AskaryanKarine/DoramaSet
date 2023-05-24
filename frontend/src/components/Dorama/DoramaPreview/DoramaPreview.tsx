@@ -1,12 +1,13 @@
 import {IDorama} from "../../../models/IDorama";
 import styles from "./DoramaPreview.module.css"
 import {upToFirst} from "../../../hooks/upToFirst";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Modal} from "../../Modal/Modal";
 import {Dorama} from "../Dorama";
 import {DoramaUpdate} from "../Form/DoramaUpdate";
 import {AdminPanel} from "../../Admin/Panel/AdminPanel";
-import {useDorama} from "../../../hooks/dorama";
+import {useAllDorama} from "../../../hooks/dorama";
+import {IEpisode} from "../../../models/IEpisode";
 
 interface DoramaPreviewProps {
     dorama: IDorama
@@ -15,11 +16,26 @@ interface DoramaPreviewProps {
 export function DoramaPreview({dorama}:DoramaPreviewProps) {
     const [modalVisible, setModalVisible] = useState(false)
     const [editVisible, setEditVisible] = useState(false)
-    const {updateDorama} = useDorama()
+    const [current, setCurrent] = useState(dorama)
 
     const onUpdateDorama = (dorama:IDorama) => {
-        updateDorama(dorama)
+        dorama.episodes = current.episodes
+        setCurrent(dorama)
         setEditVisible(false)
+    }
+
+    const addEpisode = (ep:IEpisode) => {
+        if (current.episodes) {
+            current.episodes = [...current.episodes, ep]
+        } else {
+            current.episodes = [ep]
+        }
+        setCurrent(prev => {
+            return {
+                ...prev,
+                episodes: current.episodes
+            }
+        })
     }
 
     return (
@@ -33,10 +49,10 @@ export function DoramaPreview({dorama}:DoramaPreviewProps) {
                 </div>
                 <div className={styles.info}>
                     <div>
-                        <p className="text-3xl">{dorama.name}</p>
-                        <p>{upToFirst(dorama.genre)}</p>
-                        <p>Год выхода {dorama.release_year}, {dorama.status}</p>
-                        <p>Количество эпизодов: {dorama.episodes ? dorama.episodes.length : "0"}</p>
+                        <p className="text-3xl">{current.name}</p>
+                        <p>{upToFirst(current.genre)}</p>
+                        <p>Год выхода {current.release_year}, {current.status}</p>
+                        <p>Количество эпизодов: {current.episodes ? current.episodes.length : 0}</p>
                     </div>
                     <button
                         className={styles.more}
@@ -61,7 +77,7 @@ export function DoramaPreview({dorama}:DoramaPreviewProps) {
                     onClose={() => {setEditVisible(false)
                 }}
             >
-                <DoramaUpdate dorama={dorama} onClose={onUpdateDorama}/>
+                <DoramaUpdate dorama={current} onClose={onUpdateDorama} addEpisode={addEpisode}/>
             </Modal>}
         </>}</>
     )
