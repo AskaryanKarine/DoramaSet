@@ -15,11 +15,26 @@ services:
     volumes:
       - ./data:/data
       - ./data:/var/lib/postgresql/data
-      - ./init:/docker-entrypoint-initdb.d
+      - ./init/postgres:/docker-entrypoint-initdb.d
     ports:
-      - 5432:5432
+      - "5432:5432"
     networks:
       - my_persistent_network
+  mongo:
+    container_name: mongo_db
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: karine
+      MONGO_INITDB_ROOT_PASSWORD: 12346
+      MONGO_INITDB_DATABASE: "DoramaSet"
+    volumes:
+      - ./data/mgdata:/data/db
+      - ./init/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    ports:
+      - "27017:27017"
+    networks:
+      - my_persistent_network
+
 
 networks:
   my_persistent_network:
