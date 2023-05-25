@@ -6,7 +6,7 @@ import (
 	"DoramaSet/internal/handler/apiserver/services"
 	"DoramaSet/internal/logger"
 	"DoramaSet/internal/logic/controller"
-	"DoramaSet/internal/repository/postgres"
+	"DoramaSet/internal/repository"
 	"DoramaSet/internal/server"
 	"context"
 	"fmt"
@@ -35,30 +35,26 @@ func Init() (*App, error) {
 		return nil, err
 	}
 
-	db, err := postgres.Open(cfg)
+	function, ok := repository.RepositoryCreat[cfg.DB.Type]
+	if !ok {
+		return nil, err
+	}
+	// db, err := postgres.Open(cfg)
+	allRepo, err := function(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	picRepo := postgres.NewPictureRepo(db)
-	eRepo := postgres.NewEpisodeRepo(db)
-	revRepo := postgres.NewReviewRepo(db)
-	dRepo := postgres.NewDoramaRepo(db, picRepo, eRepo, revRepo)
-	lRepo := postgres.NewListRepo(db, dRepo)
-	staffRepo := postgres.NewStaffRepo(db, picRepo)
-	subRepo := postgres.NewSubscriptionRepo(db)
-	uRepo := postgres.NewUserRepo(db, subRepo, lRepo)
-
-	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
+	pc := controller.NewPointController(allRepo.User, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
 		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log.Logger)
-	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
+	uc := controller.NewUserController(allRepo.User, pc, cfg.App.SecretKey,
 		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log.Logger)
-	dc := controller.NewDoramaController(dRepo, revRepo, uc, log.Logger)
-	ec := controller.NewEpisodeController(eRepo, uc, log.Logger)
-	lc := controller.NewListController(lRepo, dRepo, uc, log.Logger)
-	picC := controller.NewPictureController(picRepo, uc, log.Logger)
-	staffC := controller.NewStaffController(staffRepo, uc, log.Logger)
-	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, log.Logger)
+	dc := controller.NewDoramaController(allRepo.Dorama, allRepo.Review, uc, log.Logger)
+	ec := controller.NewEpisodeController(allRepo.Episode, uc, log.Logger)
+	lc := controller.NewListController(allRepo.List, allRepo.Dorama, uc, log.Logger)
+	picC := controller.NewPictureController(allRepo.Picture, uc, log.Logger)
+	staffC := controller.NewStaffController(allRepo.Staff, uc, log.Logger)
+	subC := controller.NewSubscriptionController(allRepo.Subscription, allRepo.User, pc, uc, log.Logger)
 
 	srvs := services.Services{
 		IUserController:         uc,

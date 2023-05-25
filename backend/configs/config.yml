@@ -5,6 +5,7 @@ DB:
   DBName: "DoramaSet"
   SSLMode: "disable"
   Port: 5432
+  Type: "postgres"
 
 App:
   SecretKey: "qwerty"

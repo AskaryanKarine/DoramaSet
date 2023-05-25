@@ -7,6 +7,7 @@ type dbConfig struct {
 	DBName   string
 	SSLMode  string
 	Port     int
+	Type     string
 }
 
 type appConfig struct {
