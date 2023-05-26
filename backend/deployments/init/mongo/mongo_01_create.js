@@ -1,0 +1,5 @@
+db.createCollection("dorama")
+db.createCollection("staff")
+db.createCollection("user")
+db.createCollection("list")
+db.createCollection("subscription")

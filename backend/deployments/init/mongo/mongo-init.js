@@ -10,10 +10,3 @@ db.createUser(
         ]
     }
 );
-
-db.createCollection("Dorama")
-db.createCollection("Staff")
-db.createCollection("User")
-db.createCollection("List")
-db.createCollection("Subscription")
-
