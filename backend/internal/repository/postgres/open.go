@@ -16,6 +16,13 @@ func Open(cfg *config.Config) (*repository.AllRepository, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	if err := sqlDB.Ping(); err != nil {
+		return nil, err
+	}
 	all := create(db)
 	return all, nil
 }

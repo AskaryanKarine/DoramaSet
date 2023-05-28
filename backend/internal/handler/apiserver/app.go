@@ -35,11 +35,10 @@ func Init() (*App, error) {
 		return nil, err
 	}
 
-	function, ok := repository.RepositoryCreat[cfg.DB.Type]
+	function, ok := repository.Open[cfg.DB.Type]
 	if !ok {
-		return nil, err
+		return nil, fmt.Errorf("invalid database type")
 	}
-	// db, err := postgres.Open(cfg)
 	allRepo, err := function(cfg)
 	if err != nil {
 		return nil, err

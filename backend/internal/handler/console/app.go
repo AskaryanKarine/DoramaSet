@@ -44,9 +44,9 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	function, ok := repository.RepositoryCreat[cfg.DB.Type]
+	function, ok := repository.Open[cfg.DB.Type]
 	if !ok {
-		return nil, err
+		return nil, fmt.Errorf("invalid database type")
 	}
 	allRepo, err := function(cfg)
 	if err != nil {
