@@ -15,17 +15,16 @@ run:
 clear:
 	rmdir /s /q out
 
-run-db:
-	docker-compose --project-directory deployments up -d
+run-db-postgres:
+	docker-compose --project-directory deployments up -d --build postgres
 
-restart-db-postgres:
-	docker-compose --project-directory deployments down -v
-	rmdir /s /q deployments\docker\pgdata
+run-db-mongo:
+	docker-compose --project-directory deployments up -d --build mongo
 
 restart-db-mongo:
 	docker-compose --project-directory deployments down -v
 	rmdir /s /q deployments\docker\mgdata
-	make run-db
+	make run-db-mongo
 
 goose-install:
 	go get github.com/pressly/goose/cmd/goose
