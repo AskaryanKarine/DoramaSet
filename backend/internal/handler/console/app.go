@@ -8,11 +8,8 @@ import (
 	"DoramaSet/internal/handler/console/user"
 	logger2 "DoramaSet/internal/logger"
 	"DoramaSet/internal/logic/controller"
-	postgres2 "DoramaSet/internal/repository/postgres"
+	"DoramaSet/internal/repository"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"os"
 )
 
@@ -47,33 +44,25 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"
-	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	function, ok := repository.Open[cfg.DB.Type]
+	if !ok {
+		return nil, fmt.Errorf("invalid database type")
+	}
+	allRepo, err := function(cfg)
 	if err != nil {
-		log.Logger.Fatalf("DB can't connect: %s", err)
 		return nil, err
 	}
 
-	picRepo := postgres2.NewPictureRepo(db)
-	revRepo := postgres2.NewReviewRepo(db)
-	eRepo := postgres2.NewEpisodeRepo(db)
-	dRepo := postgres2.NewDoramaRepo(db, picRepo, eRepo, revRepo)
-	lRepo := postgres2.NewListRepo(db, dRepo)
-	staffRepo := postgres2.NewStaffRepo(db, picRepo)
-	subRepo := postgres2.NewSubscriptionRepo(db)
-	uRepo := postgres2.NewUserRepo(db, subRepo, lRepo)
-
-	pc := controller.NewPointController(uRepo, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
+	pc := controller.NewPointController(allRepo.User, cfg.App.EveryDayPoint, cfg.App.EveryYearPoint,
 		cfg.App.LongNoLoginPoint, cfg.App.LongNoLoginHours, log.Logger)
-	uc := controller.NewUserController(uRepo, pc, cfg.App.SecretKey,
+	uc := controller.NewUserController(allRepo.User, pc, cfg.App.SecretKey,
 		cfg.App.LoginLen, cfg.App.PasswordLen, cfg.App.TokenExpirationHours, log.Logger)
-	dc := controller.NewDoramaController(dRepo, revRepo, uc, log.Logger)
-	ec := controller.NewEpisodeController(eRepo, uc, log.Logger)
-	lc := controller.NewListController(lRepo, dRepo, uc, log.Logger)
-	picC := controller.NewPictureController(picRepo, uc, log.Logger)
-	staffC := controller.NewStaffController(staffRepo, uc, log.Logger)
-	subC := controller.NewSubscriptionController(subRepo, uRepo, pc, uc, log.Logger)
+	dc := controller.NewDoramaController(allRepo.Dorama, allRepo.Review, uc, log.Logger)
+	ec := controller.NewEpisodeController(allRepo.Episode, uc, log.Logger)
+	lc := controller.NewListController(allRepo.List, allRepo.Dorama, uc, log.Logger)
+	picC := controller.NewPictureController(allRepo.Picture, uc, log.Logger)
+	staffC := controller.NewStaffController(allRepo.Staff, uc, log.Logger)
+	subC := controller.NewSubscriptionController(allRepo.Subscription, allRepo.User, pc, uc, log.Logger)
 
 	generalOp := general.New(dc, staffC, lc, uc)
 	guestOp := guest.New(uc)

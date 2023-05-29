@@ -1,33 +1,41 @@
-package postgres
+package mongo
 
 import (
 	"DoramaSet/internal/config"
 	"DoramaSet/internal/interfaces/repository"
+	"context"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"time"
 )
 
 func Open(cfg *config.Config) (*repository.AllRepository, error) {
-	dsn := "host=%s user=%s password=%s dbname=%s sslmode=%s port=%d"
-	dsn = fmt.Sprintf(dsn, cfg.DB.Host, cfg.DB.Username, cfg.DB.Password, cfg.DB.DBName, cfg.DB.SSLMode, cfg.DB.Port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
+	dsn := "mongodb://%s:%s@%s:%d"
+	dsn = fmt.Sprintf(dsn, cfg.DB.Username, cfg.DB.Password, cfg.DB.Host, cfg.DB.Port)
+	client, err := mongo.NewClient(options.Client().ApplyURI(dsn))
 	if err != nil {
-		return nil, fmt.Errorf("open db: %w", err)
+		return nil, fmt.Errorf("open mongo client: %w", err)
 	}
-	sqlDB, err := db.DB()
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("connect mongo client: %w", err)
+	}
+	// defer func() {
+	// 	_ = client.Disconnect(ctx)
+	// }()
+	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		return nil, err
 	}
-	if err := sqlDB.Ping(); err != nil {
-		return nil, err
-	}
-	all := create(db)
+
+	all := create(client.Database("DoramaSet"))
 	return all, nil
 }
 
-func create(db *gorm.DB) *repository.AllRepository {
+func create(db *mongo.Database) *repository.AllRepository {
 	picRepo := NewPictureRepo(db)
 	eRepo := NewEpisodeRepo(db)
 	revRepo := NewReviewRepo(db)

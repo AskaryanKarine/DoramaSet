@@ -74,3 +74,14 @@ type IReviewRepo interface {
 	AggregateRate(idD int) (float64, int, error)
 	GetReview(username string, idD int) (*model.Review, error)
 }
+
+type AllRepository struct {
+	Dorama       IDoramaRepo
+	Episode      IEpisodeRepo
+	List         IListRepo
+	Picture      IPictureRepo
+	Staff        IStaffRepo
+	Subscription ISubscriptionRepo
+	User         IUserRepo
+	Review       IReviewRepo
+}

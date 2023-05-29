@@ -70,6 +70,8 @@ func (u *UserController) Registration(newUser *model.User) (string, error) {
 	newUser.RegData = time.Now()
 	newUser.LastActive = time.Now().Add(-time.Hour * 24)
 	newUser.LastSubscribe = time.Now()
+	newUser.Color = "#000000"
+	newUser.Emoji = "2b50"
 
 	hash, _ := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 
@@ -88,8 +90,6 @@ func (u *UserController) Registration(newUser *model.User) (string, error) {
 	}
 
 	newUser.LastActive = time.Now()
-	newUser.Color = "#000000"
-	newUser.Emoji = "2b50"
 	err = u.repo.UpdateUser(*newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
