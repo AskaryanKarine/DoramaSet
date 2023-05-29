@@ -4,8 +4,8 @@ DB:
   Password: "12346"
   DBName: "DoramaSet"
   SSLMode: "disable"
-  Port: 5432
-  Type: "postgres"
+  Port: 27017
+  Type: mongo
 
 App:
   SecretKey: "qwerty"

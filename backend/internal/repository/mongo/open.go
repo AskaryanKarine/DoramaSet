@@ -12,8 +12,8 @@ import (
 )
 
 func Open(cfg *config.Config) (*repository.AllRepository, error) {
-	dsn := "mongodb://%s:%s@%s:%d/authSource=%s"
-	dsn = fmt.Sprintf(dsn, cfg.DB.Username, cfg.DB.Password, cfg.DB.Host, cfg.DB.Port, cfg.DB.DBName)
+	dsn := "mongodb://%s:%s@%s:%d"
+	dsn = fmt.Sprintf(dsn, cfg.DB.Username, cfg.DB.Password, cfg.DB.Host, cfg.DB.Port)
 	client, err := mongo.NewClient(options.Client().ApplyURI(dsn))
 	if err != nil {
 		return nil, fmt.Errorf("open mongo client: %w", err)
@@ -23,9 +23,9 @@ func Open(cfg *config.Config) (*repository.AllRepository, error) {
 	if err != nil {
 		return nil, fmt.Errorf("connect mongo client: %w", err)
 	}
-	defer func() {
-		_ = client.Disconnect(ctx)
-	}()
+	// defer func() {
+	// 	_ = client.Disconnect(ctx)
+	// }()
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
 		return nil, err

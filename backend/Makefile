@@ -21,6 +21,9 @@ run-db-postgres:
 run-db-mongo:
 	docker-compose --project-directory deployments up -d --build mongo
 
+stop-db:
+	docker-compose --project-directory deployments down -v
+
 restart-db-mongo:
 	docker-compose --project-directory deployments down -v
 	rmdir /s /q deployments\docker\mgdata

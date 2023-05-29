@@ -38,4 +38,5 @@ var (
 	ErrorUserExist      = errors.New("user already exists")
 	ErrorDontExistsInDB = errors.New("don't exists in db")
 	ErrorPublic         = errors.New("doesn't public list")
+	ErrorExistInDB      = errors.New("already exists")
 )

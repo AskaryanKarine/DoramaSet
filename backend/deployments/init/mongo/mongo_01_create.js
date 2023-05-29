@@ -20,5 +20,13 @@ db.createCollection("list",
     })
 
 db.createCollection("subscription")
+db.createCollection("_user_fav")
+db.createCollection("_user_watched_episode")
 
-db.user.createIndex({username:1}, {unique: true, partialFilterExpression: { login: { $exists: true} } })
+
+
+db.dorama.createIndex({id:1}, {unique: true, partialFilterExpression: { id: { $exists: true} } })
+db.staff.createIndex({id:1}, {unique: true, partialFilterExpression: { id: { $exists: true} } })
+db.user.createIndex({username:1}, {unique: true, partialFilterExpression: { username: { $exists: true} } })
+db.list.createIndex({id: 1}, {unique: true, partialFilterExpression: { id: { $exists: true} } })
+db.subscription.createIndex({id:1}, {unique: true, partialFilterExpression: { id: { $exists: true} } })
