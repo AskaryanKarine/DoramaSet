@@ -65,8 +65,42 @@ func (e *EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 }
 
 func (e *EpisodeRepo) GetWatchingList(username string, idD int) ([]model.Episode, error) {
-	// TODO implement me
-	panic("implement me")
+	var (
+		resDB []episodeModel
+		res   []model.Episode
+	)
+
+	collection := e.db.Collection("_episode")
+	collectionWatched := e.db.Collection("_user_watched_episode")
+	filter := bson.D{{"id_dorama", idD}}
+	opts := options.Find().SetSort(bson.D{{"id", 1}})
+
+	cur, err := collection.Find(nil, filter, opts)
+	if err != nil {
+		return nil, fmt.Errorf("db: %w", err)
+	}
+
+	if err = cur.All(nil, &resDB); err != nil {
+		return nil, fmt.Errorf("db: %w", err)
+	}
+
+	for _, r := range resDB {
+		var wathced struct {
+			Username string `bson:"username"`
+			Episode  int    `bson:"episode"`
+		}
+		filter := bson.D{{"episode", r.ID}, {"username", username}}
+		err = collectionWatched.FindOne(nil, filter).Decode(&wathced)
+		if err != nil && err != mongo.ErrNoDocuments {
+			return nil, fmt.Errorf("db: %w", err)
+		}
+		if err == mongo.ErrNoDocuments {
+			continue
+		}
+		res = append(res, *getEpisodeLogicModel(r))
+	}
+
+	return res, nil
 }
 
 func (e *EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
