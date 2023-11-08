@@ -4,28 +4,16 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	objectMother "DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"github.com/gojuno/minimock/v3"
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
-	"time"
-
-	"github.com/gojuno/minimock/v3"
 )
 
-var resultArrayDorama = []model.Dorama{
-	{
-		Id:          1,
-		Name:        "qwerty",
-		Description: "qwerty",
-		Genre:       "qwerty",
-		Status:      "qwerty",
-		ReleaseYear: 2000,
-		Posters:     nil,
-		Episodes:    nil,
-	},
-}
+var resultArrayDorama = objectMother.DoramaMother{}.GenerateRandomDoramaSlice(1)
 
 func TestGetAllDorama(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -173,19 +161,8 @@ func TestCreateDorama(t *testing.T) {
 		token  string
 		dorama model.Dorama
 	}
-	adminUser := model.User{
-		Username:   "qwerty",
-		Password:   "qwerty",
-		Email:      "qwerty",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    true,
-		Sub:        nil,
-		Collection: nil,
-	}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -197,7 +174,7 @@ func TestCreateDorama(t *testing.T) {
 			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -221,7 +198,7 @@ func TestCreateDorama(t *testing.T) {
 			name: "access error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -233,7 +210,7 @@ func TestCreateDorama(t *testing.T) {
 			name: "create picture error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(-1, errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -263,19 +240,8 @@ func TestUpdateDorama(t *testing.T) {
 		token  string
 		dorama model.Dorama
 	}
-	adminUser := model.User{
-		Username:   "qwerty",
-		Password:   "qwerty",
-		Email:      "qwerty",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    true,
-		Sub:        nil,
-		Collection: nil,
-	}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -287,7 +253,7 @@ func TestUpdateDorama(t *testing.T) {
 			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -311,7 +277,7 @@ func TestUpdateDorama(t *testing.T) {
 			name: "access error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -323,7 +289,7 @@ func TestUpdateDorama(t *testing.T) {
 			name: "update error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -349,9 +315,8 @@ func TestUpdateDorama(t *testing.T) {
 
 func TestDoramaController_AddStaffToDorama(t *testing.T) {
 	mc := minimock.NewController(t)
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 	type fields struct {
 		repo repository.IDoramaRepo
 		uc   controller.IUserController
@@ -371,7 +336,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 			name: "successful result",
 			fields: fields{
 				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			args:    args{"", 1, 1},
 			wantErr: false,
@@ -380,7 +345,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 			name: "add error",
 			fields: fields{
 				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			args:    args{"", 1, 1},
 			wantErr: true,
@@ -398,7 +363,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 			name: "access error",
 			fields: fields{
 				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			args:    args{"", 0, 0},
 			wantErr: true,

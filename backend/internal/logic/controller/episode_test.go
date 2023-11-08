@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	objectMother "DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
 	"github.com/sirupsen/logrus"
@@ -13,13 +14,7 @@ import (
 	"github.com/gojuno/minimock/v3"
 )
 
-var resultArrayEpisode = []model.Episode{
-	{
-		Id:         1,
-		NumSeason:  1,
-		NumEpisode: 1,
-	},
-}
+var resultArrayEpisode = objectMother.EpisodeMother{}.GenerateRandomEpisodeSlice(1)
 
 func TestGetEpisodeList(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -184,8 +179,8 @@ func TestMarkWathingEpisode(t *testing.T) {
 
 func TestEpisodeController_CreateEpisode(t *testing.T) {
 	mc := minimock.NewController(t)
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := model.User{IsAdmin: false}
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 
 	type fields struct {
 		repo repository.IEpisodeRepo
@@ -206,7 +201,7 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			name: "successful result",
 			fields: fields{
 				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			args: args{
 				token:  "",
@@ -219,7 +214,7 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			name: "create error",
 			fields: fields{
 				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(-1, errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			args: args{
 				token:  "",
@@ -245,7 +240,7 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 			name: "access error",
 			fields: fields{
 				repo: mocks.NewIEpisodeRepoMock(mc).CreateEpisodeMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			args: args{
 				token:  "",

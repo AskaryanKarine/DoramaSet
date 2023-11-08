@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/constant"
 	errors2 "DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
 	"github.com/gojuno/minimock/v3"
@@ -15,7 +16,7 @@ import (
 	"time"
 )
 
-var resultArraySubs = []model.Subscription{{}}
+var resultArraySubs = object_mother.SubscriptionMother{}.GenerateRandomSubscriptionSlice(1)
 
 func TestGetAllSub(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -285,17 +286,14 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 		uc    controller.IUserController
 		log   *logrus.Logger
 	}
-	sub := &model.Subscription{
-		Duration: constant.Day * 30,
-	}
-	userWithoutUpdate := model.User{
-		LastSubscribe: time.Now(),
-		Sub:           sub,
-	}
-	userUpdateSub := model.User{
-		LastSubscribe: time.Now().Add(-constant.Day * 30),
-		Sub:           sub,
-	}
+	sub := object_mother.SubscriptionMother{}.GenerateSubscription(
+		object_mother.SubscriptionWithDuration(constant.Day * 30))
+	userWithoutUpdate := object_mother.UserMother{}.GenerateUser(
+		object_mother.UserWithSub(sub),
+		object_mother.UserWithLastSubscription(time.Now()))
+	userUpdateSub := object_mother.UserMother{}.GenerateUser(
+		object_mother.UserWithSub(sub),
+		object_mother.UserWithLastSubscription(time.Now().Add(-constant.Day*30)))
 	type args struct {
 		token string
 	}
@@ -309,7 +307,7 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 			name: "unsubscribe err",
 			fields: fields{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(sub, nil).GetSubscriptionByPriceMock.Return(sub, errors.New("error")),
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&userUpdateSub, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(userUpdateSub, nil),
 				pc:    mocks.NewIPointsControllerMock(mc).PurgePointMock.Return(errors2.BalanceError{}),
 				urepo: mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil),
 			},
@@ -320,7 +318,7 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 			name: "correct result without update",
 			fields: fields{
 				repo:  nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&userWithoutUpdate, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(userWithoutUpdate, nil),
 				pc:    nil,
 				urepo: nil,
 			},
@@ -331,7 +329,7 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 			name: "correct result with update",
 			fields: fields{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(sub, nil),
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&userUpdateSub, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(userUpdateSub, nil),
 				pc:    mocks.NewIPointsControllerMock(mc).PurgePointMock.Return(nil),
 				urepo: mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil),
 			},
@@ -342,7 +340,7 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 			name: "auth err",
 			fields: fields{
 				repo:  nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&userUpdateSub, errors.New("error")),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(userUpdateSub, errors.New("error")),
 				pc:    nil,
 				urepo: nil,
 			},
@@ -353,7 +351,7 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 			name: "balance err",
 			fields: fields{
 				repo:  mocks.NewISubscriptionRepoMock(mc).GetSubscriptionMock.Return(sub, nil).GetSubscriptionByPriceMock.Return(sub, nil),
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&userUpdateSub, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(userUpdateSub, nil),
 				pc:    mocks.NewIPointsControllerMock(mc).PurgePointMock.Return(errors2.BalanceError{}),
 				urepo: mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil),
 			},

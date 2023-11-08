@@ -2,6 +2,7 @@ package controller
 
 import (
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
 	"github.com/sirupsen/logrus"
@@ -13,9 +14,11 @@ import (
 
 func TestEarnPointForLogin(t *testing.T) {
 	mc := minimock.NewController(t)
-	userFev := model.User{RegData: time.Date(2000, time.February, 29, 0, 0, 0, 0, time.UTC)}
-	userReg := model.User{RegData: time.Now()}
-	userReg2 := model.User{RegData: time.Now().AddDate(0, 1, 0)}
+	userFev := object_mother.UserMother{}.GenerateUser(object_mother.UserWithRegData(
+		time.Date(2000, time.February, 29, 0, 0, 0, 0, time.UTC)))
+	userReg := object_mother.UserMother{}.GenerateUser(object_mother.UserWithRegData(time.Now()))
+	userReg2 := object_mother.UserMother{}.GenerateUser(object_mother.UserWithRegData(
+		time.Now().AddDate(0, 1, 0)))
 	testsTable := []struct {
 		name  string
 		fl    PointsController
@@ -41,25 +44,25 @@ func TestEarnPointForLogin(t *testing.T) {
 		{
 			name: "29 february registration",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&userFev, nil).UpdateUserMock.Return(nil),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userFev, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   userFev,
+			arg:   *userFev,
 			isNeg: false,
 		},
 		{
 			name: "at the moment registration",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&userReg, nil).UpdateUserMock.Return(nil),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userReg, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   userReg,
+			arg:   *userReg,
 			isNeg: false,
 		},
 		{
 			name: "successful registration",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&userReg2, nil).UpdateUserMock.Return(nil),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userReg2, nil).UpdateUserMock.Return(nil),
 			},
-			arg:   userReg2,
+			arg:   *userReg2,
 			isNeg: false,
 		},
 	}
@@ -80,6 +83,7 @@ func TestEarnPointForLogin(t *testing.T) {
 
 func TestPurgePoint(t *testing.T) {
 	mc := minimock.NewController(t)
+	userPoint := object_mother.UserMother{}.GenerateUser(object_mother.UserWithPoints(10))
 	type argument struct {
 		username model.User
 		point    int
@@ -93,7 +97,7 @@ func TestPurgePoint(t *testing.T) {
 		{
 			name: "successful result",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(nil),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userPoint, nil).UpdateUserMock.Return(nil),
 			},
 			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: false,
@@ -101,7 +105,7 @@ func TestPurgePoint(t *testing.T) {
 		{
 			name: "update error",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(errors.New("error")),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userPoint, nil).UpdateUserMock.Return(errors.New("error")),
 			},
 			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: true,
@@ -132,6 +136,7 @@ func TestPurgePoint(t *testing.T) {
 
 func TestEarnPoint(t *testing.T) {
 	mc := minimock.NewController(t)
+	userPoint := object_mother.UserMother{}.GenerateUser(object_mother.UserWithPoints(10))
 	type argument struct {
 		username model.User
 		point    int
@@ -145,7 +150,7 @@ func TestEarnPoint(t *testing.T) {
 		{
 			name: "successful result",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(nil),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userPoint, nil).UpdateUserMock.Return(nil),
 			},
 			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: false,
@@ -153,7 +158,7 @@ func TestEarnPoint(t *testing.T) {
 		{
 			name: "update error",
 			fl: PointsController{
-				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(&model.User{Points: 10}, nil).UpdateUserMock.Return(errors.New("error")),
+				repo: mocks.NewIUserRepoMock(mc).GetUserMock.Return(userPoint, nil).UpdateUserMock.Return(errors.New("error")),
 			},
 			arg:   argument{model.User{Points: 10}, 1},
 			isNeg: true,

@@ -3,6 +3,7 @@ package controller
 import (
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
 	"github.com/sirupsen/logrus"
@@ -12,16 +13,7 @@ import (
 	"github.com/gojuno/minimock/v3"
 )
 
-var resultArrayList = []model.List{
-	{
-		Id:          1,
-		Name:        "qwerty",
-		Description: "qwerty",
-		CreatorName: "qwerty",
-		Type:        constant.PublicList,
-		Doramas:     nil,
-	},
-}
+var resultArrayList = object_mother.ListMother{}.GenerateRandomListSlice(1)
 
 func TestCreateList(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -206,6 +198,10 @@ func TestGetPublicLists(t *testing.T) {
 
 func TestGetListById(t *testing.T) {
 	mc := minimock.NewController(t)
+	user := object_mother.UserMother{}.GenerateUser(object_mother.UserWithUsername("qwerty"))
+	user2 := object_mother.UserMother{}.GenerateUser(object_mother.UserWithUsername("qwe"))
+	listWithUsername := object_mother.ListMother{}.GenerateList(object_mother.ListWithCreatorName("qwerty"),
+		object_mother.ListWithType(constant.PrivateList))
 
 	type argument struct {
 		token string
@@ -221,13 +217,13 @@ func TestGetListById(t *testing.T) {
 		{
 			name: "successful result",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&resultArrayList[0], nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(listWithUsername, nil),
 				drepo: nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(user, nil),
 			},
 			arg:    argument{"", 1},
 			isNeg:  false,
-			result: &resultArrayList[0],
+			result: listWithUsername,
 		},
 		{
 			name: "get list id error",
@@ -243,20 +239,20 @@ func TestGetListById(t *testing.T) {
 		{
 			name: "get private list",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: constant.PrivateList, CreatorName: "qwerty"}, nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(listWithUsername, nil),
 				drepo: nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(user, nil),
 			},
 			arg:    argument{"", 1},
-			result: &model.List{Type: constant.PrivateList, CreatorName: "qwerty"},
+			result: listWithUsername,
 			isNeg:  false,
 		},
 		{
 			name: "auth error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: constant.PrivateList, CreatorName: "qwerty"}, nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(listWithUsername, nil),
 				drepo: nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, errors.New("error")),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(nil, errors.New("error")),
 			},
 			arg:    argument{"", 1},
 			result: nil,
@@ -265,9 +261,9 @@ func TestGetListById(t *testing.T) {
 		{
 			name: "access error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{Type: constant.PrivateList, CreatorName: "qwerty"}, nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(listWithUsername, nil),
 				drepo: nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwe"}, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(user2, nil),
 			},
 			arg:    argument{"", 1},
 			result: nil,
@@ -544,6 +540,8 @@ func TestDelList(t *testing.T) {
 		token string
 		id1   int
 	}
+	user := object_mother.UserMother{}.GenerateUser(object_mother.UserWithUsername("qwerty"))
+	listWithUsername := object_mother.ListMother{}.GenerateList(object_mother.ListWithCreatorName("zxcvbn"))
 	testsTable := []struct {
 		name  string
 		fl    ListController
@@ -593,9 +591,9 @@ func TestDelList(t *testing.T) {
 		{
 			name: "access error",
 			fl: ListController{
-				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(&model.List{CreatorName: "ertyu"}, nil).DelListMock.Return(nil),
+				repo:  mocks.NewIListRepoMock(mc).GetListIdMock.Return(listWithUsername, nil).DelListMock.Return(nil),
 				drepo: nil,
-				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&model.User{Username: "qwerty"}, nil),
+				uc:    mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(user, nil),
 			},
 			arg:   argument{"", 1},
 			isNeg: true,

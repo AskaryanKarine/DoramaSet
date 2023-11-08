@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
 	"github.com/sirupsen/logrus"
@@ -13,9 +14,7 @@ import (
 	"github.com/gojuno/minimock/v3"
 )
 
-var resultArrayStaff = []model.Staff{
-	{},
-}
+var resultArrayStaff = object_mother.StaffMother{}.GenerateRandomStaffSlice(1)
 
 func TestGetListStaff(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -169,9 +168,8 @@ func TestCreateStaff(t *testing.T) {
 		token  string
 		dorama model.Staff
 	}
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(true))
+	noAdminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -183,7 +181,7 @@ func TestCreateStaff(t *testing.T) {
 			name: "successful",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -207,7 +205,7 @@ func TestCreateStaff(t *testing.T) {
 			name: "access error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -219,7 +217,7 @@ func TestCreateStaff(t *testing.T) {
 			name: "create error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(-1, errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -249,9 +247,8 @@ func TestUpdateStaff(t *testing.T) {
 		token  string
 		dorama model.Staff
 	}
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(true))
+	noAdminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -263,7 +260,7 @@ func TestUpdateStaff(t *testing.T) {
 			name: "successful",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -287,7 +284,7 @@ func TestUpdateStaff(t *testing.T) {
 			name: "access error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -299,7 +296,7 @@ func TestUpdateStaff(t *testing.T) {
 			name: "create error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,

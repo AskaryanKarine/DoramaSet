@@ -4,8 +4,10 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
 	"errors"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
@@ -32,22 +34,13 @@ func getToken(newUser model.User, secretKey string, tokenExp time.Duration) stri
 func TestRegistrationUser(t *testing.T) {
 	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
-	correctUser := model.User{
-		Username:   "123456789",
-		Password:   "123456789",
-		Email:      "mail@gmail.com",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    false,
-		Sub:        nil,
-		Collection: nil,
-	}
-	shortLogin := correctUser
-	shortPassword := correctUser
+	correctUser := object_mother.UserMother{}.GenerateRandomUser()
+	shortLogin := object_mother.UserMother{}.GenerateUser(
+		object_mother.UserWithUsername("qw"))
+	fmt.Println(correctUser)
+	shortPassword := object_mother.UserMother{}.GenerateRandomUser()
 	shortPassword.Password = "qw"
-	shortLogin.Username = "qw"
-	wrongEmail := correctUser
+	wrongEmail := object_mother.UserMother{}.GenerateRandomUser()
 	wrongEmail.Email = "qw"
 	secretKey := "qwerty"
 	testsTable := []struct {
@@ -67,21 +60,21 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    correctUser,
+			arg:    *correctUser,
 			result: correctUser.Username,
 			isNeg:  false,
 		},
 		{
 			name: "exists user error",
 			fl: UserController{
-				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(correctUser, nil).CreateUserMock.Return(nil),
 				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    correctUser,
+			arg:    *correctUser,
 			result: "",
 			isNeg:  true,
 		},
@@ -95,7 +88,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    correctUser,
+			arg:    *correctUser,
 			result: "",
 			isNeg:  true,
 		},
@@ -109,7 +102,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    shortLogin,
+			arg:    *shortLogin,
 			result: "",
 			isNeg:  true,
 		},
@@ -123,7 +116,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    shortPassword,
+			arg:    *shortPassword,
 			result: "",
 			isNeg:  true,
 		},
@@ -137,7 +130,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    wrongEmail,
+			arg:    *wrongEmail,
 			result: "",
 			isNeg:  true,
 		},
@@ -151,7 +144,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    correctUser,
+			arg:    *correctUser,
 			result: "",
 			isNeg:  true,
 		},
@@ -165,7 +158,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    correctUser,
+			arg:    *correctUser,
 			result: "",
 			isNeg:  true,
 		},
@@ -179,7 +172,7 @@ func TestRegistrationUser(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    correctUser,
+			arg:    *correctUser,
 			result: "",
 			isNeg:  true,
 		},
@@ -216,18 +209,9 @@ func TestLoginUser(t *testing.T) {
 	mc := minimock.NewController(t)
 	myString := "1"
 	hash, _ := bcrypt.GenerateFromPassword([]byte(myString), bcrypt.DefaultCost)
-
-	correctUser := model.User{
-		Username:   "123456789",
-		Password:   string(hash),
-		Email:      "mail@gmail.com",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    false,
-		Sub:        nil,
-		Collection: nil,
-	}
+	correctUser := object_mother.UserMother{}.GenerateUser(
+		object_mother.UserWithUsername("123456789"),
+		object_mother.UserWithPassword(string(hash)))
 	type argument struct {
 		login, password string
 	}
@@ -242,7 +226,7 @@ func TestLoginUser(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(nil),
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(correctUser, nil).UpdateUserMock.Return(nil),
 				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
@@ -270,7 +254,7 @@ func TestLoginUser(t *testing.T) {
 		{
 			name: "wrong password error",
 			fl: UserController{
-				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).CreateUserMock.Return(nil),
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(correctUser, nil).CreateUserMock.Return(nil),
 				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
@@ -298,7 +282,7 @@ func TestLoginUser(t *testing.T) {
 		{
 			name: "update error",
 			fl: UserController{
-				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil).UpdateUserMock.Return(errors.New("error")),
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(correctUser, nil).UpdateUserMock.Return(errors.New("error")),
 				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
@@ -446,17 +430,18 @@ func TestUpdateActive(t *testing.T) {
 func TestAuthByToken(t *testing.T) {
 	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
-	correctUser := model.User{
-		Username:   "123456789",
-		Password:   "123456789",
-		Email:      "mail@gmail.com",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    false,
-		Sub:        nil,
-		Collection: nil,
-	}
+	correctUser := object_mother.UserMother{}.GenerateRandomUser()
+	// correctUser := model.User{
+	// 	Username:   "123456789",
+	// 	Password:   "123456789",
+	// 	Email:      "mail@gmail.com",
+	// 	RegData:    time.Now(),
+	// 	LastActive: time.Now(),
+	// 	Points:     0,
+	// 	IsAdmin:    false,
+	// 	Sub:        nil,
+	// 	Collection: nil,
+	// }
 	secretKey := "qwerty"
 	testsTable := []struct {
 		name   string
@@ -468,16 +453,16 @@ func TestAuthByToken(t *testing.T) {
 		{
 			name: "successful result",
 			fl: UserController{
-				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(&correctUser, nil),
+				repo:            mocks.NewIUserRepoMock(mc).GetUserMock.Return(correctUser, nil),
 				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    getToken(correctUser, secretKey, tokenExpiration),
+			arg:    getToken(*correctUser, secretKey, tokenExpiration),
 			isNeg:  false,
-			result: &correctUser,
+			result: correctUser,
 		},
 		{
 			name: "update error",
@@ -489,21 +474,21 @@ func TestAuthByToken(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:    getToken(correctUser, secretKey, tokenExpiration),
+			arg:    getToken(*correctUser, secretKey, tokenExpiration),
 			isNeg:  true,
 			result: nil,
 		},
 		{
 			name: "invalid token",
 			fl: UserController{
-				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(&correctUser, nil),
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(errors.New("error")).GetUserMock.Return(correctUser, nil),
 				pc:              mocks.NewIPointsControllerMock(mc).EarnPointForLoginMock.Return(nil),
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			arg:   getToken(correctUser, "12345", tokenExpiration),
+			arg:   getToken(*correctUser, "12345", tokenExpiration),
 			isNeg: true,
 		},
 	}
@@ -529,9 +514,8 @@ func TestAuthByToken(t *testing.T) {
 
 func TestUserController_ChangeEmoji(t *testing.T) {
 	secretKey := "qwerty"
-	correctUser := model.User{
-		Username: "123456789",
-	}
+	correctUser := object_mother.UserMother{}.GenerateUser(
+		object_mother.UserWithUsername("123456789"))
 	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
 	type fields struct {
@@ -556,14 +540,14 @@ func TestUserController_ChangeEmoji(t *testing.T) {
 		{
 			name: "successful result",
 			fields: fields{
-				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(&correctUser, nil),
+				repo:            mocks.NewIUserRepoMock(mc).UpdateUserMock.Return(nil).GetUserMock.Return(correctUser, nil),
 				pc:              nil,
 				secretKey:       secretKey,
 				tokenExpiration: tokenExpiration,
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			args:    args{getToken(*correctUser, secretKey, tokenExpiration), ""},
 			wantErr: false,
 		},
 		{
@@ -576,7 +560,7 @@ func TestUserController_ChangeEmoji(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			args:    args{getToken(*correctUser, secretKey, tokenExpiration), ""},
 			wantErr: true,
 		},
 		{
@@ -613,9 +597,8 @@ func TestUserController_ChangeEmoji(t *testing.T) {
 
 func TestUserController_ChangeAvatarColor(t *testing.T) {
 	secretKey := "qwerty"
-	correctUser := model.User{
-		Username: "123456789",
-	}
+	correctUser := object_mother.UserMother{}.GenerateUser(
+		object_mother.UserWithUsername("123456789"))
 	tokenExpiration := time.Hour * 700
 	mc := minimock.NewController(t)
 	type fields struct {
@@ -647,7 +630,7 @@ func TestUserController_ChangeAvatarColor(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			args:    args{getToken(*correctUser, secretKey, tokenExpiration), ""},
 			wantErr: false,
 		},
 		{
@@ -660,7 +643,7 @@ func TestUserController_ChangeAvatarColor(t *testing.T) {
 				loginLen:        5,
 				passwordLen:     8,
 			},
-			args:    args{getToken(correctUser, secretKey, tokenExpiration), ""},
+			args:    args{getToken(*correctUser, secretKey, tokenExpiration), ""},
 			wantErr: true,
 		},
 		{
