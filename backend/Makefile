@@ -39,3 +39,9 @@ migrate-up:
 migrate-down:
 	goose --dir=$(MIGRATION_DIR) postgres $(DNS) down
 
+testing:
+	go test ./internal/logic/controller/ -v
+
+testing-random:
+	go test ./internal/logic/controller/ -v -shuffle on
+
