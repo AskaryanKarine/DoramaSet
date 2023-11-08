@@ -39,9 +39,14 @@ migrate-up:
 migrate-down:
 	goose --dir=$(MIGRATION_DIR) postgres $(DNS) down
 
-testing:
-	go test ./internal/logic/controller/ -v
+install-test-report:
+	go install github.com/polnaya-katuxa/test-report@latest
 
-testing-random:
+testing:
+	go test ./internal/logic/controller/ -v -cover -json > test.log
+	test-report -f ./test.log -o .
+
+testing-random-order:
 	go test ./internal/logic/controller/ -v -shuffle on
+	test-report -f ./test.log -o .
 

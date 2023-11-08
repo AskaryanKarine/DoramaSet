@@ -1,6 +1,8 @@
 /.idea
 /backend/deployments/docker
 backend/log.txt
+test.log
+report.html
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
