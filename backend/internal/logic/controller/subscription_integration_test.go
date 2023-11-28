@@ -27,7 +27,8 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 	repo := postgres.NewSubscriptionRepo(db)
 	pr := postgres.NewPictureRepo(db)
 	er := postgres.NewEpisodeRepo(db)
-	dr := postgres.NewDoramaRepo(db, pr, er)
+	rr := postgres.NewReviewRepo(db)
+	dr := postgres.NewDoramaRepo(db, pr, er, rr)
 	lr := postgres.NewListRepo(db, dr)
 	urepo := postgres.NewUserRepo(db, repo, lr)
 
@@ -40,7 +41,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 		log:              &logrus.Logger{},
 	}
 	userC := UserController{repo: urepo, pc: &pointC, secretKey: "qwerty", log: &logrus.Logger{}}
-	token := getToken(model.User{Username: "test"}, "qwerty", tokenExpiration)
+	token := token(model.User{Username: "test"}, "qwerty", tokenExpiration)
 	type fields struct {
 		repo  repository.ISubscriptionRepo
 		urepo repository.IUserRepo
