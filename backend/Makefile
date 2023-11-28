@@ -43,10 +43,13 @@ install-test-report:
 	go install github.com/polnaya-katuxa/test-report@latest
 
 testing:
-	go test ./internal/logic/controller/ -v -cover -json > test.log
+	go test -tags=unit -v -cover -json ./... > test.log
 	test-report -f ./test.log -o .
 
 testing-random-order:
-	go test ./internal/logic/controller/ -v -shuffle on
+	go test -tags=unit ./... -v -shuffle on > test.log
 	test-report -f ./test.log -o .
 
+testing-integration:
+	go test -tags=integration -v -cover -json ./... > test.log
+	test-report -f ./test.log -o .

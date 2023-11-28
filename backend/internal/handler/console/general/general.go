@@ -177,7 +177,7 @@ func (g *General) GetListById(token string) error {
 	fmt.Printf("Результат:\n")
 	fmt.Printf("Название: %s\n", result.Name)
 	fmt.Printf("Описание: %s\n", result.Description)
-	fmt.Printf("Тип: %s\n", result.Type)
+	fmt.Printf("Тип: %d\n", result.Type)
 	fmt.Printf("Ник создателя: %s\n", result.CreatorName)
 	fmt.Printf("Содержимое:\n")
 	for _, r := range result.Doramas {
