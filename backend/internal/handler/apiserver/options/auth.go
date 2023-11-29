@@ -80,7 +80,7 @@ func (h *Handler) getUserByCookieToken(c *gin.Context) {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
-	
+
 	user, err := h.Services.AuthByToken(cookie)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)

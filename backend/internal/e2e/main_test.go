@@ -15,6 +15,7 @@ import (
 	"os"
 	"testing"
 	"text/template"
+	"time"
 )
 
 func setupTestDatabase() (testcontainers.Container, string, int, error) {
@@ -139,5 +140,23 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	_, err = apiserver.Init()
+	app, err := apiserver.Init()
+	if err != nil {
+		fmt.Printf("Initialisation application error: %s", err)
+		rc = 1
+		return
+	}
+
+	ready := make(chan bool, 1)
+	app.RunTest(ready)
+
+	t := time.NewTimer(2 * time.Second)
+
+	select {
+	case <-ready:
+		rc = m.Run()
+	case <-t.C:
+		fmt.Println("timeout")
+		rc = 1
+	}
 }
