@@ -41,7 +41,6 @@ migrate-down:
 
 install-test-report:
 	go install github.com/polnaya-katuxa/test-report@latest
-	test-report -f ./test.log -o .
 
 testing-unit:
 	go test -tags=unit -v -cover -json ./... > test_unit.log
@@ -59,13 +58,17 @@ testing-e2e:
 	go test -tags=e2e -v -cover -json ./... > test_e2e.log
 	test-report -f ./test_e2e.log -o .
 
+testing-e2e-with-traffic:
+	make testing-e2e
+	cat ./test_e2e.log | grep -e Request -e Response > traffic.log
+
 test-report:
-	cat .\test_*.log > test.log
+	cat ./test_*.log > test.log
 	test-report -f ./test.log -o .
 
 traffic:
 	go test -tags=e2e -v -cover -json ./... > test_e2e.log
-	cat ./test.log | grep -e Request -e Response > traffic.log
+	cat ./test_e2e.log | grep -e Request -e Response > traffic.log
 
 test-report-win:
 	type .\test_*.log > test.log
