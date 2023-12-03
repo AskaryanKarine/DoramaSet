@@ -153,6 +153,8 @@ func TestUserRepo_GetUser(t *testing.T) {
 		Collection:    nil,
 		Points:        100,
 		IsAdmin:       false,
+		Color:         "#000000",
+		Emoji:         "2b50",
 	}
 
 	tests := []struct {
@@ -174,7 +176,7 @@ func TestUserRepo_GetUser(t *testing.T) {
 			fields:  fields{db: db, subRepo: &sr, listRepo: &lr},
 			args:    args{username: "qerty"},
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {

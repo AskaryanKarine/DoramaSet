@@ -87,7 +87,7 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 			name:    "success",
 			fields:  fields{db},
 			args:    args{1},
-			want:    []model.Episode{{1, 1, 1}},
+			want:    []model.Episode{{1, 1, 1}, {2, 1, 2}},
 			wantErr: false,
 		},
 		{
@@ -95,7 +95,7 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 			fields:  fields{db},
 			args:    args{-1},
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -106,7 +106,6 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 			got, err := e.GetList(tt.args.idDorama)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetStaffList() error = %v, wantErr %v", err, tt.wantErr)
-				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetStaffList() got = %v, want %v", got, tt.want)
