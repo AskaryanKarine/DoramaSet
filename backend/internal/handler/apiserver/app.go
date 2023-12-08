@@ -105,3 +105,15 @@ func (a *App) Run() {
 		os.Exit(1)
 	}
 }
+
+func (a *App) RunTest(ready chan bool) {
+	go func() {
+		err := a.srv.Run(*a.cfg, a.handlers.InitRoutes())
+		if err != nil {
+			fmt.Printf("Application running error: %s", err)
+			os.Exit(1)
+		}
+	}()
+	a.log.Infof("DoramaSet api started (testing)")
+	close(ready)
+}

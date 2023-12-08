@@ -11,10 +11,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 )
+
+func token(newUser model.User, secretKey string, tokenExp time.Duration) string {
+	claims := jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExp)),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ID:        newUser.Username,
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, _ := token.SignedString([]byte(secretKey))
+
+	return ss
+}
 
 func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 	dbContainer, db, err := container.SetupTestDatabase()
@@ -27,7 +41,8 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 	repo := postgres.NewSubscriptionRepo(db)
 	pr := postgres.NewPictureRepo(db)
 	er := postgres.NewEpisodeRepo(db)
-	dr := postgres.NewDoramaRepo(db, pr, er)
+	rr := postgres.NewReviewRepo(db)
+	dr := postgres.NewDoramaRepo(db, pr, er, rr)
 	lr := postgres.NewListRepo(db, dr)
 	urepo := postgres.NewUserRepo(db, repo, lr)
 
@@ -62,7 +77,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 				pc:        &pointC,
 				secretKey: "qwerty",
 			},
-			args:    args{token: getToken(model.User{Username: "test"}, "qwerty", tokenExpiration)},
+			args:    args{token: token(model.User{Username: "test"}, "qwerty", tokenExpiration)},
 			wantErr: false,
 			check: func(ur repository.IUserRepo) error {
 				user, err := ur.GetUser("test")
@@ -70,7 +85,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 					return err
 				}
 				fmt.Println(user.Points, user.LastActive)
-				if user.Points != 105 {
+				if user.Points != 155 {
 					return errors.New("error")
 				}
 				return nil

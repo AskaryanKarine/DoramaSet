@@ -1,10 +1,10 @@
 DB:
-  Host: "localhost"
-  Username: "karine"
-  Password: "12346"
-  DBName: "DoramaSet"
+  Host: {{ .Host }}
+  Username: "postgres"
+  Password: "postgres"
+  DBName: "testdb"
   SSLMode: "disable"
-  Port: 5432
+  Port: {{ .Port }}
   Type: postgres
 
 App:
@@ -18,9 +18,9 @@ App:
   TokenExpirationHours: 700
 
 Logger:
-  FileName: "log.txt"
+  FileName: "e2e.log"
   Level: debug
 
 Server:
-  Port: "8000"
-  Mode: debug
+  Port: "8080"
+  Mode: release
