@@ -17,7 +17,7 @@ services:
       - ./docker:/var/lib/postgresql/data
       - ./init/postgres:/docker-entrypoint-initdb.d
     ports:
-      - "5432:5432"
+      - "5431:5432"
     networks:
       - my_persistent_network
 
@@ -30,10 +30,9 @@ services:
       MONGO_INITDB_DATABASE: "DoramaSet"
     volumes:
       - ./data:/csv:rx
-      - ./docker/mgdata:/data/db
       - ./init/mongo/:/docker-entrypoint-initdb.d/
     ports:
-      - "27017:27017"
+      - "27018:27017"
     networks:
       - my_persistent_network
 
