@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"strings"
 	"time"
@@ -30,6 +31,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	gin.SetMode(h.mode)
 	router := gin.Default()
 
+	prometheus.MustRegister(requestDuration, requestsTotal)
+	router.Use(prometheusMiddleware)
+	
 	router.Use(middleware.ErrorHandler)
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:3000"},
@@ -115,6 +119,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			find.GET("/staff/", h.findStaffByName)   // guest
 		}
 	}
+
+	router.GET("/metrics", prometheusHandler())
 
 	return router
 }
