@@ -1,4 +1,0 @@
-[INFO]: 2023-12-11 16:47:55 - DoramaSet api Started
-[INFO]: 2023-12-11 16:48:00 - DoramaSet api Shutting Down
-[INFO]: 2023-12-11 16:48:08 - DoramaSet api Started
-[INFO]: 2023-12-11 16:48:09 - DoramaSet api Shutting Down
