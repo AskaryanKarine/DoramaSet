@@ -1,11 +1,11 @@
 DB:
-  Host: "localhost"
+  Host: "postgres_db-bench"
   Username: "karine"
   Password: "12346"
   DBName: "DoramaSet"
   SSLMode: "disable"
-  Port: 27018
-  Type: mongo
+  Port: 5432
+  Type: postgres
 
 App:
   SecretKey: "qwerty"

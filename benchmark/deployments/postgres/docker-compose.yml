@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  backend-postgres:
+    container_name: backend-postgres
+    build:
+      context: ../../../backend
+      dockerfile: Dockerfile.postgres
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - pg-network
+
+  postgres:
+    container_name: postgres_db-bench
+    image: postgres
+    environment:
+      POSTGRES_DB: "DoramaSet"
+      POSTGRES_USER: karine
+      POSTGRES_PASSWORD: 12346
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d DoramaSet -U karine" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ../../../backend/deployments/data:/data
+      - ../../../backend/deployments/init/postgres:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - pg-network
+
+networks:
+  pg-network:

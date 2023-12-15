@@ -1,0 +1,12 @@
+FROM golang:1.21.3 as builder
+
+WORKDIR /app
+
+COPY ["go.mod", "go.sum", "./"]
+RUN go mod download
+
+COPY . ./
+
+RUN go build -o ./build/main ./cmd/apiserver/main.go
+
+CMD ["./build/main", "--config", "./configs/config-postgres.yml"]

@@ -1,10 +1,10 @@
 DB:
-  Host: "localhost"
+  Host: "mongo_db-bench"
   Username: "karine"
   Password: "12346"
   DBName: "DoramaSet"
   SSLMode: "disable"
-  Port: 27018
+  Port: 27017
   Type: mongo
 
 App:
