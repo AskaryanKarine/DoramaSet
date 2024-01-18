@@ -8,6 +8,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"github.com/sirupsen/logrus"
 	"reflect"
@@ -57,7 +58,7 @@ func TestGetLisByDoramaPicture(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetListByDorama(testCase.arg)
+			res, err := dc.GetListByDorama(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetStaffListByDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -107,7 +108,7 @@ func TestGetLisByStaffPicture(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetListByStaff(testCase.arg)
+			res, err := dc.GetListByStaff(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetListByStaff() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -200,7 +201,7 @@ func TestCreatePicture(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.CreatePicture(test.arg.token, &test.arg.picture)
+			err := dc.CreatePicture(context.Background(), test.arg.token, &test.arg.picture)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreatePicture() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -271,7 +272,7 @@ func TestPictureController_AddPictureToStaff(t *testing.T) {
 				uc:   tt.fields.uc,
 				log:  &logrus.Logger{},
 			}
-			if err := p.AddPictureToStaff(tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
+			if err := p.AddPictureToStaff(context.Background(), tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("AddPictureToStaff() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -342,7 +343,7 @@ func TestPictureController_AddPictureToDorama(t *testing.T) {
 				uc:   tt.fields.uc,
 				log:  &logrus.Logger{},
 			}
-			if err := p.AddPictureToDorama(tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
+			if err := p.AddPictureToDorama(context.Background(), tt.args.token, tt.args.record, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("AddPictureToDorama() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

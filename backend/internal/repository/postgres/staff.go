@@ -4,6 +4,8 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"gorm.io/gorm"
 	"strings"
@@ -27,12 +29,14 @@ func NewStaffRepo(db *gorm.DB, pr repository.IPictureRepo) *StaffRepo {
 	return &StaffRepo{db: db, picRepo: pr}
 }
 
-func (s *StaffRepo) GetList() ([]model.Staff, error) {
+func (s *StaffRepo) GetList(ctx context.Context) ([]model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	var (
 		resDB []staffModel
 		res   []model.Staff
 	)
-	result := s.db.Table("dorama_set.staff").Find(&resDB)
+	result := s.db.WithContext(ctx).Table("dorama_set.staff").Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -42,7 +46,7 @@ func (s *StaffRepo) GetList() ([]model.Staff, error) {
 	}
 
 	for _, r := range resDB {
-		staff, err := s.picRepo.GetListStaff(r.ID)
+		staff, err := s.picRepo.GetListStaff(ctx, r.ID)
 		if err != nil {
 			return nil, fmt.Errorf("getListStaff: %w", err)
 		}
@@ -59,13 +63,15 @@ func (s *StaffRepo) GetList() ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
+func (s *StaffRepo) GetListName(ctx context.Context, name string) ([]model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetListName")
+	defer span.End()
 	var (
 		resDB []staffModel
 		res   []model.Staff
 	)
 	like := "%" + strings.TrimRight(name, "\r\n") + "%"
-	result := s.db.Table("dorama_set.staff").Where("name like ?", like).Find(&resDB)
+	result := s.db.WithContext(ctx).Table("dorama_set.staff").Where("name like ?", like).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -75,7 +81,7 @@ func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	}
 
 	for _, r := range resDB {
-		staff, err := s.picRepo.GetListStaff(r.ID)
+		staff, err := s.picRepo.GetListStaff(ctx, r.ID)
 		if err != nil {
 			return nil, fmt.Errorf("getListStaff: %w", err)
 		}
@@ -92,14 +98,16 @@ func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffRepo) GetStaffById(id int) (*model.Staff, error) {
+func (s *StaffRepo) GetStaffById(ctx context.Context, id int) (*model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetStaffById")
+	defer span.End()
 	var resDB staffModel
 
-	result := s.db.Table("dorama_set.staff").Where("id = ?", id).Take(&resDB)
+	result := s.db.WithContext(ctx).Table("dorama_set.staff").Where("id = ?", id).Take(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	staff, err := s.picRepo.GetListStaff(resDB.ID)
+	staff, err := s.picRepo.GetListStaff(ctx, resDB.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getListStaff: %w", err)
 	}
@@ -113,12 +121,14 @@ func (s *StaffRepo) GetStaffById(id int) (*model.Staff, error) {
 	return &res, nil
 }
 
-func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
+func (s *StaffRepo) GetListDorama(ctx context.Context, idDorama int) ([]model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetListDorama")
+	defer span.End()
 	var (
 		resDB []staffModel
 		res   []model.Staff
 	)
-	result := s.db.Table("dorama_set.staff s").Select("s.*").
+	result := s.db.WithContext(ctx).Table("dorama_set.staff s").Select("s.*").
 		Joins("join dorama_set.doramastaff d on s.id = d.id_staff").
 		Where("id_dorama = ?", idDorama).Find(&resDB)
 	if result.Error != nil {
@@ -126,7 +136,7 @@ func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	}
 
 	for _, r := range resDB {
-		staff, err := s.picRepo.GetListStaff(r.ID)
+		staff, err := s.picRepo.GetListStaff(ctx, r.ID)
 		if err != nil {
 			return nil, fmt.Errorf("getListStaff: %w", err)
 		}
@@ -143,21 +153,25 @@ func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffRepo) CreateStaff(record model.Staff) (int, error) {
+func (s *StaffRepo) CreateStaff(ctx context.Context, record model.Staff) (int, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo CreateStaff")
+	defer span.End()
 	m := staffModel{
 		Name:     record.Name,
 		Birthday: record.Birthday,
 		Gender:   record.Gender,
 		Type:     record.Type,
 	}
-	result := s.db.Table("dorama_set.staff").Create(&m)
+	result := s.db.WithContext(ctx).Table("dorama_set.staff").Create(&m)
 	if result.Error != nil {
 		return -1, fmt.Errorf("db: %w", result.Error)
 	}
 	return m.ID, nil
 }
 
-func (s *StaffRepo) UpdateStaff(record model.Staff) error {
+func (s *StaffRepo) UpdateStaff(ctx context.Context, record model.Staff) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo UpdateStaff")
+	defer span.End()
 	m := staffModel{
 		ID:       record.Id,
 		Name:     record.Name,
@@ -165,15 +179,17 @@ func (s *StaffRepo) UpdateStaff(record model.Staff) error {
 		Gender:   record.Gender,
 		Type:     record.Type,
 	}
-	result := s.db.Table("dorama_set.staff").Save(&m)
+	result := s.db.WithContext(ctx).Table("dorama_set.staff").Save(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (s *StaffRepo) DeleteStaff(id int) error {
-	result := s.db.Table("dorama_set.staff").Where("id = ?", id).Delete(&staffModel{})
+func (s *StaffRepo) DeleteStaff(ctx context.Context, id int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo DeleteStaff")
+	defer span.End()
+	result := s.db.WithContext(ctx).Table("dorama_set.staff").Where("id = ?", id).Delete(&staffModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}

@@ -7,6 +7,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"github.com/sirupsen/logrus"
 	"reflect"
@@ -78,7 +79,7 @@ func TestCreateList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			err := dc.CreateList(testCase.arg.token, &testCase.arg.record)
+			err := dc.CreateList(context.Background(), testCase.arg.token, &testCase.arg.record)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("CreateList() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -137,7 +138,7 @@ func TestGetUserList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			res, err := dc.GetUserLists(testCase.arg)
+			res, err := dc.GetUserLists(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetUserLists() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -187,7 +188,7 @@ func TestGetPublicLists(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			res, err := dc.GetPublicLists()
+			res, err := dc.GetPublicLists(context.Background())
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetPublicLists() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -281,7 +282,7 @@ func TestGetListById(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			res, err := dc.GetListById(testCase.arg.token, testCase.arg.id)
+			res, err := dc.GetListById(context.Background(), testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetListById() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -345,7 +346,7 @@ func TestGetFavList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			res, err := dc.GetFavList(testCase.arg)
+			res, err := dc.GetFavList(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetFavList() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -438,7 +439,7 @@ func TestAddToList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			err := dc.AddToList(testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
+			err := dc.AddToList(context.Background(), testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("AddToList() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -528,7 +529,7 @@ func TestDelFromList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			err := dc.DelFromList(testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
+			err := dc.DelFromList(context.Background(), testCase.arg.token, testCase.arg.id1, testCase.arg.id2)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("DelFromList() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -610,7 +611,7 @@ func TestDelList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			err := dc.DelList(testCase.arg.token, testCase.arg.id1)
+			err := dc.DelList(context.Background(), testCase.arg.token, testCase.arg.id1)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("DelList() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -680,7 +681,7 @@ func TestAddToFavList(t *testing.T) {
 				uc:    testCase.fl.uc,
 				log:   &logrus.Logger{},
 			}
-			err := dc.AddToFav(testCase.arg.token, testCase.arg.id1)
+			err := dc.AddToFav(context.Background(), testCase.arg.token, testCase.arg.id1)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("AddToFav() error = %v, expect = %v", err, testCase.isNeg)
 			}

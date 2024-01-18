@@ -3,6 +3,7 @@ package mongo
 import (
 	errors2 "DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -33,7 +34,8 @@ func getEpisodeLogicModel(m episodeModel) *model.Episode {
 	}
 }
 
-func (e *EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
+func (e *EpisodeRepo) GetList(ctx context.Context, idDorama int) ([]model.Episode, error) {
+	tracing.StartSpanFromContext(ctx, "Repo GetList")
 	var (
 		resDB []episodeModel
 		res   []model.Episode
@@ -64,7 +66,7 @@ func (e *EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 	return res, nil
 }
 
-func (e *EpisodeRepo) GetWatchingList(username string, idD int) ([]model.Episode, error) {
+func (e *EpisodeRepo) GetWatchingList(ctx context.Context, username string, idD int) ([]model.Episode, error) {
 	var (
 		resDB []episodeModel
 		res   []model.Episode
@@ -103,7 +105,7 @@ func (e *EpisodeRepo) GetWatchingList(username string, idD int) ([]model.Episode
 	return res, nil
 }
 
-func (e *EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
+func (e *EpisodeRepo) GetEpisode(ctx context.Context, id int) (*model.Episode, error) {
 	var resDB episodeModel
 
 	collection := e.db.Collection("_episode")
@@ -116,7 +118,7 @@ func (e *EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
 	return getEpisodeLogicModel(resDB), nil
 }
 
-func (e *EpisodeRepo) MarkEpisode(idEp int, username string) error {
+func (e *EpisodeRepo) MarkEpisode(ctx context.Context, idEp int, username string) error {
 	type query struct {
 		Username string `bson:"username"`
 		Episode  int    `bson:"episode"`
@@ -142,7 +144,7 @@ func (e *EpisodeRepo) MarkEpisode(idEp int, username string) error {
 	return nil
 }
 
-func (e *EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) {
+func (e *EpisodeRepo) CreateEpisode(ctx context.Context, episode model.Episode, idD int) (int, error) {
 	var (
 		maxIDEp episodeModel
 	)
@@ -166,7 +168,7 @@ func (e *EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error)
 	return newEpisode.ID, nil
 }
 
-func (e *EpisodeRepo) DeleteEpisode(id int) error {
+func (e *EpisodeRepo) DeleteEpisode(ctx context.Context, id int) error {
 	collection := e.db.Collection("_episode")
 	filter := bson.D{{"id", id}}
 	_, err := collection.DeleteOne(context.TODO(), filter)

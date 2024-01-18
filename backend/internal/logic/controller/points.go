@@ -4,6 +4,8 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -30,7 +32,9 @@ func NewPointController(URepo repository.IUserRepo, dPoint, YPoint, lPoint int,
 	}
 }
 
-func checkYear(date time.Time) bool {
+func checkYear(ctx context.Context, date time.Time) bool {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL checkYear")
+	defer span.End()
 	today := time.Now()
 
 	if date.Month() == time.February && date.Day() == 29 {
@@ -48,10 +52,12 @@ func checkYear(date time.Time) bool {
 	return true
 }
 
-func (p *PointsController) EarnPointForLogin(user *model.User) error {
+func (p *PointsController) EarnPointForLogin(ctx context.Context, user *model.User) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL EarnPointForLogin")
+	defer span.End()
 	user.Points += p.everyDayPoint
 
-	if checkYear(user.RegData) {
+	if checkYear(ctx, user.RegData) {
 		user.Points += p.everyYearPoint
 	}
 
@@ -59,7 +65,7 @@ func (p *PointsController) EarnPointForLogin(user *model.User) error {
 		user.Points += p.longNoLoginPoint
 	}
 
-	err := p.repo.UpdateUser(*user)
+	err := p.repo.UpdateUser(ctx, *user)
 	if err != nil {
 		p.log.Warnf("earn point for login err %s username %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
@@ -68,7 +74,9 @@ func (p *PointsController) EarnPointForLogin(user *model.User) error {
 	return nil
 }
 
-func (p *PointsController) PurgePoint(user *model.User, point int) error {
+func (p *PointsController) PurgePoint(ctx context.Context, user *model.User, point int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL PurgePoint")
+	defer span.End()
 	if user.Points < point {
 		err := errors.BalanceError{
 			Have: user.Points,
@@ -80,7 +88,7 @@ func (p *PointsController) PurgePoint(user *model.User, point int) error {
 
 	user.Points = user.Points - point
 
-	err := p.repo.UpdateUser(*user)
+	err := p.repo.UpdateUser(ctx, *user)
 	if err != nil {
 		p.log.Warnf("purge point err %s, username %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
@@ -89,9 +97,11 @@ func (p *PointsController) PurgePoint(user *model.User, point int) error {
 	return nil
 }
 
-func (p *PointsController) EarnPoint(user *model.User, point int) error {
+func (p *PointsController) EarnPoint(ctx context.Context, user *model.User, point int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL EarnPoint")
+	defer span.End()
 	user.Points += point
-	err := p.repo.UpdateUser(*user)
+	err := p.repo.UpdateUser(ctx, *user)
 	if err != nil {
 		p.log.Warnf("earn point err %s, username %s, value %d", err, user.Username, point)
 		return fmt.Errorf("updateUser: %w", err)

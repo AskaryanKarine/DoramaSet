@@ -5,6 +5,7 @@ import (
 	"DoramaSet/internal/logic/constant"
 	errors2 "DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,8 +29,8 @@ type listModel struct {
 	Description string `bson:"description"`
 }
 
-func (l *ListRepo) getListLogicModel(list listModel) (*model.List, error) {
-	dorama, err := l.doramaRepo.GetListByListId(list.ID)
+func (l *ListRepo) getListLogicModel(ctx context.Context, list listModel) (*model.List, error) {
+	dorama, err := l.doramaRepo.GetListByListId(ctx, list.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getDoramaListByListID: %w", err)
 	}
@@ -43,7 +44,7 @@ func (l *ListRepo) getListLogicModel(list listModel) (*model.List, error) {
 	}, nil
 }
 
-func (l *ListRepo) GetUserLists(username string) ([]model.List, error) {
+func (l *ListRepo) GetUserLists(ctx context.Context, username string) ([]model.List, error) {
 	var (
 		resDB []listModel
 		res   []model.List
@@ -59,7 +60,7 @@ func (l *ListRepo) GetUserLists(username string) ([]model.List, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 	for _, r := range resDB {
-		tmp, err := l.getListLogicModel(r)
+		tmp, err := l.getListLogicModel(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -68,7 +69,7 @@ func (l *ListRepo) GetUserLists(username string) ([]model.List, error) {
 	return res, err
 }
 
-func (l *ListRepo) GetPublicLists() ([]model.List, error) {
+func (l *ListRepo) GetPublicLists(ctx context.Context) ([]model.List, error) {
 	var (
 		resDB []listModel
 		res   []model.List
@@ -85,7 +86,7 @@ func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 	for _, r := range resDB {
-		tmp, err := l.getListLogicModel(r)
+		tmp, err := l.getListLogicModel(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +95,7 @@ func (l *ListRepo) GetPublicLists() ([]model.List, error) {
 	return res, err
 }
 
-func (l *ListRepo) GetListId(id int) (*model.List, error) {
+func (l *ListRepo) GetListId(ctx context.Context, id int) (*model.List, error) {
 	var (
 		resDB listModel
 	)
@@ -105,14 +106,14 @@ func (l *ListRepo) GetListId(id int) (*model.List, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 
-	res, err := l.getListLogicModel(resDB)
+	res, err := l.getListLogicModel(ctx, resDB)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (l *ListRepo) CreateList(list model.List) (int, error) {
+func (l *ListRepo) CreateList(ctx context.Context, list model.List) (int, error) {
 	var (
 		maxIDEp listModel
 	)
@@ -144,7 +145,7 @@ func (l *ListRepo) CreateList(list model.List) (int, error) {
 	return newList.ID, nil
 }
 
-func (l *ListRepo) DelList(id int) error {
+func (l *ListRepo) DelList(ctx context.Context, id int) error {
 	collection := l.db.Collection("list")
 	filter := bson.D{{"id", id}}
 	_, err := collection.DeleteOne(nil, filter)
@@ -154,7 +155,7 @@ func (l *ListRepo) DelList(id int) error {
 	return nil
 }
 
-func (l *ListRepo) AddToList(idL, idD int) error {
+func (l *ListRepo) AddToList(ctx context.Context, idL, idD int) error {
 	var resDB struct {
 		Dorama []int `bson:"dorama"`
 	}
@@ -176,7 +177,7 @@ func (l *ListRepo) AddToList(idL, idD int) error {
 	return nil
 }
 
-func (l *ListRepo) DelFromList(idL, idD int) error {
+func (l *ListRepo) DelFromList(ctx context.Context, idL, idD int) error {
 	collection := l.db.Collection("list")
 	filter := bson.D{{"id", idL}}
 	update := bson.D{{"$pull", bson.D{{"dorama", idD}}}}
@@ -187,7 +188,7 @@ func (l *ListRepo) DelFromList(idL, idD int) error {
 	return nil
 }
 
-func (l *ListRepo) AddToFav(idL int, username string) error {
+func (l *ListRepo) AddToFav(ctx context.Context, idL int, username string) error {
 	type query struct {
 		Username string `bson:"username"`
 		Episode  int    `bson:"list"`
@@ -213,7 +214,7 @@ func (l *ListRepo) AddToFav(idL int, username string) error {
 	return nil
 }
 
-func (l *ListRepo) GetFavList(username string) ([]model.List, error) {
+func (l *ListRepo) GetFavList(ctx context.Context, username string) ([]model.List, error) {
 	type query struct {
 		Username string `bson:"username"`
 		List     int    `bson:"list"`
@@ -231,7 +232,7 @@ func (l *ListRepo) GetFavList(username string) ([]model.List, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 	for _, r := range resDB {
-		list, err := l.GetListId(r.List)
+		list, err := l.GetListId(ctx, r.List)
 		if err != nil {
 			return nil, err
 		}

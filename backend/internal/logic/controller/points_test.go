@@ -6,6 +6,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"github.com/sirupsen/logrus"
 	"testing"
@@ -75,7 +76,7 @@ func TestEarnPointForLogin(t *testing.T) {
 				repo: testCase.fl.repo,
 				log:  &logrus.Logger{},
 			}
-			err := dc.EarnPointForLogin(&testCase.arg)
+			err := dc.EarnPointForLogin(context.Background(), &testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("EarnPointForLogin() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -128,7 +129,7 @@ func TestPurgePoint(t *testing.T) {
 				repo: testCase.fl.repo,
 				log:  &logrus.Logger{},
 			}
-			err := dc.PurgePoint(&testCase.arg.username, testCase.arg.point)
+			err := dc.PurgePoint(context.Background(), &testCase.arg.username, testCase.arg.point)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("PurgePoint() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -173,7 +174,7 @@ func TestEarnPoint(t *testing.T) {
 				repo: testCase.fl.repo,
 				log:  &logrus.Logger{},
 			}
-			err := dc.EarnPoint(&testCase.arg.username, testCase.arg.point)
+			err := dc.EarnPoint(context.Background(), &testCase.arg.username, testCase.arg.point)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("EarnPoint() error = %v, expect = %v", err, testCase.isNeg)
 			}

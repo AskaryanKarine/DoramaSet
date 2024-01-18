@@ -31,20 +31,20 @@ func NewDoramaRepo(db *mongo.Database, PR repository.IPictureRepo, ER repository
 	return &DoramaRepo{db, PR, ER, RR}
 }
 
-func (d *DoramaRepo) getDoramaLogicModel(m doramaModel) (*model.Dorama, error) {
-	ep, err := d.epRepo.GetList(m.ID)
+func (d *DoramaRepo) getDoramaLogicModel(ctx context.Context, m doramaModel) (*model.Dorama, error) {
+	ep, err := d.epRepo.GetList(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getListEp: %w", err)
 	}
-	photo, err := d.picRepo.GetListDorama(m.ID)
+	photo, err := d.picRepo.GetListDorama(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getListDoramaPic: %w", err)
 	}
-	review, err := d.revRepo.GetAllReview(m.ID)
+	review, err := d.revRepo.GetAllReview(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getAllReview: %w", err)
 	}
-	rate, cnt, err := d.revRepo.AggregateRate(m.ID)
+	rate, cnt, err := d.revRepo.AggregateRate(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("aggreagateRate: %w", err)
 	}
@@ -65,7 +65,7 @@ func (d *DoramaRepo) getDoramaLogicModel(m doramaModel) (*model.Dorama, error) {
 	return &tmp, nil
 }
 
-func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
+func (d *DoramaRepo) GetList(ctx context.Context) ([]model.Dorama, error) {
 	var (
 		resDB []doramaModel
 		res   []model.Dorama
@@ -84,7 +84,7 @@ func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := d.getDoramaLogicModel(r)
+		tmp, err := d.getDoramaLogicModel(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +93,7 @@ func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
+func (d *DoramaRepo) GetListName(ctx context.Context, name string) ([]model.Dorama, error) {
 	var (
 		resDB []doramaModel
 		res   []model.Dorama
@@ -112,7 +112,7 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := d.getDoramaLogicModel(r)
+		tmp, err := d.getDoramaLogicModel(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -121,7 +121,7 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
+func (d *DoramaRepo) GetDorama(ctx context.Context, id int) (*model.Dorama, error) {
 	var (
 		redDB doramaModel
 	)
@@ -133,7 +133,7 @@ func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 
-	res, err := d.getDoramaLogicModel(redDB)
+	res, err := d.getDoramaLogicModel(ctx, redDB)
 	if err != nil {
 		return nil, fmt.Errorf("getDoramaLogicModel: %w", err)
 	}
@@ -141,7 +141,7 @@ func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
+func (d *DoramaRepo) CreateDorama(ctx context.Context, dorama model.Dorama) (int, error) {
 	var (
 		maxID doramaModel
 	)
@@ -167,7 +167,7 @@ func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
 	return newStaff.ID, nil
 }
 
-func (d *DoramaRepo) UpdateDorama(dorama model.Dorama) error {
+func (d *DoramaRepo) UpdateDorama(ctx context.Context, dorama model.Dorama) error {
 	m := doramaModel{
 		ID:          dorama.Id,
 		Name:        dorama.Name,
@@ -185,7 +185,7 @@ func (d *DoramaRepo) UpdateDorama(dorama model.Dorama) error {
 	return nil
 }
 
-func (d *DoramaRepo) DeleteDorama(id int) error {
+func (d *DoramaRepo) DeleteDorama(ctx context.Context, id int) error {
 	collection := d.db.Collection("dorama")
 	filter := bson.D{{"id", id}}
 	_, err := collection.DeleteOne(nil, filter)
@@ -195,7 +195,7 @@ func (d *DoramaRepo) DeleteDorama(id int) error {
 	return nil
 }
 
-func (d *DoramaRepo) AddStaff(idD, idS int) error {
+func (d *DoramaRepo) AddStaff(ctx context.Context, idD, idS int) error {
 	type query struct {
 		IdDorama int `bson:"id_dorama"`
 		IdStaff  int `bson:"id_staff"`
@@ -219,7 +219,7 @@ func (d *DoramaRepo) AddStaff(idD, idS int) error {
 	return nil
 }
 
-func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
+func (d *DoramaRepo) GetListByListId(ctx context.Context, idL int) ([]model.Dorama, error) {
 	var (
 		resDB struct {
 			Dorama []int `bson:"dorama"`
@@ -234,7 +234,7 @@ func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB.Dorama {
-		dorama, err := d.GetDorama(r)
+		dorama, err := d.GetDorama(ctx, r)
 		if err != nil {
 			return nil, fmt.Errorf("getDoramaById: %w", err)
 		}

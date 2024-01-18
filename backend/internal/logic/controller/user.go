@@ -5,6 +5,8 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
@@ -37,8 +39,10 @@ func NewUserController(UR repository.IUserRepo, pc controller.IPointsController,
 	}
 }
 
-func (u *UserController) Registration(newUser *model.User) (string, error) {
-	res, err := u.repo.GetUser(newUser.Username)
+func (u *UserController) Registration(ctx context.Context, newUser *model.User) (string, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL getWatchingEpisode")
+	defer span.End()
+	res, err := u.repo.GetUser(ctx, newUser.Username)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("getUser: %w", err)
@@ -77,20 +81,20 @@ func (u *UserController) Registration(newUser *model.User) (string, error) {
 
 	newUser.Password = string(hash)
 
-	err = u.repo.CreateUser(newUser)
+	err = u.repo.CreateUser(ctx, newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("createUser: %w", err)
 	}
 
-	err = u.pc.EarnPointForLogin(newUser)
+	err = u.pc.EarnPointForLogin(ctx, newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("earnPointForLogin: %w", err)
 	}
 
 	newUser.LastActive = time.Now()
-	err = u.repo.UpdateUser(*newUser)
+	err = u.repo.UpdateUser(ctx, *newUser)
 	if err != nil {
 		u.log.Warnf("registation err %s, value %v", err, newUser)
 		return "", fmt.Errorf("updateUser: %w", err)
@@ -109,8 +113,10 @@ func (u *UserController) Registration(newUser *model.User) (string, error) {
 	return ss, nil
 }
 
-func (u *UserController) Login(username, password string) (string, error) {
-	user, err := u.repo.GetUser(username)
+func (u *UserController) Login(ctx context.Context, username, password string) (string, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL Login")
+	defer span.End()
+	user, err := u.repo.GetUser(ctx, username)
 	if err != nil {
 		u.log.Warnf("login err %s, value %s", err, username)
 		return "", fmt.Errorf("getUser: %w", err)
@@ -136,7 +142,7 @@ func (u *UserController) Login(username, password string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, _ := token.SignedString([]byte(u.secretKey))
 
-	err = u.UpdateActive(ss)
+	err = u.UpdateActive(ctx, ss)
 	if err != nil {
 		u.log.Warnf("login err %s, value %s", err, username)
 		return "", fmt.Errorf("updateActite: %w", err)
@@ -145,7 +151,9 @@ func (u *UserController) Login(username, password string) (string, error) {
 	return ss, nil
 }
 
-func eqDate(date1, date2 time.Time) bool {
+func eqDate(ctx context.Context, date1, date2 time.Time) bool {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL eqDate")
+	defer span.End()
 	d1, m1, y1 := date1.Date()
 	d2, m2, y2 := date2.Date()
 
@@ -155,14 +163,16 @@ func eqDate(date1, date2 time.Time) bool {
 	return true
 }
 
-func (u *UserController) UpdateActive(token string) error {
-	user, err := u.AuthByToken(token)
+func (u *UserController) UpdateActive(ctx context.Context, token string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL UpdateActive")
+	defer span.End()
+	user, err := u.AuthByToken(ctx, token)
 	if err != nil {
 		u.log.Warnf("update active user auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
 	}
-	if !eqDate(user.LastActive, time.Now()) {
-		err = u.pc.EarnPointForLogin(user)
+	if !eqDate(ctx, user.LastActive, time.Now()) {
+		err = u.pc.EarnPointForLogin(ctx, user)
 		if err != nil {
 			u.log.Warnf("update active user err %s, username %s", err, user.Username)
 			return fmt.Errorf("earnPointForLogin: %w", err)
@@ -170,7 +180,7 @@ func (u *UserController) UpdateActive(token string) error {
 	}
 
 	user.LastActive = time.Now()
-	err = u.repo.UpdateUser(*user)
+	err = u.repo.UpdateUser(ctx, *user)
 	if err != nil {
 		u.log.Warnf("update active user err %s, username %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
@@ -179,7 +189,9 @@ func (u *UserController) UpdateActive(token string) error {
 	return nil
 }
 
-func (u *UserController) AuthByToken(token string) (*model.User, error) {
+func (u *UserController) AuthByToken(ctx context.Context, token string) (*model.User, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL AuthByToken")
+	defer span.End()
 	var claims jwt.RegisteredClaims
 	_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(u.secretKey), nil
@@ -190,7 +202,7 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 		return nil, fmt.Errorf("AuthToken: %w", err)
 	}
 
-	user, err := u.repo.GetUser(claims.ID)
+	user, err := u.repo.GetUser(ctx, claims.ID)
 	if err != nil || user == nil {
 		u.log.Warnf("auth by token err %s, username %s", err, claims.ID)
 		return nil, fmt.Errorf("getUser: %w", err)
@@ -199,14 +211,16 @@ func (u *UserController) AuthByToken(token string) (*model.User, error) {
 	return user, nil
 }
 
-func (u *UserController) ChangeEmoji(token, emojiCode string) error {
-	user, err := u.AuthByToken(token)
+func (u *UserController) ChangeEmoji(ctx context.Context, token, emojiCode string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL ChangeEmoji")
+	defer span.End()
+	user, err := u.AuthByToken(ctx, token)
 	if err != nil {
 		u.log.Warnf("change emoji auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
 	}
 	user.Emoji = emojiCode
-	err = u.repo.UpdateUser(*user)
+	err = u.repo.UpdateUser(ctx, *user)
 	if err != nil {
 		u.log.Warnf("chande emoji err %s, user %s, value %s", err, user.Username, emojiCode)
 		return fmt.Errorf("updateUser: %w", err)
@@ -214,14 +228,17 @@ func (u *UserController) ChangeEmoji(token, emojiCode string) error {
 	u.log.Infof("user %s change emoji to %s", user.Username, emojiCode)
 	return nil
 }
-func (u *UserController) ChangeAvatarColor(token, color string) error {
-	user, err := u.AuthByToken(token)
+
+func (u *UserController) ChangeAvatarColor(ctx context.Context, token, color string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL ChangeAvatarColor")
+	defer span.End()
+	user, err := u.AuthByToken(ctx, token)
 	if err != nil {
 		u.log.Warnf("change acatar color auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
 	}
 	user.Color = color
-	err = u.repo.UpdateUser(*user)
+	err = u.repo.UpdateUser(ctx, *user)
 	if err != nil {
 		u.log.Warnf("chande emoji err %s, user %s, value %s", err, user.Username, color)
 		return fmt.Errorf("updateUser: %w", err)
@@ -230,8 +247,10 @@ func (u *UserController) ChangeAvatarColor(token, color string) error {
 	return nil
 }
 
-func (u *UserController) GetPublicInfo(username string) (*model.User, error) {
-	info, err := u.repo.GetPublicInfo(username)
+func (u *UserController) GetPublicInfo(ctx context.Context, username string) (*model.User, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetPublicInfo")
+	defer span.End()
+	info, err := u.repo.GetPublicInfo(ctx, username)
 	if err != nil {
 		u.log.Warnf("get public info err %s about user %s", err, username)
 		return nil, fmt.Errorf("getPublicInfo: %w", err)

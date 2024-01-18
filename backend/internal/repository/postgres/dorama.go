@@ -4,6 +4,8 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"gorm.io/gorm"
 	"strings"
@@ -29,20 +31,22 @@ func NewDoramaRepo(db *gorm.DB, PR repository.IPictureRepo, ER repository.IEpiso
 	return &DoramaRepo{db, PR, ER, RR}
 }
 
-func (d *DoramaRepo) getDoramaModel(m doramaModel) (*model.Dorama, error) {
-	ep, err := d.epRepo.GetList(m.ID)
+func (d *DoramaRepo) getDoramaModel(ctx context.Context, m doramaModel) (*model.Dorama, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo getDoramaModel")
+	defer span.End()
+	ep, err := d.epRepo.GetList(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getListEp: %w", err)
 	}
-	photo, err := d.picRepo.GetListDorama(m.ID)
+	photo, err := d.picRepo.GetListDorama(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getListDorama: %w", err)
 	}
-	review, err := d.revRepo.GetAllReview(m.ID)
+	review, err := d.revRepo.GetAllReview(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getAllReview: %w", err)
 	}
-	rate, cnt, err := d.revRepo.AggregateRate(m.ID)
+	rate, cnt, err := d.revRepo.AggregateRate(ctx, m.ID)
 	if err != nil {
 		return nil, fmt.Errorf("aggregateRate: %w", err)
 	}
@@ -62,12 +66,14 @@ func (d *DoramaRepo) getDoramaModel(m doramaModel) (*model.Dorama, error) {
 	return &tmp, nil
 }
 
-func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
+func (d *DoramaRepo) GetList(ctx context.Context) ([]model.Dorama, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	var (
 		resDB []doramaModel
 		res   []model.Dorama
 	)
-	result := d.db.Table("dorama_set.dorama").Find(&resDB)
+	result := d.db.WithContext(ctx).Table("dorama_set.dorama").Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -77,7 +83,7 @@ func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := d.getDoramaModel(r)
+		tmp, err := d.getDoramaModel(ctx, r)
 		if err != nil {
 			return nil, fmt.Errorf("getDoramaModel: %w", err)
 		}
@@ -86,13 +92,15 @@ func (d *DoramaRepo) GetList() ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
+func (d *DoramaRepo) GetListName(ctx context.Context, name string) ([]model.Dorama, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetListName")
+	defer span.End()
 	var (
 		resDB []doramaModel
 		res   []model.Dorama
 	)
 	likeStr := "%" + strings.TrimRight(name, "\r\n") + "%"
-	result := d.db.Table("dorama_set.dorama").Where("name like ?", likeStr).Find(&resDB)
+	result := d.db.WithContext(ctx).Table("dorama_set.dorama").Where("name like ?", likeStr).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -102,7 +110,7 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := d.getDoramaModel(r)
+		tmp, err := d.getDoramaModel(ctx, r)
 		if err != nil {
 			return nil, fmt.Errorf("getDoramaModel: %w", err)
 		}
@@ -111,16 +119,18 @@ func (d *DoramaRepo) GetListName(name string) ([]model.Dorama, error) {
 	return res, nil
 }
 
-func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
+func (d *DoramaRepo) GetDorama(ctx context.Context, id int) (*model.Dorama, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetDorama")
+	defer span.End()
 	var (
 		resDB doramaModel
 	)
-	result := d.db.Table("dorama_set.dorama").Where("id = ?", id).Take(&resDB)
+	result := d.db.WithContext(ctx).Table("dorama_set.dorama").Where("id = ?", id).Take(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
-	tmp, err := d.getDoramaModel(resDB)
+	tmp, err := d.getDoramaModel(ctx, resDB)
 	if err != nil {
 		return nil, fmt.Errorf("getDoramaModel: %w", err)
 	}
@@ -128,7 +138,9 @@ func (d *DoramaRepo) GetDorama(id int) (*model.Dorama, error) {
 	return tmp, nil
 }
 
-func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
+func (d *DoramaRepo) CreateDorama(ctx context.Context, dorama model.Dorama) (int, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo CreateDorama")
+	defer span.End()
 	m := doramaModel{
 		Name:        dorama.Name,
 		Description: dorama.Description,
@@ -136,14 +148,16 @@ func (d *DoramaRepo) CreateDorama(dorama model.Dorama) (int, error) {
 		Status:      dorama.Status,
 		Genre:       dorama.Genre,
 	}
-	result := d.db.Table("dorama_set.dorama").Create(&m)
+	result := d.db.WithContext(ctx).Table("dorama_set.dorama").Create(&m)
 	if result.Error != nil {
 		return -1, fmt.Errorf("db: %w", result.Error)
 	}
 	return m.ID, nil
 }
 
-func (d *DoramaRepo) UpdateDorama(dorama model.Dorama) error {
+func (d *DoramaRepo) UpdateDorama(ctx context.Context, dorama model.Dorama) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo UpdateDorama")
+	defer span.End()
 	m := doramaModel{
 		ID:          dorama.Id,
 		Name:        dorama.Name,
@@ -152,33 +166,39 @@ func (d *DoramaRepo) UpdateDorama(dorama model.Dorama) error {
 		Status:      dorama.Status,
 		Genre:       dorama.Genre,
 	}
-	result := d.db.Table("dorama_set.dorama").Save(&m)
+	result := d.db.WithContext(ctx).Table("dorama_set.dorama").Save(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (d *DoramaRepo) DeleteDorama(id int) error {
-	result := d.db.Table("dorama_set.dorama").Where("id = ?", id).Delete(&doramaModel{})
+func (d *DoramaRepo) DeleteDorama(ctx context.Context, id int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo DeleteDorama")
+	defer span.End()
+	result := d.db.WithContext(ctx).Table("dorama_set.dorama").Where("id = ?", id).Delete(&doramaModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (d *DoramaRepo) AddStaff(idD, idS int) error {
+func (d *DoramaRepo) AddStaff(ctx context.Context, idD, idS int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	m := struct {
 		IdDorama, IdStaff int
 	}{idD, idS}
-	result := d.db.Table("dorama_set.doramastaff").Create(&m)
+	result := d.db.WithContext(ctx).Table("dorama_set.doramastaff").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
+func (d *DoramaRepo) GetListByListId(ctx context.Context, idL int) ([]model.Dorama, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetListByListId")
+	defer span.End()
 	var (
 		resDB []struct {
 			IdDorama int
@@ -186,13 +206,13 @@ func (d *DoramaRepo) GetListByListId(idL int) ([]model.Dorama, error) {
 		}
 		res []model.Dorama
 	)
-	result := d.db.Table("dorama_set.listdorama").Where("id_list = ?", idL).Find(&resDB)
+	result := d.db.WithContext(ctx).Table("dorama_set.listdorama").Where("id_list = ?", idL).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
 
 	for _, r := range resDB {
-		dorama, err := d.GetDorama(r.IdDorama)
+		dorama, err := d.GetDorama(ctx, r.IdDorama)
 		if err != nil {
 			return nil, fmt.Errorf("getDorama: %w", err)
 		}

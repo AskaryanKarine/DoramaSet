@@ -3,6 +3,8 @@ package options
 import (
 	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
+	"DoramaSet/internal/tracing"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -10,7 +12,10 @@ import (
 )
 
 func (h *Handler) getStaffList(c *gin.Context) {
-	data, err := h.Services.GetStaffList()
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /staff/")
+	defer span.End()
+	data, err := h.Services.GetStaffList(ctx)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -23,9 +28,12 @@ func (h *Handler) getStaffList(c *gin.Context) {
 }
 
 func (h *Handler) findStaffByName(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /find/staff/")
+	defer span.End()
 	rowName := c.Query("name")
 
-	data, err := h.Services.GetListByName(rowName)
+	data, err := h.Services.GetListByName(ctx, rowName)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -42,13 +50,16 @@ func (h *Handler) findStaffByName(c *gin.Context) {
 }
 
 func (h *Handler) getStaffById(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /staff/:id")
+	defer span.End()
 	rowId := c.Param("id")
 	id, err := strconv.Atoi(rowId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	data, err := h.Services.GetStaffById(id)
+	data, err := h.Services.GetStaffById(ctx, id)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -63,6 +74,9 @@ func (h *Handler) getStaffById(c *gin.Context) {
 }
 
 func (h *Handler) createStaff(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /staff/")
+	defer span.End()
 	var req DTO.Staff
 
 	if err := c.BindJSON(&req); err != nil {
@@ -83,7 +97,7 @@ func (h *Handler) createStaff(c *gin.Context) {
 	}
 	newStaff := DTO.MakeStaff(req, t)
 
-	err = h.Services.CreateStaff(token, newStaff)
+	err = h.Services.CreateStaff(ctx, token, newStaff)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -92,6 +106,9 @@ func (h *Handler) createStaff(c *gin.Context) {
 }
 
 func (h *Handler) updateStaff(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "PUT /staff/")
+	defer span.End()
 	var req DTO.Staff
 
 	if err := c.BindJSON(&req); err != nil {
@@ -113,7 +130,7 @@ func (h *Handler) updateStaff(c *gin.Context) {
 	staff := DTO.MakeStaff(req, t)
 	staff.Id = req.Id
 
-	err = h.Services.UpdateStaff(token, *staff)
+	err = h.Services.UpdateStaff(ctx, token, *staff)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

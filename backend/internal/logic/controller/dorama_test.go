@@ -8,6 +8,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	objectMother "DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"github.com/gojuno/minimock/v3"
 	"github.com/sirupsen/logrus"
@@ -52,7 +53,7 @@ func TestGetAllDorama(t *testing.T) {
 				uc:   test.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			r, err := dc.GetAllDorama()
+			r, err := dc.GetAllDorama(context.Background())
 			if (err != nil) != test.isNeg {
 				t.Errorf("GetAllDorama(): error = %v, expect = %v", err, test.isNeg)
 			}
@@ -99,7 +100,7 @@ func TestGetByNameDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetDoramaByName(test.arg)
+			res, err := dc.GetDoramaByName(context.Background(), test.arg)
 			if (err != nil) != test.isNeg {
 				t.Errorf("GetDoramaByName() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -146,7 +147,7 @@ func TestByIdDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetDoramaById(test.arg)
+			res, err := dc.GetDoramaById(context.Background(), test.arg)
 			if (err != nil) != test.isNeg {
 				t.Errorf("GetDoramaById() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -228,7 +229,7 @@ func TestCreateDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.CreateDorama(test.arg.token, &test.arg.dorama)
+			err := dc.CreateDorama(context.Background(), test.arg.token, &test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreateDorama() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -307,7 +308,7 @@ func TestUpdateDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.UpdateDorama(test.arg.token, test.arg.dorama)
+			err := dc.UpdateDorama(context.Background(), test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("UpdateDorama() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -378,7 +379,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 				uc:   tt.fields.uc,
 				log:  &logrus.Logger{},
 			}
-			if err := d.AddStaffToDorama(tt.args.token, tt.args.idD, tt.args.idS); (err != nil) != tt.wantErr {
+			if err := d.AddStaffToDorama(context.Background(), tt.args.token, tt.args.idD, tt.args.idS); (err != nil) != tt.wantErr {
 				t.Errorf("AddStaffToDorama() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

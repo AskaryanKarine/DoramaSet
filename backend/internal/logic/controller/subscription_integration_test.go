@@ -70,7 +70,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 			args:    args{token: token, id: 2},
 			wantErr: false,
 			check: func(userRepo repository.IUserRepo) error {
-				user, err := userRepo.GetUser("test")
+				user, err := userRepo.GetUser(context.Background(), "test")
 				if err != nil {
 					return err
 				}
@@ -90,7 +90,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 				uc:    tt.fields.uc,
 				log:   &logrus.Logger{},
 			}
-			if err := s.SubscribeUser(tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.SubscribeUser(context.Background(), tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(urepo); (err != nil) != tt.wantErr {

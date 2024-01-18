@@ -3,13 +3,18 @@ package options
 import (
 	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
+	"DoramaSet/internal/tracing"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) getPublicList(c *gin.Context) {
-	data, err := h.Services.GetPublicLists()
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /list/public")
+	defer span.End()
+	data, err := h.Services.GetPublicLists(ctx)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -22,6 +27,9 @@ func (h *Handler) getPublicList(c *gin.Context) {
 }
 
 func (h *Handler) getListById(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /list/:id")
+	defer span.End()
 	rowId := c.Param("id")
 	id, err := strconv.Atoi(rowId)
 	if err != nil {
@@ -35,7 +43,7 @@ func (h *Handler) getListById(c *gin.Context) {
 		return
 	}
 
-	data, err := h.Services.GetListById(token, id)
+	data, err := h.Services.GetListById(ctx, token, id)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -49,6 +57,9 @@ func (h *Handler) getListById(c *gin.Context) {
 }
 
 func (h *Handler) createList(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /list/")
+	defer span.End()
 	token, err := middleware.GetUserToken(c)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
@@ -63,7 +74,7 @@ func (h *Handler) createList(c *gin.Context) {
 
 	list := DTO.MakeList(req)
 
-	err = h.Services.CreateList(token, list)
+	err = h.Services.CreateList(ctx, token, list)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -72,6 +83,9 @@ func (h *Handler) createList(c *gin.Context) {
 }
 
 func (h *Handler) addToList(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /list/:id")
+	defer span.End()
 	token, err := middleware.GetUserToken(c)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
@@ -92,7 +106,7 @@ func (h *Handler) addToList(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddToList(token, LId, req.Id)
+	err = h.Services.AddToList(ctx, token, LId, req.Id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -102,6 +116,9 @@ func (h *Handler) addToList(c *gin.Context) {
 }
 
 func (h *Handler) delFromList(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "DELETE /list/:id")
+	defer span.End()
 	token, err := middleware.GetUserToken(c)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
@@ -122,7 +139,7 @@ func (h *Handler) delFromList(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.DelFromList(token, LId, DId)
+	err = h.Services.DelFromList(ctx, token, LId, DId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -132,6 +149,9 @@ func (h *Handler) delFromList(c *gin.Context) {
 }
 
 func (h *Handler) delList(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /dorama/:id/episode")
+	defer span.End()
 	token, err := middleware.GetUserToken(c)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
@@ -145,7 +165,7 @@ func (h *Handler) delList(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.DelList(token, id)
+	err = h.Services.DelList(ctx, token, id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -155,13 +175,16 @@ func (h *Handler) delList(c *gin.Context) {
 }
 
 func (h *Handler) getUserLists(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /user/list")
+	defer span.End()
 	token, err := middleware.GetUserToken(c)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
 
-	data, err := h.Services.GetUserLists(token)
+	data, err := h.Services.GetUserLists(ctx, token)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -175,13 +198,16 @@ func (h *Handler) getUserLists(c *gin.Context) {
 }
 
 func (h *Handler) getUserFavList(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /user/favorite")
+	defer span.End()
 	token, err := middleware.GetUserToken(c)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
 
-	data, err := h.Services.GetFavList(token)
+	data, err := h.Services.GetFavList(ctx, token)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -195,6 +221,9 @@ func (h *Handler) getUserFavList(c *gin.Context) {
 }
 
 func (h *Handler) addToFav(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /user/favorite")
+	defer span.End()
 	var req DTO.Id
 
 	if err := c.BindJSON(&req); err != nil {
@@ -208,7 +237,7 @@ func (h *Handler) addToFav(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddToFav(token, req.Id)
+	err = h.Services.AddToFav(ctx, token, req.Id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

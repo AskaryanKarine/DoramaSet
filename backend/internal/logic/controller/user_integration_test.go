@@ -80,7 +80,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 			args:    args{token: token(model.User{Username: "test"}, "qwerty", tokenExpiration)},
 			wantErr: false,
 			check: func(ur repository.IUserRepo) error {
-				user, err := ur.GetUser("test")
+				user, err := ur.GetUser(context.Background(), "test")
 				if err != nil {
 					return err
 				}
@@ -100,7 +100,7 @@ func TestUserController_UpdateActiveIntegrate(t *testing.T) {
 				secretKey: tt.fields.secretKey,
 				log:       &logrus.Logger{},
 			}
-			if err := u.UpdateActive(tt.args.token); (err != nil) != tt.wantErr {
+			if err := u.UpdateActive(context.Background(), tt.args.token); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateActiveIntegrate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(urepo); (err != nil) != tt.wantErr {

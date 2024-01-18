@@ -2,6 +2,8 @@ package options
 
 import (
 	"DoramaSet/internal/handler/apiserver/DTO"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,6 +21,9 @@ func setCookie(c *gin.Context, token string, tokenExp int) {
 }
 
 func (h *Handler) login(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /auth/login")
+	defer span.End()
 	var req DTO.Auth
 
 	if err := c.BindJSON(&req); err != nil {
@@ -26,7 +31,7 @@ func (h *Handler) login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.Services.Login(req.Login, req.Password)
+	token, err := h.Services.Login(ctx, req.Login, req.Password)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -36,7 +41,7 @@ func (h *Handler) login(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Services.AuthByToken(token)
+	user, err := h.Services.AuthByToken(ctx, token)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -51,6 +56,9 @@ func (h *Handler) login(c *gin.Context) {
 }
 
 func (h *Handler) registration(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /auth/registration")
+	defer span.End()
 	var req DTO.Auth
 
 	if err := c.BindJSON(&req); err != nil {
@@ -59,7 +67,7 @@ func (h *Handler) registration(c *gin.Context) {
 	}
 
 	newUser := DTO.MakeUser(req)
-	token, err := h.Services.Registration(newUser)
+	token, err := h.Services.Registration(ctx, newUser)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -74,6 +82,9 @@ func (h *Handler) registration(c *gin.Context) {
 }
 
 func (h *Handler) getUserByCookieToken(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /auth/")
+	defer span.End()
 	cookie, err := c.Cookie("token")
 	if err != nil {
 		fmt.Println(err)
@@ -81,7 +92,7 @@ func (h *Handler) getUserByCookieToken(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Services.AuthByToken(cookie)
+	user, err := h.Services.AuthByToken(ctx, cookie)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -90,6 +101,9 @@ func (h *Handler) getUserByCookieToken(c *gin.Context) {
 }
 
 func (h *Handler) logout(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /auth/logout")
+	defer span.End()
 	setCookie(c, "", -1)
 	c.JSON(http.StatusOK, gin.H{})
 }
