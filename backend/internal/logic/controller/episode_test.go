@@ -3,6 +3,7 @@
 package controller
 
 import (
+	"DoramaSet/internal/config"
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
@@ -11,6 +12,7 @@ import (
 	"DoramaSet/internal/tracing"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
@@ -22,10 +24,9 @@ import (
 var resultArrayEpisode = objectMother.EpisodeMother{}.GenerateRandomEpisodeSlice(1)
 
 func TestGetEpisodeList(t *testing.T) {
-	_, _ = tracing.Init("http://92.63.179.220:14268/api/traces", "test", 1.0)
-	ctx := context.Background()
-	_, span := tracing.StartSpanFromContext(ctx, "TEST GetEpisodeList")
-	defer span.End()
+	// flag.Set("config", "../../configs/test_config.yml")
+	cfg, _ := config.Init()
+	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
 	testsTable := []struct {
 		name   string
@@ -56,13 +57,15 @@ func TestGetEpisodeList(t *testing.T) {
 	}
 
 	for _, testCase := range testsTable {
+		ctx := context.Background()
+		ctx, span := tracing.StartSpanFromContext(ctx, fmt.Sprintf("TEST GetEpisodeList: %s", testCase.name))
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			r, err := dc.GetEpisodeList(context.Background(), testCase.arg)
+			r, err := dc.GetEpisodeList(ctx, testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetEpisodeList(): error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -70,11 +73,15 @@ func TestGetEpisodeList(t *testing.T) {
 				t.Errorf("GetEpisodeList(): got: %v, expect = %v", r, testCase.result)
 			}
 		})
+		span.End()
 	}
 	time.Sleep(time.Second * 6)
 }
 
 func TestGetEpisode(t *testing.T) {
+	// flag.Set("config", "../../configs/test_config.yml")
+	cfg, _ := config.Init()
+	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
 	testsTable := []struct {
 		name   string
@@ -105,13 +112,15 @@ func TestGetEpisode(t *testing.T) {
 	}
 
 	for _, testCase := range testsTable {
+		ctx := context.Background()
+		ctx, span := tracing.StartSpanFromContext(ctx, fmt.Sprintf("TEST GetEpisode: %s", testCase.name))
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			r, err := dc.GetEpisode(context.Background(), testCase.arg)
+			r, err := dc.GetEpisode(ctx, testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetEpisode(): error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -119,10 +128,15 @@ func TestGetEpisode(t *testing.T) {
 				t.Errorf("GetEpisode(): got: %v, expect = %v", r, testCase.result)
 			}
 		})
+		span.End()
 	}
+	time.Sleep(time.Second * 6)
 }
 
 func TestMarkWathingEpisode(t *testing.T) {
+	// flag.Set("config", "../../configs/test_config.yml")
+	cfg, _ := config.Init()
+	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
 	type argument struct {
 		id    int
@@ -173,21 +187,28 @@ func TestMarkWathingEpisode(t *testing.T) {
 	}
 
 	for _, testCase := range testsTable {
+		ctx := context.Background()
+		ctx, span := tracing.StartSpanFromContext(ctx, fmt.Sprintf("TEST MarkWatchingEpisode: %s", testCase.name))
 		t.Run(testCase.name, func(t *testing.T) {
 			dc := EpisodeController{
 				repo: testCase.fl.repo,
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.MarkWatchingEpisode(context.Background(), testCase.arg.token, testCase.arg.id)
+			err := dc.MarkWatchingEpisode(ctx, testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("MarkWatchingEpisode(): error = %v, expect = %v", err, testCase.isNeg)
 			}
 		})
+		span.End()
 	}
+	time.Sleep(time.Second * 6)
 }
 
 func TestEpisodeController_CreateEpisode(t *testing.T) {
+	// flag.Set("config", "../../configs/test_config.yml")
+	cfg, _ := config.Init()
+	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
 	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
 	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
@@ -261,15 +282,19 @@ func TestEpisodeController_CreateEpisode(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		ctx := context.Background()
+		ctx, span := tracing.StartSpanFromContext(ctx, fmt.Sprintf("TEST CreateEpisode: %s", tt.name))
 		t.Run(tt.name, func(t *testing.T) {
 			e := &EpisodeController{
 				repo: tt.fields.repo,
 				uc:   tt.fields.uc,
 				log:  &logrus.Logger{},
 			}
-			if err := e.CreateEpisode(context.Background(), tt.args.token, &tt.args.record, tt.args.idD); (err != nil) != tt.wantErr {
+			if err := e.CreateEpisode(ctx, tt.args.token, &tt.args.record, tt.args.idD); (err != nil) != tt.wantErr {
 				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
+		span.End()
 	}
+	time.Sleep(time.Second * 6)
 }

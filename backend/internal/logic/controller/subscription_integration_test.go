@@ -3,19 +3,29 @@
 package controller
 
 import (
+	"DoramaSet/internal/config"
 	"DoramaSet/internal/container"
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/postgres"
+	"DoramaSet/internal/tracing"
 	"context"
 	"errors"
+	"flag"
 	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 )
 
 func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
+	flag.Set("config", "../../../configs/test_config.yml")
+	cfg, _ := config.Init()
+	// _, _ = tracing.Init("http://localhost:14268/api/traces", "test", 1.0)
+	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "TEST GetEpisodeList")
+	defer span.End()
 	dbContainer, db, err := container.SetupTestDatabase()
 	if err != nil {
 		t.Fatal(err)
@@ -90,7 +100,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 				uc:    tt.fields.uc,
 				log:   &logrus.Logger{},
 			}
-			if err := s.SubscribeUser(context.Background(), tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.SubscribeUser(ctx, tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(urepo); (err != nil) != tt.wantErr {
@@ -98,4 +108,5 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 			}
 		})
 	}
+	time.Sleep(6 * time.Second)
 }
