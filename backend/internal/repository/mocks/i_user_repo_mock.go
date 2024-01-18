@@ -6,6 +6,7 @@ package mocks
 
 import (
 	"DoramaSet/internal/logic/model"
+	"context"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -17,32 +18,32 @@ import (
 type IUserRepoMock struct {
 	t minimock.Tester
 
-	funcCreateUser          func(record *model.User) (err error)
-	inspectFuncCreateUser   func(record *model.User)
+	funcCreateUser          func(ctx context.Context, record *model.User) (err error)
+	inspectFuncCreateUser   func(ctx context.Context, record *model.User)
 	afterCreateUserCounter  uint64
 	beforeCreateUserCounter uint64
 	CreateUserMock          mIUserRepoMockCreateUser
 
-	funcDeleteUser          func(username string) (err error)
-	inspectFuncDeleteUser   func(username string)
+	funcDeleteUser          func(ctx context.Context, username string) (err error)
+	inspectFuncDeleteUser   func(ctx context.Context, username string)
 	afterDeleteUserCounter  uint64
 	beforeDeleteUserCounter uint64
 	DeleteUserMock          mIUserRepoMockDeleteUser
 
-	funcGetPublicInfo          func(username string) (up1 *model.User, err error)
-	inspectFuncGetPublicInfo   func(username string)
+	funcGetPublicInfo          func(ctx context.Context, username string) (up1 *model.User, err error)
+	inspectFuncGetPublicInfo   func(ctx context.Context, username string)
 	afterGetPublicInfoCounter  uint64
 	beforeGetPublicInfoCounter uint64
 	GetPublicInfoMock          mIUserRepoMockGetPublicInfo
 
-	funcGetUser          func(username string) (up1 *model.User, err error)
-	inspectFuncGetUser   func(username string)
+	funcGetUser          func(ctx context.Context, username string) (up1 *model.User, err error)
+	inspectFuncGetUser   func(ctx context.Context, username string)
 	afterGetUserCounter  uint64
 	beforeGetUserCounter uint64
 	GetUserMock          mIUserRepoMockGetUser
 
-	funcUpdateUser          func(record model.User) (err error)
-	inspectFuncUpdateUser   func(record model.User)
+	funcUpdateUser          func(ctx context.Context, record model.User) (err error)
+	inspectFuncUpdateUser   func(ctx context.Context, record model.User)
 	afterUpdateUserCounter  uint64
 	beforeUpdateUserCounter uint64
 	UpdateUserMock          mIUserRepoMockUpdateUser
@@ -92,6 +93,7 @@ type IUserRepoMockCreateUserExpectation struct {
 
 // IUserRepoMockCreateUserParams contains parameters of the IUserRepo.CreateUser
 type IUserRepoMockCreateUserParams struct {
+	ctx    context.Context
 	record *model.User
 }
 
@@ -101,7 +103,7 @@ type IUserRepoMockCreateUserResults struct {
 }
 
 // Expect sets up expected params for IUserRepo.CreateUser
-func (mmCreateUser *mIUserRepoMockCreateUser) Expect(record *model.User) *mIUserRepoMockCreateUser {
+func (mmCreateUser *mIUserRepoMockCreateUser) Expect(ctx context.Context, record *model.User) *mIUserRepoMockCreateUser {
 	if mmCreateUser.mock.funcCreateUser != nil {
 		mmCreateUser.mock.t.Fatalf("IUserRepoMock.CreateUser mock is already set by Set")
 	}
@@ -110,7 +112,7 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Expect(record *model.User) *mIUser
 		mmCreateUser.defaultExpectation = &IUserRepoMockCreateUserExpectation{}
 	}
 
-	mmCreateUser.defaultExpectation.params = &IUserRepoMockCreateUserParams{record}
+	mmCreateUser.defaultExpectation.params = &IUserRepoMockCreateUserParams{ctx, record}
 	for _, e := range mmCreateUser.expectations {
 		if minimock.Equal(e.params, mmCreateUser.defaultExpectation.params) {
 			mmCreateUser.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreateUser.defaultExpectation.params)
@@ -121,7 +123,7 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Expect(record *model.User) *mIUser
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserRepo.CreateUser
-func (mmCreateUser *mIUserRepoMockCreateUser) Inspect(f func(record *model.User)) *mIUserRepoMockCreateUser {
+func (mmCreateUser *mIUserRepoMockCreateUser) Inspect(f func(ctx context.Context, record *model.User)) *mIUserRepoMockCreateUser {
 	if mmCreateUser.mock.inspectFuncCreateUser != nil {
 		mmCreateUser.mock.t.Fatalf("Inspect function is already set for IUserRepoMock.CreateUser")
 	}
@@ -145,7 +147,7 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Return(err error) *IUserRepoMock {
 }
 
 // Set uses given function f to mock the IUserRepo.CreateUser method
-func (mmCreateUser *mIUserRepoMockCreateUser) Set(f func(record *model.User) (err error)) *IUserRepoMock {
+func (mmCreateUser *mIUserRepoMockCreateUser) Set(f func(ctx context.Context, record *model.User) (err error)) *IUserRepoMock {
 	if mmCreateUser.defaultExpectation != nil {
 		mmCreateUser.mock.t.Fatalf("Default expectation is already set for the IUserRepo.CreateUser method")
 	}
@@ -160,14 +162,14 @@ func (mmCreateUser *mIUserRepoMockCreateUser) Set(f func(record *model.User) (er
 
 // When sets expectation for the IUserRepo.CreateUser which will trigger the result defined by the following
 // Then helper
-func (mmCreateUser *mIUserRepoMockCreateUser) When(record *model.User) *IUserRepoMockCreateUserExpectation {
+func (mmCreateUser *mIUserRepoMockCreateUser) When(ctx context.Context, record *model.User) *IUserRepoMockCreateUserExpectation {
 	if mmCreateUser.mock.funcCreateUser != nil {
 		mmCreateUser.mock.t.Fatalf("IUserRepoMock.CreateUser mock is already set by Set")
 	}
 
 	expectation := &IUserRepoMockCreateUserExpectation{
 		mock:   mmCreateUser.mock,
-		params: &IUserRepoMockCreateUserParams{record},
+		params: &IUserRepoMockCreateUserParams{ctx, record},
 	}
 	mmCreateUser.expectations = append(mmCreateUser.expectations, expectation)
 	return expectation
@@ -180,15 +182,15 @@ func (e *IUserRepoMockCreateUserExpectation) Then(err error) *IUserRepoMock {
 }
 
 // CreateUser implements IUserRepo
-func (mmCreateUser *IUserRepoMock) CreateUser(record *model.User) (err error) {
+func (mmCreateUser *IUserRepoMock) CreateUser(ctx context.Context, record *model.User) (err error) {
 	mm_atomic.AddUint64(&mmCreateUser.beforeCreateUserCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreateUser.afterCreateUserCounter, 1)
 
 	if mmCreateUser.inspectFuncCreateUser != nil {
-		mmCreateUser.inspectFuncCreateUser(record)
+		mmCreateUser.inspectFuncCreateUser(ctx, record)
 	}
 
-	mm_params := &IUserRepoMockCreateUserParams{record}
+	mm_params := &IUserRepoMockCreateUserParams{ctx, record}
 
 	// Record call args
 	mmCreateUser.CreateUserMock.mutex.Lock()
@@ -205,7 +207,7 @@ func (mmCreateUser *IUserRepoMock) CreateUser(record *model.User) (err error) {
 	if mmCreateUser.CreateUserMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCreateUser.CreateUserMock.defaultExpectation.Counter, 1)
 		mm_want := mmCreateUser.CreateUserMock.defaultExpectation.params
-		mm_got := IUserRepoMockCreateUserParams{record}
+		mm_got := IUserRepoMockCreateUserParams{ctx, record}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmCreateUser.t.Errorf("IUserRepoMock.CreateUser got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -217,9 +219,9 @@ func (mmCreateUser *IUserRepoMock) CreateUser(record *model.User) (err error) {
 		return (*mm_results).err
 	}
 	if mmCreateUser.funcCreateUser != nil {
-		return mmCreateUser.funcCreateUser(record)
+		return mmCreateUser.funcCreateUser(ctx, record)
 	}
-	mmCreateUser.t.Fatalf("Unexpected call to IUserRepoMock.CreateUser. %v", record)
+	mmCreateUser.t.Fatalf("Unexpected call to IUserRepoMock.CreateUser. %v %v", ctx, record)
 	return
 }
 
@@ -307,6 +309,7 @@ type IUserRepoMockDeleteUserExpectation struct {
 
 // IUserRepoMockDeleteUserParams contains parameters of the IUserRepo.DeleteUser
 type IUserRepoMockDeleteUserParams struct {
+	ctx      context.Context
 	username string
 }
 
@@ -316,7 +319,7 @@ type IUserRepoMockDeleteUserResults struct {
 }
 
 // Expect sets up expected params for IUserRepo.DeleteUser
-func (mmDeleteUser *mIUserRepoMockDeleteUser) Expect(username string) *mIUserRepoMockDeleteUser {
+func (mmDeleteUser *mIUserRepoMockDeleteUser) Expect(ctx context.Context, username string) *mIUserRepoMockDeleteUser {
 	if mmDeleteUser.mock.funcDeleteUser != nil {
 		mmDeleteUser.mock.t.Fatalf("IUserRepoMock.DeleteUser mock is already set by Set")
 	}
@@ -325,7 +328,7 @@ func (mmDeleteUser *mIUserRepoMockDeleteUser) Expect(username string) *mIUserRep
 		mmDeleteUser.defaultExpectation = &IUserRepoMockDeleteUserExpectation{}
 	}
 
-	mmDeleteUser.defaultExpectation.params = &IUserRepoMockDeleteUserParams{username}
+	mmDeleteUser.defaultExpectation.params = &IUserRepoMockDeleteUserParams{ctx, username}
 	for _, e := range mmDeleteUser.expectations {
 		if minimock.Equal(e.params, mmDeleteUser.defaultExpectation.params) {
 			mmDeleteUser.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmDeleteUser.defaultExpectation.params)
@@ -336,7 +339,7 @@ func (mmDeleteUser *mIUserRepoMockDeleteUser) Expect(username string) *mIUserRep
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserRepo.DeleteUser
-func (mmDeleteUser *mIUserRepoMockDeleteUser) Inspect(f func(username string)) *mIUserRepoMockDeleteUser {
+func (mmDeleteUser *mIUserRepoMockDeleteUser) Inspect(f func(ctx context.Context, username string)) *mIUserRepoMockDeleteUser {
 	if mmDeleteUser.mock.inspectFuncDeleteUser != nil {
 		mmDeleteUser.mock.t.Fatalf("Inspect function is already set for IUserRepoMock.DeleteUser")
 	}
@@ -360,7 +363,7 @@ func (mmDeleteUser *mIUserRepoMockDeleteUser) Return(err error) *IUserRepoMock {
 }
 
 // Set uses given function f to mock the IUserRepo.DeleteUser method
-func (mmDeleteUser *mIUserRepoMockDeleteUser) Set(f func(username string) (err error)) *IUserRepoMock {
+func (mmDeleteUser *mIUserRepoMockDeleteUser) Set(f func(ctx context.Context, username string) (err error)) *IUserRepoMock {
 	if mmDeleteUser.defaultExpectation != nil {
 		mmDeleteUser.mock.t.Fatalf("Default expectation is already set for the IUserRepo.DeleteUser method")
 	}
@@ -375,14 +378,14 @@ func (mmDeleteUser *mIUserRepoMockDeleteUser) Set(f func(username string) (err e
 
 // When sets expectation for the IUserRepo.DeleteUser which will trigger the result defined by the following
 // Then helper
-func (mmDeleteUser *mIUserRepoMockDeleteUser) When(username string) *IUserRepoMockDeleteUserExpectation {
+func (mmDeleteUser *mIUserRepoMockDeleteUser) When(ctx context.Context, username string) *IUserRepoMockDeleteUserExpectation {
 	if mmDeleteUser.mock.funcDeleteUser != nil {
 		mmDeleteUser.mock.t.Fatalf("IUserRepoMock.DeleteUser mock is already set by Set")
 	}
 
 	expectation := &IUserRepoMockDeleteUserExpectation{
 		mock:   mmDeleteUser.mock,
-		params: &IUserRepoMockDeleteUserParams{username},
+		params: &IUserRepoMockDeleteUserParams{ctx, username},
 	}
 	mmDeleteUser.expectations = append(mmDeleteUser.expectations, expectation)
 	return expectation
@@ -395,15 +398,15 @@ func (e *IUserRepoMockDeleteUserExpectation) Then(err error) *IUserRepoMock {
 }
 
 // DeleteUser implements IUserRepo
-func (mmDeleteUser *IUserRepoMock) DeleteUser(username string) (err error) {
+func (mmDeleteUser *IUserRepoMock) DeleteUser(ctx context.Context, username string) (err error) {
 	mm_atomic.AddUint64(&mmDeleteUser.beforeDeleteUserCounter, 1)
 	defer mm_atomic.AddUint64(&mmDeleteUser.afterDeleteUserCounter, 1)
 
 	if mmDeleteUser.inspectFuncDeleteUser != nil {
-		mmDeleteUser.inspectFuncDeleteUser(username)
+		mmDeleteUser.inspectFuncDeleteUser(ctx, username)
 	}
 
-	mm_params := &IUserRepoMockDeleteUserParams{username}
+	mm_params := &IUserRepoMockDeleteUserParams{ctx, username}
 
 	// Record call args
 	mmDeleteUser.DeleteUserMock.mutex.Lock()
@@ -420,7 +423,7 @@ func (mmDeleteUser *IUserRepoMock) DeleteUser(username string) (err error) {
 	if mmDeleteUser.DeleteUserMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmDeleteUser.DeleteUserMock.defaultExpectation.Counter, 1)
 		mm_want := mmDeleteUser.DeleteUserMock.defaultExpectation.params
-		mm_got := IUserRepoMockDeleteUserParams{username}
+		mm_got := IUserRepoMockDeleteUserParams{ctx, username}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmDeleteUser.t.Errorf("IUserRepoMock.DeleteUser got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -432,9 +435,9 @@ func (mmDeleteUser *IUserRepoMock) DeleteUser(username string) (err error) {
 		return (*mm_results).err
 	}
 	if mmDeleteUser.funcDeleteUser != nil {
-		return mmDeleteUser.funcDeleteUser(username)
+		return mmDeleteUser.funcDeleteUser(ctx, username)
 	}
-	mmDeleteUser.t.Fatalf("Unexpected call to IUserRepoMock.DeleteUser. %v", username)
+	mmDeleteUser.t.Fatalf("Unexpected call to IUserRepoMock.DeleteUser. %v %v", ctx, username)
 	return
 }
 
@@ -522,6 +525,7 @@ type IUserRepoMockGetPublicInfoExpectation struct {
 
 // IUserRepoMockGetPublicInfoParams contains parameters of the IUserRepo.GetPublicInfo
 type IUserRepoMockGetPublicInfoParams struct {
+	ctx      context.Context
 	username string
 }
 
@@ -532,7 +536,7 @@ type IUserRepoMockGetPublicInfoResults struct {
 }
 
 // Expect sets up expected params for IUserRepo.GetPublicInfo
-func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Expect(username string) *mIUserRepoMockGetPublicInfo {
+func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Expect(ctx context.Context, username string) *mIUserRepoMockGetPublicInfo {
 	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
 		mmGetPublicInfo.mock.t.Fatalf("IUserRepoMock.GetPublicInfo mock is already set by Set")
 	}
@@ -541,7 +545,7 @@ func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Expect(username string) *mIU
 		mmGetPublicInfo.defaultExpectation = &IUserRepoMockGetPublicInfoExpectation{}
 	}
 
-	mmGetPublicInfo.defaultExpectation.params = &IUserRepoMockGetPublicInfoParams{username}
+	mmGetPublicInfo.defaultExpectation.params = &IUserRepoMockGetPublicInfoParams{ctx, username}
 	for _, e := range mmGetPublicInfo.expectations {
 		if minimock.Equal(e.params, mmGetPublicInfo.defaultExpectation.params) {
 			mmGetPublicInfo.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetPublicInfo.defaultExpectation.params)
@@ -552,7 +556,7 @@ func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Expect(username string) *mIU
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserRepo.GetPublicInfo
-func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Inspect(f func(username string)) *mIUserRepoMockGetPublicInfo {
+func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Inspect(f func(ctx context.Context, username string)) *mIUserRepoMockGetPublicInfo {
 	if mmGetPublicInfo.mock.inspectFuncGetPublicInfo != nil {
 		mmGetPublicInfo.mock.t.Fatalf("Inspect function is already set for IUserRepoMock.GetPublicInfo")
 	}
@@ -576,7 +580,7 @@ func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Return(up1 *model.User, err 
 }
 
 // Set uses given function f to mock the IUserRepo.GetPublicInfo method
-func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Set(f func(username string) (up1 *model.User, err error)) *IUserRepoMock {
+func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Set(f func(ctx context.Context, username string) (up1 *model.User, err error)) *IUserRepoMock {
 	if mmGetPublicInfo.defaultExpectation != nil {
 		mmGetPublicInfo.mock.t.Fatalf("Default expectation is already set for the IUserRepo.GetPublicInfo method")
 	}
@@ -591,14 +595,14 @@ func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) Set(f func(username string) 
 
 // When sets expectation for the IUserRepo.GetPublicInfo which will trigger the result defined by the following
 // Then helper
-func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) When(username string) *IUserRepoMockGetPublicInfoExpectation {
+func (mmGetPublicInfo *mIUserRepoMockGetPublicInfo) When(ctx context.Context, username string) *IUserRepoMockGetPublicInfoExpectation {
 	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
 		mmGetPublicInfo.mock.t.Fatalf("IUserRepoMock.GetPublicInfo mock is already set by Set")
 	}
 
 	expectation := &IUserRepoMockGetPublicInfoExpectation{
 		mock:   mmGetPublicInfo.mock,
-		params: &IUserRepoMockGetPublicInfoParams{username},
+		params: &IUserRepoMockGetPublicInfoParams{ctx, username},
 	}
 	mmGetPublicInfo.expectations = append(mmGetPublicInfo.expectations, expectation)
 	return expectation
@@ -611,15 +615,15 @@ func (e *IUserRepoMockGetPublicInfoExpectation) Then(up1 *model.User, err error)
 }
 
 // GetPublicInfo implements IUserRepo
-func (mmGetPublicInfo *IUserRepoMock) GetPublicInfo(username string) (up1 *model.User, err error) {
+func (mmGetPublicInfo *IUserRepoMock) GetPublicInfo(ctx context.Context, username string) (up1 *model.User, err error) {
 	mm_atomic.AddUint64(&mmGetPublicInfo.beforeGetPublicInfoCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetPublicInfo.afterGetPublicInfoCounter, 1)
 
 	if mmGetPublicInfo.inspectFuncGetPublicInfo != nil {
-		mmGetPublicInfo.inspectFuncGetPublicInfo(username)
+		mmGetPublicInfo.inspectFuncGetPublicInfo(ctx, username)
 	}
 
-	mm_params := &IUserRepoMockGetPublicInfoParams{username}
+	mm_params := &IUserRepoMockGetPublicInfoParams{ctx, username}
 
 	// Record call args
 	mmGetPublicInfo.GetPublicInfoMock.mutex.Lock()
@@ -636,7 +640,7 @@ func (mmGetPublicInfo *IUserRepoMock) GetPublicInfo(username string) (up1 *model
 	if mmGetPublicInfo.GetPublicInfoMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.params
-		mm_got := IUserRepoMockGetPublicInfoParams{username}
+		mm_got := IUserRepoMockGetPublicInfoParams{ctx, username}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetPublicInfo.t.Errorf("IUserRepoMock.GetPublicInfo got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -648,9 +652,9 @@ func (mmGetPublicInfo *IUserRepoMock) GetPublicInfo(username string) (up1 *model
 		return (*mm_results).up1, (*mm_results).err
 	}
 	if mmGetPublicInfo.funcGetPublicInfo != nil {
-		return mmGetPublicInfo.funcGetPublicInfo(username)
+		return mmGetPublicInfo.funcGetPublicInfo(ctx, username)
 	}
-	mmGetPublicInfo.t.Fatalf("Unexpected call to IUserRepoMock.GetPublicInfo. %v", username)
+	mmGetPublicInfo.t.Fatalf("Unexpected call to IUserRepoMock.GetPublicInfo. %v %v", ctx, username)
 	return
 }
 
@@ -738,6 +742,7 @@ type IUserRepoMockGetUserExpectation struct {
 
 // IUserRepoMockGetUserParams contains parameters of the IUserRepo.GetUser
 type IUserRepoMockGetUserParams struct {
+	ctx      context.Context
 	username string
 }
 
@@ -748,7 +753,7 @@ type IUserRepoMockGetUserResults struct {
 }
 
 // Expect sets up expected params for IUserRepo.GetUser
-func (mmGetUser *mIUserRepoMockGetUser) Expect(username string) *mIUserRepoMockGetUser {
+func (mmGetUser *mIUserRepoMockGetUser) Expect(ctx context.Context, username string) *mIUserRepoMockGetUser {
 	if mmGetUser.mock.funcGetUser != nil {
 		mmGetUser.mock.t.Fatalf("IUserRepoMock.GetUser mock is already set by Set")
 	}
@@ -757,7 +762,7 @@ func (mmGetUser *mIUserRepoMockGetUser) Expect(username string) *mIUserRepoMockG
 		mmGetUser.defaultExpectation = &IUserRepoMockGetUserExpectation{}
 	}
 
-	mmGetUser.defaultExpectation.params = &IUserRepoMockGetUserParams{username}
+	mmGetUser.defaultExpectation.params = &IUserRepoMockGetUserParams{ctx, username}
 	for _, e := range mmGetUser.expectations {
 		if minimock.Equal(e.params, mmGetUser.defaultExpectation.params) {
 			mmGetUser.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetUser.defaultExpectation.params)
@@ -768,7 +773,7 @@ func (mmGetUser *mIUserRepoMockGetUser) Expect(username string) *mIUserRepoMockG
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserRepo.GetUser
-func (mmGetUser *mIUserRepoMockGetUser) Inspect(f func(username string)) *mIUserRepoMockGetUser {
+func (mmGetUser *mIUserRepoMockGetUser) Inspect(f func(ctx context.Context, username string)) *mIUserRepoMockGetUser {
 	if mmGetUser.mock.inspectFuncGetUser != nil {
 		mmGetUser.mock.t.Fatalf("Inspect function is already set for IUserRepoMock.GetUser")
 	}
@@ -792,7 +797,7 @@ func (mmGetUser *mIUserRepoMockGetUser) Return(up1 *model.User, err error) *IUse
 }
 
 // Set uses given function f to mock the IUserRepo.GetUser method
-func (mmGetUser *mIUserRepoMockGetUser) Set(f func(username string) (up1 *model.User, err error)) *IUserRepoMock {
+func (mmGetUser *mIUserRepoMockGetUser) Set(f func(ctx context.Context, username string) (up1 *model.User, err error)) *IUserRepoMock {
 	if mmGetUser.defaultExpectation != nil {
 		mmGetUser.mock.t.Fatalf("Default expectation is already set for the IUserRepo.GetUser method")
 	}
@@ -807,14 +812,14 @@ func (mmGetUser *mIUserRepoMockGetUser) Set(f func(username string) (up1 *model.
 
 // When sets expectation for the IUserRepo.GetUser which will trigger the result defined by the following
 // Then helper
-func (mmGetUser *mIUserRepoMockGetUser) When(username string) *IUserRepoMockGetUserExpectation {
+func (mmGetUser *mIUserRepoMockGetUser) When(ctx context.Context, username string) *IUserRepoMockGetUserExpectation {
 	if mmGetUser.mock.funcGetUser != nil {
 		mmGetUser.mock.t.Fatalf("IUserRepoMock.GetUser mock is already set by Set")
 	}
 
 	expectation := &IUserRepoMockGetUserExpectation{
 		mock:   mmGetUser.mock,
-		params: &IUserRepoMockGetUserParams{username},
+		params: &IUserRepoMockGetUserParams{ctx, username},
 	}
 	mmGetUser.expectations = append(mmGetUser.expectations, expectation)
 	return expectation
@@ -827,15 +832,15 @@ func (e *IUserRepoMockGetUserExpectation) Then(up1 *model.User, err error) *IUse
 }
 
 // GetUser implements IUserRepo
-func (mmGetUser *IUserRepoMock) GetUser(username string) (up1 *model.User, err error) {
+func (mmGetUser *IUserRepoMock) GetUser(ctx context.Context, username string) (up1 *model.User, err error) {
 	mm_atomic.AddUint64(&mmGetUser.beforeGetUserCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetUser.afterGetUserCounter, 1)
 
 	if mmGetUser.inspectFuncGetUser != nil {
-		mmGetUser.inspectFuncGetUser(username)
+		mmGetUser.inspectFuncGetUser(ctx, username)
 	}
 
-	mm_params := &IUserRepoMockGetUserParams{username}
+	mm_params := &IUserRepoMockGetUserParams{ctx, username}
 
 	// Record call args
 	mmGetUser.GetUserMock.mutex.Lock()
@@ -852,7 +857,7 @@ func (mmGetUser *IUserRepoMock) GetUser(username string) (up1 *model.User, err e
 	if mmGetUser.GetUserMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetUser.GetUserMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetUser.GetUserMock.defaultExpectation.params
-		mm_got := IUserRepoMockGetUserParams{username}
+		mm_got := IUserRepoMockGetUserParams{ctx, username}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetUser.t.Errorf("IUserRepoMock.GetUser got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -864,9 +869,9 @@ func (mmGetUser *IUserRepoMock) GetUser(username string) (up1 *model.User, err e
 		return (*mm_results).up1, (*mm_results).err
 	}
 	if mmGetUser.funcGetUser != nil {
-		return mmGetUser.funcGetUser(username)
+		return mmGetUser.funcGetUser(ctx, username)
 	}
-	mmGetUser.t.Fatalf("Unexpected call to IUserRepoMock.GetUser. %v", username)
+	mmGetUser.t.Fatalf("Unexpected call to IUserRepoMock.GetUser. %v %v", ctx, username)
 	return
 }
 
@@ -954,6 +959,7 @@ type IUserRepoMockUpdateUserExpectation struct {
 
 // IUserRepoMockUpdateUserParams contains parameters of the IUserRepo.UpdateUser
 type IUserRepoMockUpdateUserParams struct {
+	ctx    context.Context
 	record model.User
 }
 
@@ -963,7 +969,7 @@ type IUserRepoMockUpdateUserResults struct {
 }
 
 // Expect sets up expected params for IUserRepo.UpdateUser
-func (mmUpdateUser *mIUserRepoMockUpdateUser) Expect(record model.User) *mIUserRepoMockUpdateUser {
+func (mmUpdateUser *mIUserRepoMockUpdateUser) Expect(ctx context.Context, record model.User) *mIUserRepoMockUpdateUser {
 	if mmUpdateUser.mock.funcUpdateUser != nil {
 		mmUpdateUser.mock.t.Fatalf("IUserRepoMock.UpdateUser mock is already set by Set")
 	}
@@ -972,7 +978,7 @@ func (mmUpdateUser *mIUserRepoMockUpdateUser) Expect(record model.User) *mIUserR
 		mmUpdateUser.defaultExpectation = &IUserRepoMockUpdateUserExpectation{}
 	}
 
-	mmUpdateUser.defaultExpectation.params = &IUserRepoMockUpdateUserParams{record}
+	mmUpdateUser.defaultExpectation.params = &IUserRepoMockUpdateUserParams{ctx, record}
 	for _, e := range mmUpdateUser.expectations {
 		if minimock.Equal(e.params, mmUpdateUser.defaultExpectation.params) {
 			mmUpdateUser.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmUpdateUser.defaultExpectation.params)
@@ -983,7 +989,7 @@ func (mmUpdateUser *mIUserRepoMockUpdateUser) Expect(record model.User) *mIUserR
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserRepo.UpdateUser
-func (mmUpdateUser *mIUserRepoMockUpdateUser) Inspect(f func(record model.User)) *mIUserRepoMockUpdateUser {
+func (mmUpdateUser *mIUserRepoMockUpdateUser) Inspect(f func(ctx context.Context, record model.User)) *mIUserRepoMockUpdateUser {
 	if mmUpdateUser.mock.inspectFuncUpdateUser != nil {
 		mmUpdateUser.mock.t.Fatalf("Inspect function is already set for IUserRepoMock.UpdateUser")
 	}
@@ -1007,7 +1013,7 @@ func (mmUpdateUser *mIUserRepoMockUpdateUser) Return(err error) *IUserRepoMock {
 }
 
 // Set uses given function f to mock the IUserRepo.UpdateUser method
-func (mmUpdateUser *mIUserRepoMockUpdateUser) Set(f func(record model.User) (err error)) *IUserRepoMock {
+func (mmUpdateUser *mIUserRepoMockUpdateUser) Set(f func(ctx context.Context, record model.User) (err error)) *IUserRepoMock {
 	if mmUpdateUser.defaultExpectation != nil {
 		mmUpdateUser.mock.t.Fatalf("Default expectation is already set for the IUserRepo.UpdateUser method")
 	}
@@ -1022,14 +1028,14 @@ func (mmUpdateUser *mIUserRepoMockUpdateUser) Set(f func(record model.User) (err
 
 // When sets expectation for the IUserRepo.UpdateUser which will trigger the result defined by the following
 // Then helper
-func (mmUpdateUser *mIUserRepoMockUpdateUser) When(record model.User) *IUserRepoMockUpdateUserExpectation {
+func (mmUpdateUser *mIUserRepoMockUpdateUser) When(ctx context.Context, record model.User) *IUserRepoMockUpdateUserExpectation {
 	if mmUpdateUser.mock.funcUpdateUser != nil {
 		mmUpdateUser.mock.t.Fatalf("IUserRepoMock.UpdateUser mock is already set by Set")
 	}
 
 	expectation := &IUserRepoMockUpdateUserExpectation{
 		mock:   mmUpdateUser.mock,
-		params: &IUserRepoMockUpdateUserParams{record},
+		params: &IUserRepoMockUpdateUserParams{ctx, record},
 	}
 	mmUpdateUser.expectations = append(mmUpdateUser.expectations, expectation)
 	return expectation
@@ -1042,15 +1048,15 @@ func (e *IUserRepoMockUpdateUserExpectation) Then(err error) *IUserRepoMock {
 }
 
 // UpdateUser implements IUserRepo
-func (mmUpdateUser *IUserRepoMock) UpdateUser(record model.User) (err error) {
+func (mmUpdateUser *IUserRepoMock) UpdateUser(ctx context.Context, record model.User) (err error) {
 	mm_atomic.AddUint64(&mmUpdateUser.beforeUpdateUserCounter, 1)
 	defer mm_atomic.AddUint64(&mmUpdateUser.afterUpdateUserCounter, 1)
 
 	if mmUpdateUser.inspectFuncUpdateUser != nil {
-		mmUpdateUser.inspectFuncUpdateUser(record)
+		mmUpdateUser.inspectFuncUpdateUser(ctx, record)
 	}
 
-	mm_params := &IUserRepoMockUpdateUserParams{record}
+	mm_params := &IUserRepoMockUpdateUserParams{ctx, record}
 
 	// Record call args
 	mmUpdateUser.UpdateUserMock.mutex.Lock()
@@ -1067,7 +1073,7 @@ func (mmUpdateUser *IUserRepoMock) UpdateUser(record model.User) (err error) {
 	if mmUpdateUser.UpdateUserMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmUpdateUser.UpdateUserMock.defaultExpectation.Counter, 1)
 		mm_want := mmUpdateUser.UpdateUserMock.defaultExpectation.params
-		mm_got := IUserRepoMockUpdateUserParams{record}
+		mm_got := IUserRepoMockUpdateUserParams{ctx, record}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmUpdateUser.t.Errorf("IUserRepoMock.UpdateUser got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1079,9 +1085,9 @@ func (mmUpdateUser *IUserRepoMock) UpdateUser(record model.User) (err error) {
 		return (*mm_results).err
 	}
 	if mmUpdateUser.funcUpdateUser != nil {
-		return mmUpdateUser.funcUpdateUser(record)
+		return mmUpdateUser.funcUpdateUser(ctx, record)
 	}
-	mmUpdateUser.t.Fatalf("Unexpected call to IUserRepoMock.UpdateUser. %v", record)
+	mmUpdateUser.t.Fatalf("Unexpected call to IUserRepoMock.UpdateUser. %v %v", ctx, record)
 	return
 }
 
