@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/logic/model"
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -63,7 +64,7 @@ func (a *Admin) CreateDorama(token string) error {
 	}
 	dorama.Status = strings.TrimRight(line, "\r\n")
 
-	err = a.dc.CreateDorama(token, &dorama)
+	err = a.dc.CreateDorama(context.Background(), token, &dorama)
 	if err != nil {
 		return err
 	}
@@ -101,7 +102,7 @@ func (a *Admin) CreateStaff(token string) error {
 		return err
 	}
 
-	err = a.sc.CreateStaff(token, &staff)
+	err = a.sc.CreateStaff(context.Background(), token, &staff)
 	if err != nil {
 		return err
 	}
@@ -129,15 +130,15 @@ func (a *Admin) CreatePicture(token string) error {
 		return err
 	}
 
-	err := a.pc.CreatePicture(token, &picture)
+	err := a.pc.CreatePicture(context.Background(), token, &picture)
 	if err != nil {
 		return err
 	}
 	switch idType {
 	case 1:
-		err = a.pc.AddPictureToDorama(token, picture, id)
+		err = a.pc.AddPictureToDorama(context.Background(), token, picture, id)
 	case 2:
-		err = a.pc.AddPictureToStaff(token, picture, id)
+		err = a.pc.AddPictureToStaff(context.Background(), token, picture, id)
 	}
 	if err != nil {
 		return err
@@ -166,7 +167,7 @@ func (a *Admin) CreateEpisode(token string) error {
 		return err
 	}
 
-	err := a.ec.CreateEpisode(token, &episode, id)
+	err := a.ec.CreateEpisode(context.Background(), token, &episode, id)
 	if err != nil {
 		return err
 	}
@@ -182,7 +183,7 @@ func (a *Admin) updateDorama(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
-	old, err := a.dc.GetDoramaById(id)
+	old, err := a.dc.GetDoramaById(context.Background(), id)
 	if err != nil {
 		return err
 	}
@@ -237,7 +238,7 @@ func (a *Admin) updateDorama(token string) error {
 		old.Status = line
 	}
 
-	err = a.dc.UpdateDorama(token, *old)
+	err = a.dc.UpdateDorama(context.Background(), token, *old)
 	if err != nil {
 		return err
 	}
@@ -256,7 +257,7 @@ func (a *Admin) addStaff(token string) error {
 		return err
 	}
 
-	err := a.dc.AddStaffToDorama(token, idD, idS)
+	err := a.dc.AddStaffToDorama(context.Background(), token, idD, idS)
 	if err != nil {
 		return err
 	}
@@ -294,7 +295,7 @@ func (a *Admin) UpdateStaff(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
-	old, err := a.sc.GetStaffById(id)
+	old, err := a.sc.GetStaffById(context.Background(), id)
 	if err != nil {
 		return err
 	}
@@ -343,7 +344,7 @@ func (a *Admin) UpdateStaff(token string) error {
 		old.Type = line
 	}
 
-	err = a.sc.UpdateStaff(token, *old)
+	err = a.sc.UpdateStaff(context.Background(), token, *old)
 	if err != nil {
 		return err
 	}

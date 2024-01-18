@@ -3,6 +3,7 @@ package guest
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"fmt"
 )
 
@@ -32,7 +33,7 @@ func (g *Guest) Registration() (string, bool, error) {
 		return "", false, err
 	}
 
-	result, err := g.uc.Registration(&newUser)
+	result, err := g.uc.Registration(context.Background(), &newUser)
 	if err != nil {
 		return "", false, err
 	}
@@ -53,11 +54,11 @@ func (g *Guest) Login() (string, bool, error) {
 		return "", false, err
 	}
 
-	token, err := g.uc.Login(username, password)
+	token, err := g.uc.Login(context.Background(), username, password)
 	if err != nil {
 		return "", false, err
 	}
-	user, err := g.uc.AuthByToken(token)
+	user, err := g.uc.AuthByToken(context.Background(), token)
 	if err != nil {
 		return "", false, err
 	}

@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/logic/model"
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 )
@@ -50,7 +51,7 @@ func printDorama(dorama model.Dorama, user *model.User) {
 }
 
 func (g *General) GetAllDorama(token string) error {
-	result, err := g.dc.GetAllDorama()
+	result, err := g.dc.GetAllDorama(context.Background())
 	if err != nil {
 		return err
 	}
@@ -71,12 +72,12 @@ func (g *General) GetDoramaById(token string) error {
 	if token != "" {
 
 	}
-	result, err := g.dc.GetDoramaById(id)
+	result, err := g.dc.GetDoramaById(context.Background(), id)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("Результат:\n")
-	user, err := g.uc.AuthByToken(token)
+	user, err := g.uc.AuthByToken(context.Background(), token)
 	if token != "" && err != nil {
 		return err
 	}
@@ -92,7 +93,7 @@ func (g *General) GetDoramaByName(token string) error {
 		return err
 	}
 	fmt.Printf("Результаты:\n")
-	result, err := g.dc.GetDoramaByName(line)
+	result, err := g.dc.GetDoramaByName(context.Background(), line)
 	for _, r := range result {
 		fmt.Printf("%d: %s\n", r.Id, r.Name)
 	}
@@ -100,7 +101,7 @@ func (g *General) GetDoramaByName(token string) error {
 }
 
 func (g *General) GetAllStaff(token string) error {
-	result, err := g.sc.GetStaffList()
+	result, err := g.sc.GetStaffList(context.Background())
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func (g *General) GetStaffById(token string) error {
 		return err
 	}
 
-	result, err := g.sc.GetStaffById(id)
+	result, err := g.sc.GetStaffById(context.Background(), id)
 	if err != nil {
 		return err
 	}
@@ -143,7 +144,7 @@ func (g *General) GetStaffByName(token string) error {
 		return err
 	}
 
-	result, err := g.sc.GetListByName(line)
+	result, err := g.sc.GetListByName(context.Background(), line)
 	for _, r := range result {
 		fmt.Printf("%d: %s\n", r.Id, r.Name)
 	}
@@ -151,7 +152,7 @@ func (g *General) GetStaffByName(token string) error {
 }
 
 func (g *General) GetPublicList(token string) error {
-	res, err := g.lc.GetPublicLists()
+	res, err := g.lc.GetPublicLists(context.Background())
 	if err != nil {
 		return err
 	}
@@ -170,7 +171,7 @@ func (g *General) GetListById(token string) error {
 		return err
 	}
 
-	result, err := g.lc.GetListById(token, id)
+	result, err := g.lc.GetListById(context.Background(), token, id)
 	if err != nil {
 		return err
 	}
@@ -193,7 +194,7 @@ func (g *General) GetStaffByDorama(token string) error {
 	if _, err := fmt.Scan(&id); err != nil {
 		return err
 	}
-	res, err := g.sc.GetStaffListByDorama(id)
+	res, err := g.sc.GetStaffListByDorama(context.Background(), id)
 	if err != nil {
 		return err
 	}
