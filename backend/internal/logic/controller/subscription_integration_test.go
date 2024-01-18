@@ -19,7 +19,7 @@ import (
 )
 
 func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
-	flag.Set("config", "../../../configs/test_config.yml")
+	flag.Set("config", "../../../configs/config.yml")
 	cfg, _ := config.Init()
 	// _, _ = tracing.Init("http://localhost:14268/api/traces", "test", 1.0)
 	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)

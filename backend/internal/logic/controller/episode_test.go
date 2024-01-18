@@ -12,6 +12,7 @@ import (
 	"DoramaSet/internal/tracing"
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"reflect"
@@ -24,8 +25,11 @@ import (
 var resultArrayEpisode = objectMother.EpisodeMother{}.GenerateRandomEpisodeSlice(1)
 
 func TestGetEpisodeList(t *testing.T) {
-	// flag.Set("config", "../../configs/test_config.yml")
-	cfg, _ := config.Init()
+	flag.Set("config", "../../../configs/config.yml")
+	cfg, err := config.Init()
+	if err != nil {
+		panic(err)
+	}
 	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
 	testsTable := []struct {
