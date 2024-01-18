@@ -25,7 +25,7 @@ import (
 var resultArrayEpisode = objectMother.EpisodeMother{}.GenerateRandomEpisodeSlice(1)
 
 func TestGetEpisodeList(t *testing.T) {
-	flag.Set("config", "../../../configs/config.yml")
+	_ = flag.Set("config", "../../../configs/config.yml")
 	cfg, err := config.Init()
 	if err != nil {
 		panic(err)
@@ -83,7 +83,7 @@ func TestGetEpisodeList(t *testing.T) {
 }
 
 func TestGetEpisode(t *testing.T) {
-	// flag.Set("config", "../../configs/test_config.yml")
+	_ = flag.Set("config", "../../../configs/config.yml")
 	cfg, _ := config.Init()
 	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
@@ -138,7 +138,7 @@ func TestGetEpisode(t *testing.T) {
 }
 
 func TestMarkWathingEpisode(t *testing.T) {
-	// flag.Set("config", "../../configs/test_config.yml")
+	_ = flag.Set("config", "../../../configs/config.yml")
 	cfg, _ := config.Init()
 	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
@@ -210,7 +210,7 @@ func TestMarkWathingEpisode(t *testing.T) {
 }
 
 func TestEpisodeController_CreateEpisode(t *testing.T) {
-	// flag.Set("config", "../../configs/test_config.yml")
+	_ = flag.Set("config", "../../../configs/config.yml")
 	cfg, _ := config.Init()
 	_, _ = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
 	mc := minimock.NewController(t)
