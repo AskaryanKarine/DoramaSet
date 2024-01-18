@@ -26,6 +26,6 @@ Server:
   Mode: debug
 
 OpenTelemetry:
-  Endpoint: "http://localhost:14268/api/traces"
-  ServiceName: main
+  Endpoint: "http://host.docker.internal:14268/api/traces"
+  ServiceName: bench
   Ratio: 1.0
