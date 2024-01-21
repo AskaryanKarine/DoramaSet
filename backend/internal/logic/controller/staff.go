@@ -5,6 +5,8 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
@@ -24,8 +26,10 @@ func NewStaffController(SRepo repository.IStaffRepo, uc controller.IUserControll
 	}
 }
 
-func (s *StaffController) GetStaffList() ([]model.Staff, error) {
-	res, err := s.repo.GetList()
+func (s *StaffController) GetStaffList(ctx context.Context) ([]model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetStaffList")
+	defer span.End()
+	res, err := s.repo.GetList(ctx)
 	if err != nil {
 		s.log.Warnf("get staff list err %s", err)
 		return nil, fmt.Errorf("getList: %w", err)
@@ -34,8 +38,10 @@ func (s *StaffController) GetStaffList() ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
-	res, err := s.repo.GetListName(name)
+func (s *StaffController) GetListByName(ctx context.Context, name string) ([]model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetListByName")
+	defer span.End()
+	res, err := s.repo.GetListName(ctx, name)
 	if err != nil {
 		s.log.Warnf("get staff list by name err %s value %s", err, name)
 		return nil, fmt.Errorf("getListName: %w", err)
@@ -44,8 +50,10 @@ func (s *StaffController) GetListByName(name string) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffController) GetStaffListByDorama(idD int) ([]model.Staff, error) {
-	res, err := s.repo.GetListDorama(idD)
+func (s *StaffController) GetStaffListByDorama(ctx context.Context, idD int) ([]model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetStaffListByDorama")
+	defer span.End()
+	res, err := s.repo.GetListDorama(ctx, idD)
 	if err != nil {
 		s.log.Warnf("get list staff by dorama err %s, value %d", err, idD)
 		return nil, fmt.Errorf("getListDorama: %w", err)
@@ -54,8 +62,10 @@ func (s *StaffController) GetStaffListByDorama(idD int) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffController) CreateStaff(token string, record *model.Staff) error {
-	user, err := s.uc.AuthByToken(token)
+func (s *StaffController) CreateStaff(ctx context.Context, token string, record *model.Staff) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL CreateStaff")
+	defer span.End()
+	user, err := s.uc.AuthByToken(ctx, token)
 	if err != nil {
 		s.log.Warnf("create staff auth err %s, token %s, value %v", err, token, record)
 		return fmt.Errorf("authToken: %w", err)
@@ -66,7 +76,7 @@ func (s *StaffController) CreateStaff(token string, record *model.Staff) error {
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
 
-	id, err := s.repo.CreateStaff(*record)
+	id, err := s.repo.CreateStaff(ctx, *record)
 	if err != nil {
 		s.log.Warnf("create staff err %s, user %s, value %v", err, user.Username, record)
 		return fmt.Errorf("createStaff: %w", err)
@@ -76,8 +86,10 @@ func (s *StaffController) CreateStaff(token string, record *model.Staff) error {
 	return nil
 }
 
-func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
-	user, err := s.uc.AuthByToken(token)
+func (s *StaffController) UpdateStaff(ctx context.Context, token string, record model.Staff) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL UpdateStaff")
+	defer span.End()
+	user, err := s.uc.AuthByToken(ctx, token)
 	if err != nil {
 		s.log.Warnf("update staff auth err %s, token %s, value %v", err, token, record)
 		return fmt.Errorf("authToken: %w", err)
@@ -87,7 +99,7 @@ func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
 		s.log.Warnf("update staff access err, user %s, value %v", user.Username, record)
 		return fmt.Errorf("%w", errors.ErrorAdminAccess)
 	}
-	err = s.repo.UpdateStaff(record)
+	err = s.repo.UpdateStaff(ctx, record)
 	if err != nil {
 		s.log.Warnf("update staff err %s, user %s, value %v", err, user.Username, record)
 		return fmt.Errorf("updateStaff: %w", err)
@@ -96,8 +108,10 @@ func (s *StaffController) UpdateStaff(token string, record model.Staff) error {
 	return nil
 }
 
-func (s *StaffController) GetStaffById(id int) (*model.Staff, error) {
-	res, err := s.repo.GetStaffById(id)
+func (s *StaffController) GetStaffById(ctx context.Context, id int) (*model.Staff, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetStaffById")
+	defer span.End()
+	res, err := s.repo.GetStaffById(ctx, id)
 	if err != nil {
 		s.log.Warnf("get staff by id err %s, value %d", err, id)
 		return nil, fmt.Errorf("getStaffById: %w", err)

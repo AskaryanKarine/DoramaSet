@@ -1,3 +1,5 @@
+//go:build integration
+
 package postgres
 
 import (
@@ -32,17 +34,12 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 		check   func(id int) error
 	}{
 		{
-			name:    "success in doramapicture",
+			name:    "success",
 			fields:  fields{db: db},
-			args:    args{record: pic, id: 1, tbl: "dorama"},
+			args:    args{record: pic},
 			wantErr: false,
 			check: func(id int) error {
 				res := db.Table("dorama_set.picture").Where("id = ?", id).Take(&model.Picture{})
-				if res.Error != nil {
-					return res.Error
-				}
-				res = db.Table("dorama_set.doramapicture").
-					Where("id_dorama = ? and id_picture = ?", 1, id).Take(&model.Picture{})
 				return res.Error
 			},
 		},
@@ -52,7 +49,7 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 			p := PictureRepo{
 				db: tt.fields.db,
 			}
-			got, err := p.CreatePicture(tt.args.record, tt.args.id, tt.args.tbl)
+			got, err := p.CreatePicture(context.Background(), tt.args.record)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreatePicture() error = %v, wantErr %v", err, tt.wantErr)
 				return

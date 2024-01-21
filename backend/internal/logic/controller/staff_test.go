@@ -1,10 +1,14 @@
+//go:build unit
+
 package controller
 
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"github.com/sirupsen/logrus"
 	"reflect"
@@ -13,9 +17,7 @@ import (
 	"github.com/gojuno/minimock/v3"
 )
 
-var resultArrayStaff = []model.Staff{
-	{},
-}
+var resultArrayStaff = object_mother.StaffMother{}.GenerateRandomStaffSlice(1)
 
 func TestGetListStaff(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -54,7 +56,7 @@ func TestGetListStaff(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetStaffList()
+			res, err := dc.GetStaffList(context.Background())
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetStaffList() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -104,7 +106,7 @@ func TestGetListByNameStaff(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetListByName(testCase.arg)
+			res, err := dc.GetListByName(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetListByName() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -152,7 +154,7 @@ func TestGetListByDoramaStaff(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetStaffListByDorama(testCase.arg)
+			res, err := dc.GetStaffListByDorama(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetStaffListByDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -169,9 +171,8 @@ func TestCreateStaff(t *testing.T) {
 		token  string
 		dorama model.Staff
 	}
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(true))
+	noAdminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -183,7 +184,7 @@ func TestCreateStaff(t *testing.T) {
 			name: "successful",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -207,7 +208,7 @@ func TestCreateStaff(t *testing.T) {
 			name: "access error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -219,7 +220,7 @@ func TestCreateStaff(t *testing.T) {
 			name: "create error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).CreateStaffMock.Return(-1, errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -235,7 +236,7 @@ func TestCreateStaff(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.CreateStaff(test.arg.token, &test.arg.dorama)
+			err := dc.CreateStaff(context.Background(), test.arg.token, &test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreateStaff() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -249,9 +250,8 @@ func TestUpdateStaff(t *testing.T) {
 		token  string
 		dorama model.Staff
 	}
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(true))
+	noAdminUser := object_mother.UserMother{}.GenerateUser(object_mother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -263,7 +263,7 @@ func TestUpdateStaff(t *testing.T) {
 			name: "successful",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -287,7 +287,7 @@ func TestUpdateStaff(t *testing.T) {
 			name: "access error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -299,7 +299,7 @@ func TestUpdateStaff(t *testing.T) {
 			name: "create error",
 			field: StaffController{
 				repo: mocks.NewIStaffRepoMock(mc).UpdateStaffMock.Return(errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -315,7 +315,7 @@ func TestUpdateStaff(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.UpdateStaff(test.arg.token, test.arg.dorama)
+			err := dc.UpdateStaff(context.Background(), test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("UpdateStaff() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -367,7 +367,7 @@ func TestStaffController_GetStaffById(t *testing.T) {
 				uc:   tt.fields.uc,
 				log:  &logrus.Logger{},
 			}
-			got, err := s.GetStaffById(tt.args.id)
+			got, err := s.GetStaffById(context.Background(), tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetStaffById() error = %v, wantErr %v", err, tt.wantErr)
 				return

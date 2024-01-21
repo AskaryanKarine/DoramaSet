@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -34,7 +35,7 @@ func NewUserRepo(db *mongo.Database, SR repository.ISubscriptionRepo, LR reposit
 	return &UserRepo{db, SR, LR}
 }
 
-func (u *UserRepo) GetUser(username string) (*model.User, error) {
+func (u *UserRepo) GetUser(ctx context.Context, username string) (*model.User, error) {
 	var user userModel
 	collection := u.db.Collection("user")
 	filter := bson.D{{"username", username}}
@@ -46,12 +47,12 @@ func (u *UserRepo) GetUser(username string) (*model.User, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 
-	sub, err := u.subRepo.GetSubscription(user.SubId)
+	sub, err := u.subRepo.GetSubscription(ctx, user.SubId)
 	if err != nil {
 		return nil, fmt.Errorf("getSubById: %w", err)
 	}
 
-	lists, err := u.listRepo.GetUserLists(user.Username)
+	lists, err := u.listRepo.GetUserLists(ctx, user.Username)
 	if err != nil {
 		return nil, fmt.Errorf("getUsersLists: %w", err)
 	}
@@ -73,10 +74,10 @@ func (u *UserRepo) GetUser(username string) (*model.User, error) {
 	return &res, nil
 }
 
-func (u *UserRepo) CreateUser(record *model.User) error {
+func (u *UserRepo) CreateUser(ctx context.Context, record *model.User) error {
 	collection := u.db.Collection("user")
 
-	freeSub, err := u.subRepo.GetSubscriptionByPrice(0)
+	freeSub, err := u.subRepo.GetSubscriptionByPrice(ctx, 0)
 	if err != nil {
 		return fmt.Errorf("getSubByPrice: %w", err)
 	}
@@ -99,7 +100,7 @@ func (u *UserRepo) CreateUser(record *model.User) error {
 		return fmt.Errorf("db: %w", err)
 	}
 
-	_, err = u.listRepo.CreateList(model.List{
+	_, err = u.listRepo.CreateList(ctx, model.List{
 		Name:        fmt.Sprintf("Просмотры %s", record.Username),
 		Description: "",
 		CreatorName: record.Username,
@@ -112,7 +113,7 @@ func (u *UserRepo) CreateUser(record *model.User) error {
 	return nil
 }
 
-func (u *UserRepo) UpdateUser(record model.User) error {
+func (u *UserRepo) UpdateUser(ctx context.Context, record model.User) error {
 	m := userModel{
 		Username:         record.Username,
 		IsAdmin:          record.IsAdmin,
@@ -135,7 +136,7 @@ func (u *UserRepo) UpdateUser(record model.User) error {
 	return nil
 }
 
-func (u *UserRepo) DeleteUser(username string) error {
+func (u *UserRepo) DeleteUser(ctx context.Context, username string) error {
 	collection := u.db.Collection("user")
 	filter := bson.D{{"username", username}}
 	_, err := collection.DeleteOne(nil, filter)
@@ -145,7 +146,7 @@ func (u *UserRepo) DeleteUser(username string) error {
 	return nil
 }
 
-func (u *UserRepo) GetPublicInfo(username string) (*model.User, error) {
+func (u *UserRepo) GetPublicInfo(ctx context.Context, username string) (*model.User, error) {
 	var resDB userModel
 	collection := u.db.Collection("user")
 	filter := bson.D{{"username", username}}
@@ -153,7 +154,7 @@ func (u *UserRepo) GetPublicInfo(username string) (*model.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("db: %w", err)
 	}
-	sub, err := u.subRepo.GetSubscription(resDB.SubId)
+	sub, err := u.subRepo.GetSubscription(ctx, resDB.SubId)
 	if err != nil {
 		return nil, fmt.Errorf("getSubscription: %w", err)
 	}

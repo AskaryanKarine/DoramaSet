@@ -4,6 +4,8 @@ import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"time"
@@ -28,8 +30,10 @@ func NewSubscriptionController(SR repository.ISubscriptionRepo, UR repository.IU
 	}
 }
 
-func (s *SubscriptionController) GetAll() ([]model.Subscription, error) {
-	res, err := s.repo.GetList()
+func (s *SubscriptionController) GetAll(ctx context.Context) ([]model.Subscription, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetAll")
+	defer span.End()
+	res, err := s.repo.GetList(ctx)
 	if err != nil {
 		s.log.Warnf("get all subs err %s", err)
 		return nil, fmt.Errorf("GetStaffList: %w", err)
@@ -38,8 +42,10 @@ func (s *SubscriptionController) GetAll() ([]model.Subscription, error) {
 	return res, nil
 }
 
-func (s *SubscriptionController) GetInfo(id int) (*model.Subscription, error) {
-	res, err := s.repo.GetSubscription(id)
+func (s *SubscriptionController) GetInfo(ctx context.Context, id int) (*model.Subscription, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetInfo")
+	defer span.End()
+	res, err := s.repo.GetSubscription(ctx, id)
 	if err != nil {
 		s.log.Warnf("get info sub err %s, value %d", err, id)
 		return nil, fmt.Errorf("GetSubscription: %w", err)
@@ -48,52 +54,61 @@ func (s *SubscriptionController) GetInfo(id int) (*model.Subscription, error) {
 	return res, nil
 }
 
-func (s *SubscriptionController) SubscribeUser(token string, id int) error {
-	user, err := s.uc.AuthByToken(token)
+func (s *SubscriptionController) SubscribeUser(ctx context.Context, token string, id int) error {
+	start := time.Now()
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL SubscribeUser")
+	defer span.End()
+	stop := time.Now()
+	defer fmt.Printf("Creating span: %v ns\n\n", stop.Sub(start).Seconds())
+	ctxLog, spanLog := tracing.StartSpanFromContext(ctx, "LOG SubscribeUser")
+	defer spanLog.End()
+	user, err := s.uc.AuthByToken(ctx, token)
 	if err != nil {
-		s.log.Warnf("subscribe user auth err %s, token %s, value %d", err, token, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user auth err %s, token %s, value %d", err, token, id)
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	sub, err := s.repo.GetSubscription(id)
+	sub, err := s.repo.GetSubscription(ctx, id)
 	if err != nil {
-		s.log.Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
 		return fmt.Errorf("getSubscription: %w", err)
 	}
 
-	err = s.pc.PurgePoint(user, sub.Cost)
+	err = s.pc.PurgePoint(ctx, user, sub.Cost)
 	if err != nil {
-		s.log.Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
 		return fmt.Errorf("purgePoint: %w", err)
 	}
 
 	user.Sub = sub
 	user.LastSubscribe = time.Now()
 
-	err = s.urepo.UpdateUser(*user)
+	err = s.urepo.UpdateUser(ctx, *user)
 	if err != nil {
-		s.log.Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
 		return fmt.Errorf("updateUser: %w", err)
 	}
-	s.log.Infof("subscribe user %s, id sub %d", user.Username, id)
+	s.log.WithContext(ctxLog).Infof("subscribe user %s, id sub %d", user.Username, id)
 	return nil
 }
 
-func (s *SubscriptionController) UnsubscribeUser(token string) error {
-	user, err := s.uc.AuthByToken(token)
+func (s *SubscriptionController) UnsubscribeUser(ctx context.Context, token string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL UnsubscribeUser")
+	defer span.End()
+	user, err := s.uc.AuthByToken(ctx, token)
 	if err != nil {
 		s.log.Warnf("subscribe user auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	sub, err := s.repo.GetSubscriptionByPrice(0)
+	sub, err := s.repo.GetSubscriptionByPrice(ctx, 0)
 	if err != nil {
 		s.log.Warnf("unsubscribe user err %s, user %s", err, user.Username)
 		return fmt.Errorf("getSubscriptionByPrice: %w", err)
 	}
 	user.Sub = sub
 
-	err = s.urepo.UpdateUser(*user)
+	err = s.urepo.UpdateUser(ctx, *user)
 	if err != nil {
 		s.log.Warnf("unsubscribe user err %s, user %s", err, user.Username)
 		return fmt.Errorf("updateUser: %w", err)
@@ -102,20 +117,22 @@ func (s *SubscriptionController) UnsubscribeUser(token string) error {
 	return nil
 }
 
-func (s *SubscriptionController) UpdateSubscribe(token string) error {
-	user, err := s.uc.AuthByToken(token)
+func (s *SubscriptionController) UpdateSubscribe(ctx context.Context, token string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL UpdateSubscribe")
+	defer span.End()
+	user, err := s.uc.AuthByToken(ctx, token)
 	if err != nil {
 		s.log.Warnf("update active user auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
 	}
 	updateDate := user.LastSubscribe.Add(user.Sub.Duration)
-	if !eqDate(time.Now(), updateDate) {
+	if !eqDate(ctx, time.Now(), updateDate) {
 		return nil
 	}
 
-	err = s.SubscribeUser(token, user.Sub.Id)
+	err = s.SubscribeUser(ctx, token, user.Sub.Id)
 	if err != nil {
-		err := s.UnsubscribeUser(token)
+		err := s.UnsubscribeUser(ctx, token)
 		if err != nil {
 			s.log.Warnf("update subscribe unsubsribe user %s error %s", user.Username, err)
 			return fmt.Errorf("unsubscribeUser: %w", err)

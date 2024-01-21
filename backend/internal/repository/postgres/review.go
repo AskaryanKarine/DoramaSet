@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -21,12 +23,14 @@ func NewReviewRepo(db *gorm.DB) *ReviewRepo {
 	return &ReviewRepo{db: db}
 }
 
-func (r *ReviewRepo) GetAllReview(idD int) ([]model.Review, error) {
+func (r *ReviewRepo) GetAllReview(ctx context.Context, idD int) ([]model.Review, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetAllReview")
+	defer span.End()
 	var (
 		resDB []reviewModel
 		res   []model.Review
 	)
-	result := r.db.Table("dorama_set.review").
+	result := r.db.WithContext(ctx).Table("dorama_set.review").
 		Where("id_dorama = ?", idD).Find(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
@@ -43,9 +47,11 @@ func (r *ReviewRepo) GetAllReview(idD int) ([]model.Review, error) {
 	return res, nil
 }
 
-func (r *ReviewRepo) GetReview(username string, idD int) (*model.Review, error) {
+func (r *ReviewRepo) GetReview(ctx context.Context, username string, idD int) (*model.Review, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetReview")
+	defer span.End()
 	var resDB reviewModel
-	result := r.db.Table("dorama_set.review").
+	result := r.db.WithContext(ctx).Table("dorama_set.review").
 		Where("id_dorama = ? and username = ?", idD, username).
 		Take(&resDB)
 	if result.Error != nil {
@@ -59,21 +65,25 @@ func (r *ReviewRepo) GetReview(username string, idD int) (*model.Review, error) 
 	return &m, nil
 }
 
-func (r *ReviewRepo) CreateReview(idD int, record *model.Review) error {
+func (r *ReviewRepo) CreateReview(ctx context.Context, idD int, record *model.Review) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo CreateReview")
+	defer span.End()
 	m := reviewModel{
 		IdDorama: idD,
 		Username: record.Username,
 		Mark:     record.Mark,
 		Content:  record.Content,
 	}
-	result := r.db.Table("dorama_set.review").Create(&m)
+	result := r.db.WithContext(ctx).Table("dorama_set.review").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
-func (r *ReviewRepo) DeleteReview(username string, idD int) error {
-	result := r.db.Table("dorama_set.review").
+func (r *ReviewRepo) DeleteReview(ctx context.Context, username string, idD int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo DeleteReview")
+	defer span.End()
+	result := r.db.WithContext(ctx).Table("dorama_set.review").
 		Where("username = ? and id_dorama = ?", username, idD).
 		Delete(&reviewModel{})
 	if result.Error != nil {
@@ -82,12 +92,14 @@ func (r *ReviewRepo) DeleteReview(username string, idD int) error {
 	return nil
 }
 
-func (r *ReviewRepo) AggregateRate(idD int) (float64, int, error) {
+func (r *ReviewRepo) AggregateRate(ctx context.Context, idD int) (float64, int, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo AggregateRate")
+	defer span.End()
 	var resDB struct {
 		Avg   float64
 		Count int
 	}
-	result := r.db.Table("dorama_set.review").
+	result := r.db.WithContext(ctx).Table("dorama_set.review").
 		Where("id_dorama = ?", idD).
 		Select("AVG(mark), COUNT(*)").
 		Take(&resDB)

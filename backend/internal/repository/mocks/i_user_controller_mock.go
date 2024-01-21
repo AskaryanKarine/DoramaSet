@@ -6,6 +6,7 @@ package mocks
 
 import (
 	"DoramaSet/internal/logic/model"
+	"context"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -17,44 +18,44 @@ import (
 type IUserControllerMock struct {
 	t minimock.Tester
 
-	funcAuthByToken          func(token string) (up1 *model.User, err error)
-	inspectFuncAuthByToken   func(token string)
+	funcAuthByToken          func(ctx context.Context, token string) (up1 *model.User, err error)
+	inspectFuncAuthByToken   func(ctx context.Context, token string)
 	afterAuthByTokenCounter  uint64
 	beforeAuthByTokenCounter uint64
 	AuthByTokenMock          mIUserControllerMockAuthByToken
 
-	funcChangeAvatarColor          func(token string, color string) (err error)
-	inspectFuncChangeAvatarColor   func(token string, color string)
+	funcChangeAvatarColor          func(ctx context.Context, token string, color string) (err error)
+	inspectFuncChangeAvatarColor   func(ctx context.Context, token string, color string)
 	afterChangeAvatarColorCounter  uint64
 	beforeChangeAvatarColorCounter uint64
 	ChangeAvatarColorMock          mIUserControllerMockChangeAvatarColor
 
-	funcChangeEmoji          func(token string, emojiCode string) (err error)
-	inspectFuncChangeEmoji   func(token string, emojiCode string)
+	funcChangeEmoji          func(ctx context.Context, token string, emojiCode string) (err error)
+	inspectFuncChangeEmoji   func(ctx context.Context, token string, emojiCode string)
 	afterChangeEmojiCounter  uint64
 	beforeChangeEmojiCounter uint64
 	ChangeEmojiMock          mIUserControllerMockChangeEmoji
 
-	funcGetPublicInfo          func(username string) (up1 *model.User, err error)
-	inspectFuncGetPublicInfo   func(username string)
+	funcGetPublicInfo          func(ctx context.Context, username string) (up1 *model.User, err error)
+	inspectFuncGetPublicInfo   func(ctx context.Context, username string)
 	afterGetPublicInfoCounter  uint64
 	beforeGetPublicInfoCounter uint64
 	GetPublicInfoMock          mIUserControllerMockGetPublicInfo
 
-	funcLogin          func(username string, password string) (s1 string, err error)
-	inspectFuncLogin   func(username string, password string)
+	funcLogin          func(ctx context.Context, username string, password string) (s1 string, err error)
+	inspectFuncLogin   func(ctx context.Context, username string, password string)
 	afterLoginCounter  uint64
 	beforeLoginCounter uint64
 	LoginMock          mIUserControllerMockLogin
 
-	funcRegistration          func(record *model.User) (s1 string, err error)
-	inspectFuncRegistration   func(record *model.User)
+	funcRegistration          func(ctx context.Context, record *model.User) (s1 string, err error)
+	inspectFuncRegistration   func(ctx context.Context, record *model.User)
 	afterRegistrationCounter  uint64
 	beforeRegistrationCounter uint64
 	RegistrationMock          mIUserControllerMockRegistration
 
-	funcUpdateActive          func(token string) (err error)
-	inspectFuncUpdateActive   func(token string)
+	funcUpdateActive          func(ctx context.Context, token string) (err error)
+	inspectFuncUpdateActive   func(ctx context.Context, token string)
 	afterUpdateActiveCounter  uint64
 	beforeUpdateActiveCounter uint64
 	UpdateActiveMock          mIUserControllerMockUpdateActive
@@ -110,6 +111,7 @@ type IUserControllerMockAuthByTokenExpectation struct {
 
 // IUserControllerMockAuthByTokenParams contains parameters of the IUserController.AuthByToken
 type IUserControllerMockAuthByTokenParams struct {
+	ctx   context.Context
 	token string
 }
 
@@ -120,7 +122,7 @@ type IUserControllerMockAuthByTokenResults struct {
 }
 
 // Expect sets up expected params for IUserController.AuthByToken
-func (mmAuthByToken *mIUserControllerMockAuthByToken) Expect(token string) *mIUserControllerMockAuthByToken {
+func (mmAuthByToken *mIUserControllerMockAuthByToken) Expect(ctx context.Context, token string) *mIUserControllerMockAuthByToken {
 	if mmAuthByToken.mock.funcAuthByToken != nil {
 		mmAuthByToken.mock.t.Fatalf("IUserControllerMock.AuthByToken mock is already set by Set")
 	}
@@ -129,7 +131,7 @@ func (mmAuthByToken *mIUserControllerMockAuthByToken) Expect(token string) *mIUs
 		mmAuthByToken.defaultExpectation = &IUserControllerMockAuthByTokenExpectation{}
 	}
 
-	mmAuthByToken.defaultExpectation.params = &IUserControllerMockAuthByTokenParams{token}
+	mmAuthByToken.defaultExpectation.params = &IUserControllerMockAuthByTokenParams{ctx, token}
 	for _, e := range mmAuthByToken.expectations {
 		if minimock.Equal(e.params, mmAuthByToken.defaultExpectation.params) {
 			mmAuthByToken.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmAuthByToken.defaultExpectation.params)
@@ -140,7 +142,7 @@ func (mmAuthByToken *mIUserControllerMockAuthByToken) Expect(token string) *mIUs
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.AuthByToken
-func (mmAuthByToken *mIUserControllerMockAuthByToken) Inspect(f func(token string)) *mIUserControllerMockAuthByToken {
+func (mmAuthByToken *mIUserControllerMockAuthByToken) Inspect(f func(ctx context.Context, token string)) *mIUserControllerMockAuthByToken {
 	if mmAuthByToken.mock.inspectFuncAuthByToken != nil {
 		mmAuthByToken.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.AuthByToken")
 	}
@@ -164,7 +166,7 @@ func (mmAuthByToken *mIUserControllerMockAuthByToken) Return(up1 *model.User, er
 }
 
 // Set uses given function f to mock the IUserController.AuthByToken method
-func (mmAuthByToken *mIUserControllerMockAuthByToken) Set(f func(token string) (up1 *model.User, err error)) *IUserControllerMock {
+func (mmAuthByToken *mIUserControllerMockAuthByToken) Set(f func(ctx context.Context, token string) (up1 *model.User, err error)) *IUserControllerMock {
 	if mmAuthByToken.defaultExpectation != nil {
 		mmAuthByToken.mock.t.Fatalf("Default expectation is already set for the IUserController.AuthByToken method")
 	}
@@ -179,14 +181,14 @@ func (mmAuthByToken *mIUserControllerMockAuthByToken) Set(f func(token string) (
 
 // When sets expectation for the IUserController.AuthByToken which will trigger the result defined by the following
 // Then helper
-func (mmAuthByToken *mIUserControllerMockAuthByToken) When(token string) *IUserControllerMockAuthByTokenExpectation {
+func (mmAuthByToken *mIUserControllerMockAuthByToken) When(ctx context.Context, token string) *IUserControllerMockAuthByTokenExpectation {
 	if mmAuthByToken.mock.funcAuthByToken != nil {
 		mmAuthByToken.mock.t.Fatalf("IUserControllerMock.AuthByToken mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockAuthByTokenExpectation{
 		mock:   mmAuthByToken.mock,
-		params: &IUserControllerMockAuthByTokenParams{token},
+		params: &IUserControllerMockAuthByTokenParams{ctx, token},
 	}
 	mmAuthByToken.expectations = append(mmAuthByToken.expectations, expectation)
 	return expectation
@@ -199,15 +201,15 @@ func (e *IUserControllerMockAuthByTokenExpectation) Then(up1 *model.User, err er
 }
 
 // AuthByToken implements IUserController
-func (mmAuthByToken *IUserControllerMock) AuthByToken(token string) (up1 *model.User, err error) {
+func (mmAuthByToken *IUserControllerMock) AuthByToken(ctx context.Context, token string) (up1 *model.User, err error) {
 	mm_atomic.AddUint64(&mmAuthByToken.beforeAuthByTokenCounter, 1)
 	defer mm_atomic.AddUint64(&mmAuthByToken.afterAuthByTokenCounter, 1)
 
 	if mmAuthByToken.inspectFuncAuthByToken != nil {
-		mmAuthByToken.inspectFuncAuthByToken(token)
+		mmAuthByToken.inspectFuncAuthByToken(ctx, token)
 	}
 
-	mm_params := &IUserControllerMockAuthByTokenParams{token}
+	mm_params := &IUserControllerMockAuthByTokenParams{ctx, token}
 
 	// Record call args
 	mmAuthByToken.AuthByTokenMock.mutex.Lock()
@@ -224,7 +226,7 @@ func (mmAuthByToken *IUserControllerMock) AuthByToken(token string) (up1 *model.
 	if mmAuthByToken.AuthByTokenMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmAuthByToken.AuthByTokenMock.defaultExpectation.Counter, 1)
 		mm_want := mmAuthByToken.AuthByTokenMock.defaultExpectation.params
-		mm_got := IUserControllerMockAuthByTokenParams{token}
+		mm_got := IUserControllerMockAuthByTokenParams{ctx, token}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmAuthByToken.t.Errorf("IUserControllerMock.AuthByToken got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -236,9 +238,9 @@ func (mmAuthByToken *IUserControllerMock) AuthByToken(token string) (up1 *model.
 		return (*mm_results).up1, (*mm_results).err
 	}
 	if mmAuthByToken.funcAuthByToken != nil {
-		return mmAuthByToken.funcAuthByToken(token)
+		return mmAuthByToken.funcAuthByToken(ctx, token)
 	}
-	mmAuthByToken.t.Fatalf("Unexpected call to IUserControllerMock.AuthByToken. %v", token)
+	mmAuthByToken.t.Fatalf("Unexpected call to IUserControllerMock.AuthByToken. %v %v", ctx, token)
 	return
 }
 
@@ -326,6 +328,7 @@ type IUserControllerMockChangeAvatarColorExpectation struct {
 
 // IUserControllerMockChangeAvatarColorParams contains parameters of the IUserController.ChangeAvatarColor
 type IUserControllerMockChangeAvatarColorParams struct {
+	ctx   context.Context
 	token string
 	color string
 }
@@ -336,7 +339,7 @@ type IUserControllerMockChangeAvatarColorResults struct {
 }
 
 // Expect sets up expected params for IUserController.ChangeAvatarColor
-func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Expect(token string, color string) *mIUserControllerMockChangeAvatarColor {
+func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Expect(ctx context.Context, token string, color string) *mIUserControllerMockChangeAvatarColor {
 	if mmChangeAvatarColor.mock.funcChangeAvatarColor != nil {
 		mmChangeAvatarColor.mock.t.Fatalf("IUserControllerMock.ChangeAvatarColor mock is already set by Set")
 	}
@@ -345,7 +348,7 @@ func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Expect(token s
 		mmChangeAvatarColor.defaultExpectation = &IUserControllerMockChangeAvatarColorExpectation{}
 	}
 
-	mmChangeAvatarColor.defaultExpectation.params = &IUserControllerMockChangeAvatarColorParams{token, color}
+	mmChangeAvatarColor.defaultExpectation.params = &IUserControllerMockChangeAvatarColorParams{ctx, token, color}
 	for _, e := range mmChangeAvatarColor.expectations {
 		if minimock.Equal(e.params, mmChangeAvatarColor.defaultExpectation.params) {
 			mmChangeAvatarColor.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmChangeAvatarColor.defaultExpectation.params)
@@ -356,7 +359,7 @@ func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Expect(token s
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.ChangeAvatarColor
-func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Inspect(f func(token string, color string)) *mIUserControllerMockChangeAvatarColor {
+func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Inspect(f func(ctx context.Context, token string, color string)) *mIUserControllerMockChangeAvatarColor {
 	if mmChangeAvatarColor.mock.inspectFuncChangeAvatarColor != nil {
 		mmChangeAvatarColor.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.ChangeAvatarColor")
 	}
@@ -380,7 +383,7 @@ func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Return(err err
 }
 
 // Set uses given function f to mock the IUserController.ChangeAvatarColor method
-func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Set(f func(token string, color string) (err error)) *IUserControllerMock {
+func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Set(f func(ctx context.Context, token string, color string) (err error)) *IUserControllerMock {
 	if mmChangeAvatarColor.defaultExpectation != nil {
 		mmChangeAvatarColor.mock.t.Fatalf("Default expectation is already set for the IUserController.ChangeAvatarColor method")
 	}
@@ -395,14 +398,14 @@ func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) Set(f func(tok
 
 // When sets expectation for the IUserController.ChangeAvatarColor which will trigger the result defined by the following
 // Then helper
-func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) When(token string, color string) *IUserControllerMockChangeAvatarColorExpectation {
+func (mmChangeAvatarColor *mIUserControllerMockChangeAvatarColor) When(ctx context.Context, token string, color string) *IUserControllerMockChangeAvatarColorExpectation {
 	if mmChangeAvatarColor.mock.funcChangeAvatarColor != nil {
 		mmChangeAvatarColor.mock.t.Fatalf("IUserControllerMock.ChangeAvatarColor mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockChangeAvatarColorExpectation{
 		mock:   mmChangeAvatarColor.mock,
-		params: &IUserControllerMockChangeAvatarColorParams{token, color},
+		params: &IUserControllerMockChangeAvatarColorParams{ctx, token, color},
 	}
 	mmChangeAvatarColor.expectations = append(mmChangeAvatarColor.expectations, expectation)
 	return expectation
@@ -415,15 +418,15 @@ func (e *IUserControllerMockChangeAvatarColorExpectation) Then(err error) *IUser
 }
 
 // ChangeAvatarColor implements IUserController
-func (mmChangeAvatarColor *IUserControllerMock) ChangeAvatarColor(token string, color string) (err error) {
+func (mmChangeAvatarColor *IUserControllerMock) ChangeAvatarColor(ctx context.Context, token string, color string) (err error) {
 	mm_atomic.AddUint64(&mmChangeAvatarColor.beforeChangeAvatarColorCounter, 1)
 	defer mm_atomic.AddUint64(&mmChangeAvatarColor.afterChangeAvatarColorCounter, 1)
 
 	if mmChangeAvatarColor.inspectFuncChangeAvatarColor != nil {
-		mmChangeAvatarColor.inspectFuncChangeAvatarColor(token, color)
+		mmChangeAvatarColor.inspectFuncChangeAvatarColor(ctx, token, color)
 	}
 
-	mm_params := &IUserControllerMockChangeAvatarColorParams{token, color}
+	mm_params := &IUserControllerMockChangeAvatarColorParams{ctx, token, color}
 
 	// Record call args
 	mmChangeAvatarColor.ChangeAvatarColorMock.mutex.Lock()
@@ -440,7 +443,7 @@ func (mmChangeAvatarColor *IUserControllerMock) ChangeAvatarColor(token string, 
 	if mmChangeAvatarColor.ChangeAvatarColorMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmChangeAvatarColor.ChangeAvatarColorMock.defaultExpectation.Counter, 1)
 		mm_want := mmChangeAvatarColor.ChangeAvatarColorMock.defaultExpectation.params
-		mm_got := IUserControllerMockChangeAvatarColorParams{token, color}
+		mm_got := IUserControllerMockChangeAvatarColorParams{ctx, token, color}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmChangeAvatarColor.t.Errorf("IUserControllerMock.ChangeAvatarColor got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -452,9 +455,9 @@ func (mmChangeAvatarColor *IUserControllerMock) ChangeAvatarColor(token string, 
 		return (*mm_results).err
 	}
 	if mmChangeAvatarColor.funcChangeAvatarColor != nil {
-		return mmChangeAvatarColor.funcChangeAvatarColor(token, color)
+		return mmChangeAvatarColor.funcChangeAvatarColor(ctx, token, color)
 	}
-	mmChangeAvatarColor.t.Fatalf("Unexpected call to IUserControllerMock.ChangeAvatarColor. %v %v", token, color)
+	mmChangeAvatarColor.t.Fatalf("Unexpected call to IUserControllerMock.ChangeAvatarColor. %v %v %v", ctx, token, color)
 	return
 }
 
@@ -542,6 +545,7 @@ type IUserControllerMockChangeEmojiExpectation struct {
 
 // IUserControllerMockChangeEmojiParams contains parameters of the IUserController.ChangeEmoji
 type IUserControllerMockChangeEmojiParams struct {
+	ctx       context.Context
 	token     string
 	emojiCode string
 }
@@ -552,7 +556,7 @@ type IUserControllerMockChangeEmojiResults struct {
 }
 
 // Expect sets up expected params for IUserController.ChangeEmoji
-func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Expect(token string, emojiCode string) *mIUserControllerMockChangeEmoji {
+func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Expect(ctx context.Context, token string, emojiCode string) *mIUserControllerMockChangeEmoji {
 	if mmChangeEmoji.mock.funcChangeEmoji != nil {
 		mmChangeEmoji.mock.t.Fatalf("IUserControllerMock.ChangeEmoji mock is already set by Set")
 	}
@@ -561,7 +565,7 @@ func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Expect(token string, emoji
 		mmChangeEmoji.defaultExpectation = &IUserControllerMockChangeEmojiExpectation{}
 	}
 
-	mmChangeEmoji.defaultExpectation.params = &IUserControllerMockChangeEmojiParams{token, emojiCode}
+	mmChangeEmoji.defaultExpectation.params = &IUserControllerMockChangeEmojiParams{ctx, token, emojiCode}
 	for _, e := range mmChangeEmoji.expectations {
 		if minimock.Equal(e.params, mmChangeEmoji.defaultExpectation.params) {
 			mmChangeEmoji.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmChangeEmoji.defaultExpectation.params)
@@ -572,7 +576,7 @@ func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Expect(token string, emoji
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.ChangeEmoji
-func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Inspect(f func(token string, emojiCode string)) *mIUserControllerMockChangeEmoji {
+func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Inspect(f func(ctx context.Context, token string, emojiCode string)) *mIUserControllerMockChangeEmoji {
 	if mmChangeEmoji.mock.inspectFuncChangeEmoji != nil {
 		mmChangeEmoji.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.ChangeEmoji")
 	}
@@ -596,7 +600,7 @@ func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Return(err error) *IUserCo
 }
 
 // Set uses given function f to mock the IUserController.ChangeEmoji method
-func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Set(f func(token string, emojiCode string) (err error)) *IUserControllerMock {
+func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Set(f func(ctx context.Context, token string, emojiCode string) (err error)) *IUserControllerMock {
 	if mmChangeEmoji.defaultExpectation != nil {
 		mmChangeEmoji.mock.t.Fatalf("Default expectation is already set for the IUserController.ChangeEmoji method")
 	}
@@ -611,14 +615,14 @@ func (mmChangeEmoji *mIUserControllerMockChangeEmoji) Set(f func(token string, e
 
 // When sets expectation for the IUserController.ChangeEmoji which will trigger the result defined by the following
 // Then helper
-func (mmChangeEmoji *mIUserControllerMockChangeEmoji) When(token string, emojiCode string) *IUserControllerMockChangeEmojiExpectation {
+func (mmChangeEmoji *mIUserControllerMockChangeEmoji) When(ctx context.Context, token string, emojiCode string) *IUserControllerMockChangeEmojiExpectation {
 	if mmChangeEmoji.mock.funcChangeEmoji != nil {
 		mmChangeEmoji.mock.t.Fatalf("IUserControllerMock.ChangeEmoji mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockChangeEmojiExpectation{
 		mock:   mmChangeEmoji.mock,
-		params: &IUserControllerMockChangeEmojiParams{token, emojiCode},
+		params: &IUserControllerMockChangeEmojiParams{ctx, token, emojiCode},
 	}
 	mmChangeEmoji.expectations = append(mmChangeEmoji.expectations, expectation)
 	return expectation
@@ -631,15 +635,15 @@ func (e *IUserControllerMockChangeEmojiExpectation) Then(err error) *IUserContro
 }
 
 // ChangeEmoji implements IUserController
-func (mmChangeEmoji *IUserControllerMock) ChangeEmoji(token string, emojiCode string) (err error) {
+func (mmChangeEmoji *IUserControllerMock) ChangeEmoji(ctx context.Context, token string, emojiCode string) (err error) {
 	mm_atomic.AddUint64(&mmChangeEmoji.beforeChangeEmojiCounter, 1)
 	defer mm_atomic.AddUint64(&mmChangeEmoji.afterChangeEmojiCounter, 1)
 
 	if mmChangeEmoji.inspectFuncChangeEmoji != nil {
-		mmChangeEmoji.inspectFuncChangeEmoji(token, emojiCode)
+		mmChangeEmoji.inspectFuncChangeEmoji(ctx, token, emojiCode)
 	}
 
-	mm_params := &IUserControllerMockChangeEmojiParams{token, emojiCode}
+	mm_params := &IUserControllerMockChangeEmojiParams{ctx, token, emojiCode}
 
 	// Record call args
 	mmChangeEmoji.ChangeEmojiMock.mutex.Lock()
@@ -656,7 +660,7 @@ func (mmChangeEmoji *IUserControllerMock) ChangeEmoji(token string, emojiCode st
 	if mmChangeEmoji.ChangeEmojiMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmChangeEmoji.ChangeEmojiMock.defaultExpectation.Counter, 1)
 		mm_want := mmChangeEmoji.ChangeEmojiMock.defaultExpectation.params
-		mm_got := IUserControllerMockChangeEmojiParams{token, emojiCode}
+		mm_got := IUserControllerMockChangeEmojiParams{ctx, token, emojiCode}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmChangeEmoji.t.Errorf("IUserControllerMock.ChangeEmoji got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -668,9 +672,9 @@ func (mmChangeEmoji *IUserControllerMock) ChangeEmoji(token string, emojiCode st
 		return (*mm_results).err
 	}
 	if mmChangeEmoji.funcChangeEmoji != nil {
-		return mmChangeEmoji.funcChangeEmoji(token, emojiCode)
+		return mmChangeEmoji.funcChangeEmoji(ctx, token, emojiCode)
 	}
-	mmChangeEmoji.t.Fatalf("Unexpected call to IUserControllerMock.ChangeEmoji. %v %v", token, emojiCode)
+	mmChangeEmoji.t.Fatalf("Unexpected call to IUserControllerMock.ChangeEmoji. %v %v %v", ctx, token, emojiCode)
 	return
 }
 
@@ -758,6 +762,7 @@ type IUserControllerMockGetPublicInfoExpectation struct {
 
 // IUserControllerMockGetPublicInfoParams contains parameters of the IUserController.GetPublicInfo
 type IUserControllerMockGetPublicInfoParams struct {
+	ctx      context.Context
 	username string
 }
 
@@ -768,7 +773,7 @@ type IUserControllerMockGetPublicInfoResults struct {
 }
 
 // Expect sets up expected params for IUserController.GetPublicInfo
-func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Expect(username string) *mIUserControllerMockGetPublicInfo {
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Expect(ctx context.Context, username string) *mIUserControllerMockGetPublicInfo {
 	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
 		mmGetPublicInfo.mock.t.Fatalf("IUserControllerMock.GetPublicInfo mock is already set by Set")
 	}
@@ -777,7 +782,7 @@ func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Expect(username string
 		mmGetPublicInfo.defaultExpectation = &IUserControllerMockGetPublicInfoExpectation{}
 	}
 
-	mmGetPublicInfo.defaultExpectation.params = &IUserControllerMockGetPublicInfoParams{username}
+	mmGetPublicInfo.defaultExpectation.params = &IUserControllerMockGetPublicInfoParams{ctx, username}
 	for _, e := range mmGetPublicInfo.expectations {
 		if minimock.Equal(e.params, mmGetPublicInfo.defaultExpectation.params) {
 			mmGetPublicInfo.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetPublicInfo.defaultExpectation.params)
@@ -788,7 +793,7 @@ func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Expect(username string
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.GetPublicInfo
-func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Inspect(f func(username string)) *mIUserControllerMockGetPublicInfo {
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Inspect(f func(ctx context.Context, username string)) *mIUserControllerMockGetPublicInfo {
 	if mmGetPublicInfo.mock.inspectFuncGetPublicInfo != nil {
 		mmGetPublicInfo.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.GetPublicInfo")
 	}
@@ -812,7 +817,7 @@ func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Return(up1 *model.User
 }
 
 // Set uses given function f to mock the IUserController.GetPublicInfo method
-func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Set(f func(username string) (up1 *model.User, err error)) *IUserControllerMock {
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Set(f func(ctx context.Context, username string) (up1 *model.User, err error)) *IUserControllerMock {
 	if mmGetPublicInfo.defaultExpectation != nil {
 		mmGetPublicInfo.mock.t.Fatalf("Default expectation is already set for the IUserController.GetPublicInfo method")
 	}
@@ -827,14 +832,14 @@ func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) Set(f func(username st
 
 // When sets expectation for the IUserController.GetPublicInfo which will trigger the result defined by the following
 // Then helper
-func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) When(username string) *IUserControllerMockGetPublicInfoExpectation {
+func (mmGetPublicInfo *mIUserControllerMockGetPublicInfo) When(ctx context.Context, username string) *IUserControllerMockGetPublicInfoExpectation {
 	if mmGetPublicInfo.mock.funcGetPublicInfo != nil {
 		mmGetPublicInfo.mock.t.Fatalf("IUserControllerMock.GetPublicInfo mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockGetPublicInfoExpectation{
 		mock:   mmGetPublicInfo.mock,
-		params: &IUserControllerMockGetPublicInfoParams{username},
+		params: &IUserControllerMockGetPublicInfoParams{ctx, username},
 	}
 	mmGetPublicInfo.expectations = append(mmGetPublicInfo.expectations, expectation)
 	return expectation
@@ -847,15 +852,15 @@ func (e *IUserControllerMockGetPublicInfoExpectation) Then(up1 *model.User, err 
 }
 
 // GetPublicInfo implements IUserController
-func (mmGetPublicInfo *IUserControllerMock) GetPublicInfo(username string) (up1 *model.User, err error) {
+func (mmGetPublicInfo *IUserControllerMock) GetPublicInfo(ctx context.Context, username string) (up1 *model.User, err error) {
 	mm_atomic.AddUint64(&mmGetPublicInfo.beforeGetPublicInfoCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetPublicInfo.afterGetPublicInfoCounter, 1)
 
 	if mmGetPublicInfo.inspectFuncGetPublicInfo != nil {
-		mmGetPublicInfo.inspectFuncGetPublicInfo(username)
+		mmGetPublicInfo.inspectFuncGetPublicInfo(ctx, username)
 	}
 
-	mm_params := &IUserControllerMockGetPublicInfoParams{username}
+	mm_params := &IUserControllerMockGetPublicInfoParams{ctx, username}
 
 	// Record call args
 	mmGetPublicInfo.GetPublicInfoMock.mutex.Lock()
@@ -872,7 +877,7 @@ func (mmGetPublicInfo *IUserControllerMock) GetPublicInfo(username string) (up1 
 	if mmGetPublicInfo.GetPublicInfoMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetPublicInfo.GetPublicInfoMock.defaultExpectation.params
-		mm_got := IUserControllerMockGetPublicInfoParams{username}
+		mm_got := IUserControllerMockGetPublicInfoParams{ctx, username}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetPublicInfo.t.Errorf("IUserControllerMock.GetPublicInfo got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -884,9 +889,9 @@ func (mmGetPublicInfo *IUserControllerMock) GetPublicInfo(username string) (up1 
 		return (*mm_results).up1, (*mm_results).err
 	}
 	if mmGetPublicInfo.funcGetPublicInfo != nil {
-		return mmGetPublicInfo.funcGetPublicInfo(username)
+		return mmGetPublicInfo.funcGetPublicInfo(ctx, username)
 	}
-	mmGetPublicInfo.t.Fatalf("Unexpected call to IUserControllerMock.GetPublicInfo. %v", username)
+	mmGetPublicInfo.t.Fatalf("Unexpected call to IUserControllerMock.GetPublicInfo. %v %v", ctx, username)
 	return
 }
 
@@ -974,6 +979,7 @@ type IUserControllerMockLoginExpectation struct {
 
 // IUserControllerMockLoginParams contains parameters of the IUserController.Login
 type IUserControllerMockLoginParams struct {
+	ctx      context.Context
 	username string
 	password string
 }
@@ -985,7 +991,7 @@ type IUserControllerMockLoginResults struct {
 }
 
 // Expect sets up expected params for IUserController.Login
-func (mmLogin *mIUserControllerMockLogin) Expect(username string, password string) *mIUserControllerMockLogin {
+func (mmLogin *mIUserControllerMockLogin) Expect(ctx context.Context, username string, password string) *mIUserControllerMockLogin {
 	if mmLogin.mock.funcLogin != nil {
 		mmLogin.mock.t.Fatalf("IUserControllerMock.Login mock is already set by Set")
 	}
@@ -994,7 +1000,7 @@ func (mmLogin *mIUserControllerMockLogin) Expect(username string, password strin
 		mmLogin.defaultExpectation = &IUserControllerMockLoginExpectation{}
 	}
 
-	mmLogin.defaultExpectation.params = &IUserControllerMockLoginParams{username, password}
+	mmLogin.defaultExpectation.params = &IUserControllerMockLoginParams{ctx, username, password}
 	for _, e := range mmLogin.expectations {
 		if minimock.Equal(e.params, mmLogin.defaultExpectation.params) {
 			mmLogin.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmLogin.defaultExpectation.params)
@@ -1005,7 +1011,7 @@ func (mmLogin *mIUserControllerMockLogin) Expect(username string, password strin
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.Login
-func (mmLogin *mIUserControllerMockLogin) Inspect(f func(username string, password string)) *mIUserControllerMockLogin {
+func (mmLogin *mIUserControllerMockLogin) Inspect(f func(ctx context.Context, username string, password string)) *mIUserControllerMockLogin {
 	if mmLogin.mock.inspectFuncLogin != nil {
 		mmLogin.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.Login")
 	}
@@ -1029,7 +1035,7 @@ func (mmLogin *mIUserControllerMockLogin) Return(s1 string, err error) *IUserCon
 }
 
 // Set uses given function f to mock the IUserController.Login method
-func (mmLogin *mIUserControllerMockLogin) Set(f func(username string, password string) (s1 string, err error)) *IUserControllerMock {
+func (mmLogin *mIUserControllerMockLogin) Set(f func(ctx context.Context, username string, password string) (s1 string, err error)) *IUserControllerMock {
 	if mmLogin.defaultExpectation != nil {
 		mmLogin.mock.t.Fatalf("Default expectation is already set for the IUserController.Login method")
 	}
@@ -1044,14 +1050,14 @@ func (mmLogin *mIUserControllerMockLogin) Set(f func(username string, password s
 
 // When sets expectation for the IUserController.Login which will trigger the result defined by the following
 // Then helper
-func (mmLogin *mIUserControllerMockLogin) When(username string, password string) *IUserControllerMockLoginExpectation {
+func (mmLogin *mIUserControllerMockLogin) When(ctx context.Context, username string, password string) *IUserControllerMockLoginExpectation {
 	if mmLogin.mock.funcLogin != nil {
 		mmLogin.mock.t.Fatalf("IUserControllerMock.Login mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockLoginExpectation{
 		mock:   mmLogin.mock,
-		params: &IUserControllerMockLoginParams{username, password},
+		params: &IUserControllerMockLoginParams{ctx, username, password},
 	}
 	mmLogin.expectations = append(mmLogin.expectations, expectation)
 	return expectation
@@ -1064,15 +1070,15 @@ func (e *IUserControllerMockLoginExpectation) Then(s1 string, err error) *IUserC
 }
 
 // Login implements IUserController
-func (mmLogin *IUserControllerMock) Login(username string, password string) (s1 string, err error) {
+func (mmLogin *IUserControllerMock) Login(ctx context.Context, username string, password string) (s1 string, err error) {
 	mm_atomic.AddUint64(&mmLogin.beforeLoginCounter, 1)
 	defer mm_atomic.AddUint64(&mmLogin.afterLoginCounter, 1)
 
 	if mmLogin.inspectFuncLogin != nil {
-		mmLogin.inspectFuncLogin(username, password)
+		mmLogin.inspectFuncLogin(ctx, username, password)
 	}
 
-	mm_params := &IUserControllerMockLoginParams{username, password}
+	mm_params := &IUserControllerMockLoginParams{ctx, username, password}
 
 	// Record call args
 	mmLogin.LoginMock.mutex.Lock()
@@ -1089,7 +1095,7 @@ func (mmLogin *IUserControllerMock) Login(username string, password string) (s1 
 	if mmLogin.LoginMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmLogin.LoginMock.defaultExpectation.Counter, 1)
 		mm_want := mmLogin.LoginMock.defaultExpectation.params
-		mm_got := IUserControllerMockLoginParams{username, password}
+		mm_got := IUserControllerMockLoginParams{ctx, username, password}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmLogin.t.Errorf("IUserControllerMock.Login got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1101,9 +1107,9 @@ func (mmLogin *IUserControllerMock) Login(username string, password string) (s1 
 		return (*mm_results).s1, (*mm_results).err
 	}
 	if mmLogin.funcLogin != nil {
-		return mmLogin.funcLogin(username, password)
+		return mmLogin.funcLogin(ctx, username, password)
 	}
-	mmLogin.t.Fatalf("Unexpected call to IUserControllerMock.Login. %v %v", username, password)
+	mmLogin.t.Fatalf("Unexpected call to IUserControllerMock.Login. %v %v %v", ctx, username, password)
 	return
 }
 
@@ -1191,6 +1197,7 @@ type IUserControllerMockRegistrationExpectation struct {
 
 // IUserControllerMockRegistrationParams contains parameters of the IUserController.Registration
 type IUserControllerMockRegistrationParams struct {
+	ctx    context.Context
 	record *model.User
 }
 
@@ -1201,7 +1208,7 @@ type IUserControllerMockRegistrationResults struct {
 }
 
 // Expect sets up expected params for IUserController.Registration
-func (mmRegistration *mIUserControllerMockRegistration) Expect(record *model.User) *mIUserControllerMockRegistration {
+func (mmRegistration *mIUserControllerMockRegistration) Expect(ctx context.Context, record *model.User) *mIUserControllerMockRegistration {
 	if mmRegistration.mock.funcRegistration != nil {
 		mmRegistration.mock.t.Fatalf("IUserControllerMock.Registration mock is already set by Set")
 	}
@@ -1210,7 +1217,7 @@ func (mmRegistration *mIUserControllerMockRegistration) Expect(record *model.Use
 		mmRegistration.defaultExpectation = &IUserControllerMockRegistrationExpectation{}
 	}
 
-	mmRegistration.defaultExpectation.params = &IUserControllerMockRegistrationParams{record}
+	mmRegistration.defaultExpectation.params = &IUserControllerMockRegistrationParams{ctx, record}
 	for _, e := range mmRegistration.expectations {
 		if minimock.Equal(e.params, mmRegistration.defaultExpectation.params) {
 			mmRegistration.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmRegistration.defaultExpectation.params)
@@ -1221,7 +1228,7 @@ func (mmRegistration *mIUserControllerMockRegistration) Expect(record *model.Use
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.Registration
-func (mmRegistration *mIUserControllerMockRegistration) Inspect(f func(record *model.User)) *mIUserControllerMockRegistration {
+func (mmRegistration *mIUserControllerMockRegistration) Inspect(f func(ctx context.Context, record *model.User)) *mIUserControllerMockRegistration {
 	if mmRegistration.mock.inspectFuncRegistration != nil {
 		mmRegistration.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.Registration")
 	}
@@ -1245,7 +1252,7 @@ func (mmRegistration *mIUserControllerMockRegistration) Return(s1 string, err er
 }
 
 // Set uses given function f to mock the IUserController.Registration method
-func (mmRegistration *mIUserControllerMockRegistration) Set(f func(record *model.User) (s1 string, err error)) *IUserControllerMock {
+func (mmRegistration *mIUserControllerMockRegistration) Set(f func(ctx context.Context, record *model.User) (s1 string, err error)) *IUserControllerMock {
 	if mmRegistration.defaultExpectation != nil {
 		mmRegistration.mock.t.Fatalf("Default expectation is already set for the IUserController.Registration method")
 	}
@@ -1260,14 +1267,14 @@ func (mmRegistration *mIUserControllerMockRegistration) Set(f func(record *model
 
 // When sets expectation for the IUserController.Registration which will trigger the result defined by the following
 // Then helper
-func (mmRegistration *mIUserControllerMockRegistration) When(record *model.User) *IUserControllerMockRegistrationExpectation {
+func (mmRegistration *mIUserControllerMockRegistration) When(ctx context.Context, record *model.User) *IUserControllerMockRegistrationExpectation {
 	if mmRegistration.mock.funcRegistration != nil {
 		mmRegistration.mock.t.Fatalf("IUserControllerMock.Registration mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockRegistrationExpectation{
 		mock:   mmRegistration.mock,
-		params: &IUserControllerMockRegistrationParams{record},
+		params: &IUserControllerMockRegistrationParams{ctx, record},
 	}
 	mmRegistration.expectations = append(mmRegistration.expectations, expectation)
 	return expectation
@@ -1280,15 +1287,15 @@ func (e *IUserControllerMockRegistrationExpectation) Then(s1 string, err error) 
 }
 
 // Registration implements IUserController
-func (mmRegistration *IUserControllerMock) Registration(record *model.User) (s1 string, err error) {
+func (mmRegistration *IUserControllerMock) Registration(ctx context.Context, record *model.User) (s1 string, err error) {
 	mm_atomic.AddUint64(&mmRegistration.beforeRegistrationCounter, 1)
 	defer mm_atomic.AddUint64(&mmRegistration.afterRegistrationCounter, 1)
 
 	if mmRegistration.inspectFuncRegistration != nil {
-		mmRegistration.inspectFuncRegistration(record)
+		mmRegistration.inspectFuncRegistration(ctx, record)
 	}
 
-	mm_params := &IUserControllerMockRegistrationParams{record}
+	mm_params := &IUserControllerMockRegistrationParams{ctx, record}
 
 	// Record call args
 	mmRegistration.RegistrationMock.mutex.Lock()
@@ -1305,7 +1312,7 @@ func (mmRegistration *IUserControllerMock) Registration(record *model.User) (s1 
 	if mmRegistration.RegistrationMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmRegistration.RegistrationMock.defaultExpectation.Counter, 1)
 		mm_want := mmRegistration.RegistrationMock.defaultExpectation.params
-		mm_got := IUserControllerMockRegistrationParams{record}
+		mm_got := IUserControllerMockRegistrationParams{ctx, record}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmRegistration.t.Errorf("IUserControllerMock.Registration got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1317,9 +1324,9 @@ func (mmRegistration *IUserControllerMock) Registration(record *model.User) (s1 
 		return (*mm_results).s1, (*mm_results).err
 	}
 	if mmRegistration.funcRegistration != nil {
-		return mmRegistration.funcRegistration(record)
+		return mmRegistration.funcRegistration(ctx, record)
 	}
-	mmRegistration.t.Fatalf("Unexpected call to IUserControllerMock.Registration. %v", record)
+	mmRegistration.t.Fatalf("Unexpected call to IUserControllerMock.Registration. %v %v", ctx, record)
 	return
 }
 
@@ -1407,6 +1414,7 @@ type IUserControllerMockUpdateActiveExpectation struct {
 
 // IUserControllerMockUpdateActiveParams contains parameters of the IUserController.UpdateActive
 type IUserControllerMockUpdateActiveParams struct {
+	ctx   context.Context
 	token string
 }
 
@@ -1416,7 +1424,7 @@ type IUserControllerMockUpdateActiveResults struct {
 }
 
 // Expect sets up expected params for IUserController.UpdateActive
-func (mmUpdateActive *mIUserControllerMockUpdateActive) Expect(token string) *mIUserControllerMockUpdateActive {
+func (mmUpdateActive *mIUserControllerMockUpdateActive) Expect(ctx context.Context, token string) *mIUserControllerMockUpdateActive {
 	if mmUpdateActive.mock.funcUpdateActive != nil {
 		mmUpdateActive.mock.t.Fatalf("IUserControllerMock.UpdateActive mock is already set by Set")
 	}
@@ -1425,7 +1433,7 @@ func (mmUpdateActive *mIUserControllerMockUpdateActive) Expect(token string) *mI
 		mmUpdateActive.defaultExpectation = &IUserControllerMockUpdateActiveExpectation{}
 	}
 
-	mmUpdateActive.defaultExpectation.params = &IUserControllerMockUpdateActiveParams{token}
+	mmUpdateActive.defaultExpectation.params = &IUserControllerMockUpdateActiveParams{ctx, token}
 	for _, e := range mmUpdateActive.expectations {
 		if minimock.Equal(e.params, mmUpdateActive.defaultExpectation.params) {
 			mmUpdateActive.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmUpdateActive.defaultExpectation.params)
@@ -1436,7 +1444,7 @@ func (mmUpdateActive *mIUserControllerMockUpdateActive) Expect(token string) *mI
 }
 
 // Inspect accepts an inspector function that has same arguments as the IUserController.UpdateActive
-func (mmUpdateActive *mIUserControllerMockUpdateActive) Inspect(f func(token string)) *mIUserControllerMockUpdateActive {
+func (mmUpdateActive *mIUserControllerMockUpdateActive) Inspect(f func(ctx context.Context, token string)) *mIUserControllerMockUpdateActive {
 	if mmUpdateActive.mock.inspectFuncUpdateActive != nil {
 		mmUpdateActive.mock.t.Fatalf("Inspect function is already set for IUserControllerMock.UpdateActive")
 	}
@@ -1460,7 +1468,7 @@ func (mmUpdateActive *mIUserControllerMockUpdateActive) Return(err error) *IUser
 }
 
 // Set uses given function f to mock the IUserController.UpdateActive method
-func (mmUpdateActive *mIUserControllerMockUpdateActive) Set(f func(token string) (err error)) *IUserControllerMock {
+func (mmUpdateActive *mIUserControllerMockUpdateActive) Set(f func(ctx context.Context, token string) (err error)) *IUserControllerMock {
 	if mmUpdateActive.defaultExpectation != nil {
 		mmUpdateActive.mock.t.Fatalf("Default expectation is already set for the IUserController.UpdateActive method")
 	}
@@ -1475,14 +1483,14 @@ func (mmUpdateActive *mIUserControllerMockUpdateActive) Set(f func(token string)
 
 // When sets expectation for the IUserController.UpdateActive which will trigger the result defined by the following
 // Then helper
-func (mmUpdateActive *mIUserControllerMockUpdateActive) When(token string) *IUserControllerMockUpdateActiveExpectation {
+func (mmUpdateActive *mIUserControllerMockUpdateActive) When(ctx context.Context, token string) *IUserControllerMockUpdateActiveExpectation {
 	if mmUpdateActive.mock.funcUpdateActive != nil {
 		mmUpdateActive.mock.t.Fatalf("IUserControllerMock.UpdateActive mock is already set by Set")
 	}
 
 	expectation := &IUserControllerMockUpdateActiveExpectation{
 		mock:   mmUpdateActive.mock,
-		params: &IUserControllerMockUpdateActiveParams{token},
+		params: &IUserControllerMockUpdateActiveParams{ctx, token},
 	}
 	mmUpdateActive.expectations = append(mmUpdateActive.expectations, expectation)
 	return expectation
@@ -1495,15 +1503,15 @@ func (e *IUserControllerMockUpdateActiveExpectation) Then(err error) *IUserContr
 }
 
 // UpdateActive implements IUserController
-func (mmUpdateActive *IUserControllerMock) UpdateActive(token string) (err error) {
+func (mmUpdateActive *IUserControllerMock) UpdateActive(ctx context.Context, token string) (err error) {
 	mm_atomic.AddUint64(&mmUpdateActive.beforeUpdateActiveCounter, 1)
 	defer mm_atomic.AddUint64(&mmUpdateActive.afterUpdateActiveCounter, 1)
 
 	if mmUpdateActive.inspectFuncUpdateActive != nil {
-		mmUpdateActive.inspectFuncUpdateActive(token)
+		mmUpdateActive.inspectFuncUpdateActive(ctx, token)
 	}
 
-	mm_params := &IUserControllerMockUpdateActiveParams{token}
+	mm_params := &IUserControllerMockUpdateActiveParams{ctx, token}
 
 	// Record call args
 	mmUpdateActive.UpdateActiveMock.mutex.Lock()
@@ -1520,7 +1528,7 @@ func (mmUpdateActive *IUserControllerMock) UpdateActive(token string) (err error
 	if mmUpdateActive.UpdateActiveMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmUpdateActive.UpdateActiveMock.defaultExpectation.Counter, 1)
 		mm_want := mmUpdateActive.UpdateActiveMock.defaultExpectation.params
-		mm_got := IUserControllerMockUpdateActiveParams{token}
+		mm_got := IUserControllerMockUpdateActiveParams{ctx, token}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmUpdateActive.t.Errorf("IUserControllerMock.UpdateActive got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1532,9 +1540,9 @@ func (mmUpdateActive *IUserControllerMock) UpdateActive(token string) (err error
 		return (*mm_results).err
 	}
 	if mmUpdateActive.funcUpdateActive != nil {
-		return mmUpdateActive.funcUpdateActive(token)
+		return mmUpdateActive.funcUpdateActive(ctx, token)
 	}
-	mmUpdateActive.t.Fatalf("Unexpected call to IUserControllerMock.UpdateActive. %v", token)
+	mmUpdateActive.t.Fatalf("Unexpected call to IUserControllerMock.UpdateActive. %v %v", ctx, token)
 	return
 }
 

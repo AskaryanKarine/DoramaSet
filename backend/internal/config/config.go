@@ -31,9 +31,16 @@ type serverConfig struct {
 	Mode string
 }
 
+type OTConfig struct {
+	Endpoint    string
+	ServiceName string
+	Ratio       float64
+}
+
 type Config struct {
-	DB     dbConfig
-	App    appConfig
-	Logger loggerConfig
-	Server serverConfig
+	DB            dbConfig
+	App           appConfig
+	Logger        loggerConfig
+	Server        serverConfig
+	OpenTelemetry OTConfig
 }

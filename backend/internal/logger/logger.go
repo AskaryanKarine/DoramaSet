@@ -4,6 +4,7 @@ import (
 	"DoramaSet/internal/config"
 	"github.com/sirupsen/logrus"
 	easy "github.com/t-tomalak/logrus-easy-formatter"
+	"github.com/uptrace/opentelemetry-go-extra/otellogrus"
 	"io"
 	"os"
 )
@@ -32,6 +33,12 @@ func Init(cfg *config.Config) (*Logger, error) {
 		},
 		Level: level,
 	}
+	logrus.AddHook(otellogrus.NewHook(otellogrus.WithLevels(
+		logrus.PanicLevel,
+		logrus.FatalLevel,
+		logrus.ErrorLevel,
+		logrus.WarnLevel,
+	)))
 	l := Logger{
 		logrus.NewEntry(&log),
 		f,

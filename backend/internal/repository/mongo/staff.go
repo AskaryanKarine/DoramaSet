@@ -3,6 +3,7 @@ package mongo
 import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,8 +25,8 @@ type staffModel struct {
 	Type     string    `bson:"type"`
 }
 
-func (s *StaffRepo) getStaffLogicModel(st staffModel) (*model.Staff, error) {
-	photo, err := s.picRepo.GetListStaff(st.ID)
+func (s *StaffRepo) getStaffLogicModel(ctx context.Context, st staffModel) (*model.Staff, error) {
+	photo, err := s.picRepo.GetListStaff(ctx, st.ID)
 	if err != nil {
 		return nil, fmt.Errorf("getListStaff: %w", err)
 	}
@@ -43,7 +44,7 @@ func NewStaffRepo(db *mongo.Database, pr repository.IPictureRepo) *StaffRepo {
 	return &StaffRepo{db: db, picRepo: pr}
 }
 
-func (s *StaffRepo) GetList() ([]model.Staff, error) {
+func (s *StaffRepo) GetList(ctx context.Context) ([]model.Staff, error) {
 	var (
 		resDB []staffModel
 		res   []model.Staff
@@ -63,7 +64,7 @@ func (s *StaffRepo) GetList() ([]model.Staff, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := s.getStaffLogicModel(r)
+		tmp, err := s.getStaffLogicModel(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -72,7 +73,7 @@ func (s *StaffRepo) GetList() ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
+func (s *StaffRepo) GetListName(ctx context.Context, name string) ([]model.Staff, error) {
 	var (
 		resDB []staffModel
 		res   []model.Staff
@@ -91,7 +92,7 @@ func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := s.getStaffLogicModel(r)
+		tmp, err := s.getStaffLogicModel(ctx, r)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +101,7 @@ func (s *StaffRepo) GetListName(name string) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
+func (s *StaffRepo) GetListDorama(ctx context.Context, idDorama int) ([]model.Staff, error) {
 	var (
 		resDB []struct {
 			IdDorama int `bson:"id_dorama"`
@@ -122,7 +123,7 @@ func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	}
 
 	for _, r := range resDB {
-		tmp, err := s.GetStaffById(r.IdStaff)
+		tmp, err := s.GetStaffById(ctx, r.IdStaff)
 		if err != nil {
 			return nil, fmt.Errorf("getStaffById: %w", err)
 		}
@@ -131,7 +132,7 @@ func (s *StaffRepo) GetListDorama(idDorama int) ([]model.Staff, error) {
 	return res, nil
 }
 
-func (s *StaffRepo) CreateStaff(record model.Staff) (int, error) {
+func (s *StaffRepo) CreateStaff(ctx context.Context, record model.Staff) (int, error) {
 	var (
 		maxID staffModel
 	)
@@ -156,7 +157,7 @@ func (s *StaffRepo) CreateStaff(record model.Staff) (int, error) {
 	return newStaff.ID, nil
 }
 
-func (s *StaffRepo) UpdateStaff(record model.Staff) error {
+func (s *StaffRepo) UpdateStaff(ctx context.Context, record model.Staff) error {
 	m := staffModel{
 		ID:       record.Id,
 		Name:     record.Name,
@@ -173,7 +174,7 @@ func (s *StaffRepo) UpdateStaff(record model.Staff) error {
 	return nil
 }
 
-func (s *StaffRepo) DeleteStaff(id int) error {
+func (s *StaffRepo) DeleteStaff(ctx context.Context, id int) error {
 	collection := s.db.Collection("staff")
 	filter := bson.D{{"id", id}}
 	_, err := collection.DeleteOne(nil, filter)
@@ -183,7 +184,7 @@ func (s *StaffRepo) DeleteStaff(id int) error {
 	return nil
 }
 
-func (s *StaffRepo) GetStaffById(id int) (*model.Staff, error) {
+func (s *StaffRepo) GetStaffById(ctx context.Context, id int) (*model.Staff, error) {
 	var (
 		resDB staffModel
 	)
@@ -195,7 +196,7 @@ func (s *StaffRepo) GetStaffById(id int) (*model.Staff, error) {
 		return nil, fmt.Errorf("db_find: %w", err)
 	}
 
-	res, err := s.getStaffLogicModel(resDB)
+	res, err := s.getStaffLogicModel(ctx, resDB)
 	if err != nil {
 		return nil, err
 	}

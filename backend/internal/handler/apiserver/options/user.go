@@ -2,12 +2,17 @@ package options
 
 import (
 	"DoramaSet/internal/handler/apiserver/middleware"
+	"DoramaSet/internal/tracing"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) changeColor(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /user/color")
+	defer span.End()
 	color := c.Query("color")
 
 	token, err := middleware.GetUserToken(c)
@@ -16,7 +21,7 @@ func (h *Handler) changeColor(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.ChangeAvatarColor(token, color)
+	err = h.Services.ChangeAvatarColor(ctx, token, color)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -26,6 +31,9 @@ func (h *Handler) changeColor(c *gin.Context) {
 }
 
 func (h *Handler) changeEmoji(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /user/emoji")
+	defer span.End()
 	color := c.Query("emoji")
 
 	token, err := middleware.GetUserToken(c)
@@ -34,7 +42,7 @@ func (h *Handler) changeEmoji(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.ChangeEmoji(token, color)
+	err = h.Services.ChangeEmoji(ctx, token, color)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -44,6 +52,9 @@ func (h *Handler) changeEmoji(c *gin.Context) {
 }
 
 func (h *Handler) earnPoint(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /user/earn")
+	defer span.End()
 	var req struct {
 		Points string `json:"points"`
 	}
@@ -64,13 +75,13 @@ func (h *Handler) earnPoint(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Services.AuthByToken(token)
+	user, err := h.Services.AuthByToken(ctx, token)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	err = h.Services.EarnPoint(user, points)
+	err = h.Services.EarnPoint(ctx, user, points)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return

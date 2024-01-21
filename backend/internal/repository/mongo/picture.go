@@ -22,7 +22,7 @@ type pictureModel struct {
 	URL string `bson:"url"`
 }
 
-func (p *PictureRepo) getPictureById(id int) (*model.Picture, error) {
+func (p *PictureRepo) getPictureById(ctx context.Context, id int) (*model.Picture, error) {
 	var tmp pictureModel
 	collection := p.db.Collection("_picture")
 	filter := bson.D{{"id", id}}
@@ -37,7 +37,7 @@ func (p *PictureRepo) getPictureById(id int) (*model.Picture, error) {
 	return &res, nil
 }
 
-func (p *PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
+func (p *PictureRepo) GetListDorama(ctx context.Context, idDorama int) ([]model.Picture, error) {
 	var (
 		res   []model.Picture
 		resDB []struct {
@@ -55,7 +55,7 @@ func (p *PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 	for _, r := range resDB {
-		tmp, err := p.getPictureById(r.IDPicture)
+		tmp, err := p.getPictureById(ctx, r.IDPicture)
 		if err != nil {
 			return nil, fmt.Errorf("getPictureById: %w", err)
 		}
@@ -64,7 +64,7 @@ func (p *PictureRepo) GetListDorama(idDorama int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p *PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
+func (p *PictureRepo) GetListStaff(ctx context.Context, idStaff int) ([]model.Picture, error) {
 	var (
 		res   []model.Picture
 		resDB []struct {
@@ -82,7 +82,7 @@ func (p *PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 		return nil, fmt.Errorf("db: %w", err)
 	}
 	for _, r := range resDB {
-		tmp, err := p.getPictureById(r.IDPicture)
+		tmp, err := p.getPictureById(ctx, r.IDPicture)
 		if err != nil {
 			return nil, fmt.Errorf("getPictureById: %w", err)
 		}
@@ -91,7 +91,7 @@ func (p *PictureRepo) GetListStaff(idStaff int) ([]model.Picture, error) {
 	return res, nil
 }
 
-func (p *PictureRepo) CreatePicture(record model.Picture) (int, error) {
+func (p *PictureRepo) CreatePicture(ctx context.Context, record model.Picture) (int, error) {
 	var maxID pictureModel
 
 	collection := p.db.Collection("_picture")
@@ -112,7 +112,7 @@ func (p *PictureRepo) CreatePicture(record model.Picture) (int, error) {
 	return newPicture.ID, nil
 }
 
-func (p *PictureRepo) AddPictureToStaff(record model.Picture, id int) error {
+func (p *PictureRepo) AddPictureToStaff(ctx context.Context, record model.Picture, id int) error {
 	type query struct {
 		IDStaff   int `bson:"id_staff"`
 		IDPicture int `bson:"id_picture"`
@@ -132,7 +132,7 @@ func (p *PictureRepo) AddPictureToStaff(record model.Picture, id int) error {
 	return nil
 }
 
-func (p *PictureRepo) AddPictureToDorama(record model.Picture, id int) error {
+func (p *PictureRepo) AddPictureToDorama(ctx context.Context, record model.Picture, id int) error {
 	type query struct {
 		IDDorama  int `bson:"id_dorama"`
 		IDPicture int `bson:"id_picture"`
@@ -152,7 +152,7 @@ func (p *PictureRepo) AddPictureToDorama(record model.Picture, id int) error {
 	return nil
 }
 
-func (p *PictureRepo) DeletePicture(id int) error {
+func (p *PictureRepo) DeletePicture(ctx context.Context, id int) error {
 	collection := p.db.Collection("_picture")
 	filter := bson.D{{"id", id}}
 	_, err := collection.DeleteOne(nil, filter)

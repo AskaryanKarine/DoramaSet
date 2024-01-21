@@ -1,31 +1,22 @@
+//go:build unit
+
 package controller
 
 import (
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
+	objectMother "DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
+	"github.com/gojuno/minimock/v3"
 	"github.com/sirupsen/logrus"
 	"reflect"
 	"testing"
-	"time"
-
-	"github.com/gojuno/minimock/v3"
 )
 
-var resultArrayDorama = []model.Dorama{
-	{
-		Id:          1,
-		Name:        "qwerty",
-		Description: "qwerty",
-		Genre:       "qwerty",
-		Status:      "qwerty",
-		ReleaseYear: 2000,
-		Posters:     nil,
-		Episodes:    nil,
-	},
-}
+var resultArrayDorama = objectMother.DoramaMother{}.GenerateRandomDoramaSlice(1)
 
 func TestGetAllDorama(t *testing.T) {
 	mc := minimock.NewController(t)
@@ -62,7 +53,7 @@ func TestGetAllDorama(t *testing.T) {
 				uc:   test.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			r, err := dc.GetAllDorama()
+			r, err := dc.GetAllDorama(context.Background())
 			if (err != nil) != test.isNeg {
 				t.Errorf("GetAllDorama(): error = %v, expect = %v", err, test.isNeg)
 			}
@@ -109,7 +100,7 @@ func TestGetByNameDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetDoramaByName(test.arg)
+			res, err := dc.GetDoramaByName(context.Background(), test.arg)
 			if (err != nil) != test.isNeg {
 				t.Errorf("GetDoramaByName() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -156,7 +147,7 @@ func TestByIdDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetDoramaById(test.arg)
+			res, err := dc.GetDoramaById(context.Background(), test.arg)
 			if (err != nil) != test.isNeg {
 				t.Errorf("GetDoramaById() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -173,19 +164,8 @@ func TestCreateDorama(t *testing.T) {
 		token  string
 		dorama model.Dorama
 	}
-	adminUser := model.User{
-		Username:   "qwerty",
-		Password:   "qwerty",
-		Email:      "qwerty",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    true,
-		Sub:        nil,
-		Collection: nil,
-	}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -197,7 +177,7 @@ func TestCreateDorama(t *testing.T) {
 			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -221,7 +201,7 @@ func TestCreateDorama(t *testing.T) {
 			name: "access error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(1, nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -233,7 +213,7 @@ func TestCreateDorama(t *testing.T) {
 			name: "create picture error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).CreateDoramaMock.Return(-1, errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -249,7 +229,7 @@ func TestCreateDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.CreateDorama(test.arg.token, &test.arg.dorama)
+			err := dc.CreateDorama(context.Background(), test.arg.token, &test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("CreateDorama() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -263,19 +243,8 @@ func TestUpdateDorama(t *testing.T) {
 		token  string
 		dorama model.Dorama
 	}
-	adminUser := model.User{
-		Username:   "qwerty",
-		Password:   "qwerty",
-		Email:      "qwerty",
-		RegData:    time.Now(),
-		LastActive: time.Now(),
-		Points:     0,
-		IsAdmin:    true,
-		Sub:        nil,
-		Collection: nil,
-	}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 	testToken := ""
 	tests := []struct {
 		name  string
@@ -287,7 +256,7 @@ func TestUpdateDorama(t *testing.T) {
 			name: "successful result",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -311,7 +280,7 @@ func TestUpdateDorama(t *testing.T) {
 			name: "access error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -323,7 +292,7 @@ func TestUpdateDorama(t *testing.T) {
 			name: "update error",
 			field: DoramaController{
 				repo: mocks.NewIDoramaRepoMock(mc).UpdateDoramaMock.Return(errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			arg: argument{
 				token:  testToken,
@@ -339,7 +308,7 @@ func TestUpdateDorama(t *testing.T) {
 				uc:   test.field.uc,
 				log:  &logrus.Logger{},
 			}
-			err := dc.UpdateDorama(test.arg.token, test.arg.dorama)
+			err := dc.UpdateDorama(context.Background(), test.arg.token, test.arg.dorama)
 			if (err != nil) != test.isNeg {
 				t.Errorf("UpdateDorama() error: %v, expect: %v", err, test.isNeg)
 			}
@@ -349,9 +318,8 @@ func TestUpdateDorama(t *testing.T) {
 
 func TestDoramaController_AddStaffToDorama(t *testing.T) {
 	mc := minimock.NewController(t)
-	adminUser := model.User{IsAdmin: true}
-	noadminUser := adminUser
-	noadminUser.IsAdmin = false
+	adminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(true))
+	noAdminUser := objectMother.UserMother{}.GenerateUser(objectMother.UserWithAdmin(false))
 	type fields struct {
 		repo repository.IDoramaRepo
 		uc   controller.IUserController
@@ -371,7 +339,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 			name: "successful result",
 			fields: fields{
 				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			args:    args{"", 1, 1},
 			wantErr: false,
@@ -380,7 +348,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 			name: "add error",
 			fields: fields{
 				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(errors.New("error")),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&adminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(adminUser, nil),
 			},
 			args:    args{"", 1, 1},
 			wantErr: true,
@@ -398,7 +366,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 			name: "access error",
 			fields: fields{
 				repo: mocks.NewIDoramaRepoMock(mc).AddStaffMock.Return(nil),
-				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(&noadminUser, nil),
+				uc:   mocks.NewIUserControllerMock(mc).AuthByTokenMock.Return(noAdminUser, nil),
 			},
 			args:    args{"", 0, 0},
 			wantErr: true,
@@ -411,7 +379,7 @@ func TestDoramaController_AddStaffToDorama(t *testing.T) {
 				uc:   tt.fields.uc,
 				log:  &logrus.Logger{},
 			}
-			if err := d.AddStaffToDorama(tt.args.token, tt.args.idD, tt.args.idS); (err != nil) != tt.wantErr {
+			if err := d.AddStaffToDorama(context.Background(), tt.args.token, tt.args.idD, tt.args.idS); (err != nil) != tt.wantErr {
 				t.Errorf("AddStaffToDorama() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

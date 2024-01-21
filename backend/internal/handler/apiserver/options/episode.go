@@ -3,12 +3,17 @@ package options
 import (
 	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
+	"DoramaSet/internal/tracing"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) getEpisodeList(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /dorama/:id/episode")
+	defer span.End()
 	rowDId := c.Param("id")
 	DId, err := strconv.Atoi(rowDId)
 	if err != nil {
@@ -16,7 +21,7 @@ func (h *Handler) getEpisodeList(c *gin.Context) {
 		return
 	}
 
-	data, err := h.Services.GetEpisodeList(DId)
+	data, err := h.Services.GetEpisodeList(ctx, DId)
 	if err != nil && fatalDB(err) {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -35,6 +40,9 @@ func (h *Handler) getEpisodeList(c *gin.Context) {
 }
 
 func (h *Handler) createEpisode(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /dorama/:id/episode")
+	defer span.End()
 	var req DTO.Episode
 
 	if err := c.BindJSON(&req); err != nil {
@@ -56,7 +64,7 @@ func (h *Handler) createEpisode(c *gin.Context) {
 	}
 
 	newEpisode := DTO.MakeEpisode(req)
-	err = h.Services.CreateEpisode(token, newEpisode, DId)
+	err = h.Services.CreateEpisode(ctx, token, newEpisode, DId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -66,6 +74,9 @@ func (h *Handler) createEpisode(c *gin.Context) {
 }
 
 func (h *Handler) markWatchingEpisode(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /user/episode")
+	defer span.End()
 	var req DTO.Id
 
 	if err := c.BindJSON(&req); err != nil {
@@ -79,7 +90,7 @@ func (h *Handler) markWatchingEpisode(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.MarkWatchingEpisode(token, req.Id)
+	err = h.Services.MarkWatchingEpisode(ctx, token, req.Id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -89,6 +100,10 @@ func (h *Handler) markWatchingEpisode(c *gin.Context) {
 }
 
 func (h *Handler) getEpisodeWithStatus(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /user/episode")
+	defer span.End()
+
 	var response []DTO.WatchingResponse
 
 	rowId := c.Query("id")
@@ -104,7 +119,7 @@ func (h *Handler) getEpisodeWithStatus(c *gin.Context) {
 		return
 	}
 
-	all, err := h.GetEpisodeList(id)
+	all, err := h.GetEpisodeList(ctx, id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -118,7 +133,7 @@ func (h *Handler) getEpisodeWithStatus(c *gin.Context) {
 		return
 	}
 
-	watching, err := h.Services.GetWatchingEpisode(token, id)
+	watching, err := h.Services.GetWatchingEpisode(ctx, token, id)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		return

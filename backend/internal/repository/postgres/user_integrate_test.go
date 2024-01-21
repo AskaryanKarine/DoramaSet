@@ -1,3 +1,5 @@
+//go:build integration
+
 package postgres
 
 import (
@@ -57,7 +59,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 				subRepo:  tt.fields.subRepo,
 				listRepo: tt.fields.listRepo,
 			}
-			if err := u.CreateUser(&tt.args.record); (err != nil) != tt.wantErr {
+			if err := u.CreateUser(context.Background(), &tt.args.record); (err != nil) != tt.wantErr {
 				t.Errorf("CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(tt.args.record.Username); (err != nil) != tt.wantErr {
@@ -110,7 +112,7 @@ func TestUserRepo_DeleteUser(t *testing.T) {
 				db:      tt.fields.db,
 				subRepo: tt.fields.subRepo,
 			}
-			if err := u.DeleteUser(tt.args.username); (err != nil) != tt.wantErr {
+			if err := u.DeleteUser(context.Background(), tt.args.username); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(tt.args.username); (err != nil) != !tt.wantErr {
@@ -137,7 +139,7 @@ func TestUserRepo_GetUser(t *testing.T) {
 
 	sr := SubscriptionRepo{db: db}
 	lr := ListRepo{db: db}
-	s, _ := sr.GetSubscriptionByPrice(0)
+	s, _ := sr.GetSubscriptionByPrice(context.Background(), 0)
 	tm := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	user := model.User{
@@ -151,6 +153,8 @@ func TestUserRepo_GetUser(t *testing.T) {
 		Collection:    nil,
 		Points:        100,
 		IsAdmin:       false,
+		Color:         "#000000",
+		Emoji:         "2b50",
 	}
 
 	tests := []struct {
@@ -172,7 +176,7 @@ func TestUserRepo_GetUser(t *testing.T) {
 			fields:  fields{db: db, subRepo: &sr, listRepo: &lr},
 			args:    args{username: "qerty"},
 			want:    nil,
-			wantErr: true,
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -182,7 +186,7 @@ func TestUserRepo_GetUser(t *testing.T) {
 				subRepo:  tt.fields.subRepo,
 				listRepo: tt.fields.listRepo,
 			}
-			got, err := u.GetUser(tt.args.username)
+			got, err := u.GetUser(context.Background(), tt.args.username)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -210,7 +214,7 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 	defer dbContainer.Terminate(context.Background())
 
 	sr := SubscriptionRepo{db: db}
-	s, _ := sr.GetSubscriptionByPrice(0)
+	s, _ := sr.GetSubscriptionByPrice(context.Background(), 0)
 	tm := time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)
 	user := model.User{
 		Username:      "test1",
@@ -256,7 +260,7 @@ func TestUserRepo_UpdateUser(t *testing.T) {
 				db:      tt.fields.db,
 				subRepo: tt.fields.subRepo,
 			}
-			if err := u.UpdateUser(tt.args.record); (err != nil) != tt.wantErr {
+			if err := u.UpdateUser(context.Background(), tt.args.record); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(tt.args.record.Username); (err != nil) != tt.wantErr {

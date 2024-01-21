@@ -1,0 +1,31 @@
+DB:
+  Host: "postgres_db-bench"
+  Username: "karine"
+  Password: "12346"
+  DBName: "DoramaSet"
+  SSLMode: "disable"
+  Port: 5432
+  Type: postgres
+
+App:
+  SecretKey: "qwerty"
+  EveryDayPoint: 5
+  EveryYearPoint: 10
+  LongNoLoginPoint: 50
+  LongNoLoginHours: 4400.0
+  LoginLen: 5
+  PasswordLen: 8
+  TokenExpirationHours: 700
+
+Logger:
+  FileName: "log.txt"
+  Level: debug
+
+Server:
+  Port: "8000"
+  Mode: debug
+
+OpenTelemetry:
+  Endpoint: "http://host.docker.internal:14268/api/traces"
+  ServiceName: bench
+  Ratio: 1.0

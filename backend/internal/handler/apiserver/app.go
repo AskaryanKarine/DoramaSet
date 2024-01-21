@@ -8,6 +8,7 @@ import (
 	"DoramaSet/internal/logic/controller"
 	"DoramaSet/internal/repository"
 	"DoramaSet/internal/server"
+	"DoramaSet/internal/tracing"
 	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -66,6 +67,10 @@ func Init() (*App, error) {
 		IPointsController:       pc,
 	}
 	handle := options.NewHandler(srvs, cfg.Server.Mode, cfg.App.TokenExpirationHours)
+	_, err = tracing.Init(cfg.OpenTelemetry.Endpoint, cfg.OpenTelemetry.ServiceName, cfg.OpenTelemetry.Ratio)
+	if err != nil {
+		return nil, err
+	}
 
 	app := &App{
 		srv:      new(server.Server),
@@ -84,7 +89,6 @@ func (a *App) Run() {
 			fmt.Printf("Initialisation application error: %s", r)
 		}
 	}()
-
 	go func() {
 		err := a.srv.Run(*a.cfg, a.handlers.InitRoutes())
 		if err != nil {
@@ -104,4 +108,16 @@ func (a *App) Run() {
 		fmt.Printf("Application running error: %s", err)
 		os.Exit(1)
 	}
+}
+
+func (a *App) RunTest(ready chan bool) {
+	go func() {
+		err := a.srv.Run(*a.cfg, a.handlers.InitRoutes())
+		if err != nil {
+			fmt.Printf("Application running error: %s", err)
+			os.Exit(1)
+		}
+	}()
+	a.log.Infof("DoramaSet api started (testing)")
+	close(ready)
 }

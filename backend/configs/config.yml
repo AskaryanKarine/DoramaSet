@@ -4,8 +4,8 @@ DB:
   Password: "12346"
   DBName: "DoramaSet"
   SSLMode: "disable"
-  Port: 27017
-  Type: mongo
+  Port: 5431
+  Type: postgres
 
 App:
   SecretKey: "qwerty"
@@ -24,3 +24,8 @@ Logger:
 Server:
   Port: "8000"
   Mode: debug
+
+OpenTelemetry:
+  Endpoint: "http://localhost:14268/api/traces"
+  ServiceName: main
+  Ratio: 1.0

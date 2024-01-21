@@ -6,6 +6,7 @@ package mocks
 
 import (
 	"DoramaSet/internal/logic/model"
+	"context"
 	"sync"
 	mm_atomic "sync/atomic"
 	mm_time "time"
@@ -17,38 +18,38 @@ import (
 type IEpisodeRepoMock struct {
 	t minimock.Tester
 
-	funcCreateEpisode          func(episode model.Episode, idD int) (i1 int, err error)
-	inspectFuncCreateEpisode   func(episode model.Episode, idD int)
+	funcCreateEpisode          func(ctx context.Context, episode model.Episode, idD int) (i1 int, err error)
+	inspectFuncCreateEpisode   func(ctx context.Context, episode model.Episode, idD int)
 	afterCreateEpisodeCounter  uint64
 	beforeCreateEpisodeCounter uint64
 	CreateEpisodeMock          mIEpisodeRepoMockCreateEpisode
 
-	funcDeleteEpisode          func(id int) (err error)
-	inspectFuncDeleteEpisode   func(id int)
+	funcDeleteEpisode          func(ctx context.Context, id int) (err error)
+	inspectFuncDeleteEpisode   func(ctx context.Context, id int)
 	afterDeleteEpisodeCounter  uint64
 	beforeDeleteEpisodeCounter uint64
 	DeleteEpisodeMock          mIEpisodeRepoMockDeleteEpisode
 
-	funcGetEpisode          func(id int) (ep1 *model.Episode, err error)
-	inspectFuncGetEpisode   func(id int)
+	funcGetEpisode          func(ctx context.Context, id int) (ep1 *model.Episode, err error)
+	inspectFuncGetEpisode   func(ctx context.Context, id int)
 	afterGetEpisodeCounter  uint64
 	beforeGetEpisodeCounter uint64
 	GetEpisodeMock          mIEpisodeRepoMockGetEpisode
 
-	funcGetList          func(idDorama int) (ea1 []model.Episode, err error)
-	inspectFuncGetList   func(idDorama int)
+	funcGetList          func(ctx context.Context, idDorama int) (ea1 []model.Episode, err error)
+	inspectFuncGetList   func(ctx context.Context, idDorama int)
 	afterGetListCounter  uint64
 	beforeGetListCounter uint64
 	GetListMock          mIEpisodeRepoMockGetList
 
-	funcGetWatchingList          func(username string, idD int) (ea1 []model.Episode, err error)
-	inspectFuncGetWatchingList   func(username string, idD int)
+	funcGetWatchingList          func(ctx context.Context, username string, idD int) (ea1 []model.Episode, err error)
+	inspectFuncGetWatchingList   func(ctx context.Context, username string, idD int)
 	afterGetWatchingListCounter  uint64
 	beforeGetWatchingListCounter uint64
 	GetWatchingListMock          mIEpisodeRepoMockGetWatchingList
 
-	funcMarkEpisode          func(idEp int, username string) (err error)
-	inspectFuncMarkEpisode   func(idEp int, username string)
+	funcMarkEpisode          func(ctx context.Context, idEp int, username string) (err error)
+	inspectFuncMarkEpisode   func(ctx context.Context, idEp int, username string)
 	afterMarkEpisodeCounter  uint64
 	beforeMarkEpisodeCounter uint64
 	MarkEpisodeMock          mIEpisodeRepoMockMarkEpisode
@@ -101,6 +102,7 @@ type IEpisodeRepoMockCreateEpisodeExpectation struct {
 
 // IEpisodeRepoMockCreateEpisodeParams contains parameters of the IEpisodeRepo.CreateEpisode
 type IEpisodeRepoMockCreateEpisodeParams struct {
+	ctx     context.Context
 	episode model.Episode
 	idD     int
 }
@@ -112,7 +114,7 @@ type IEpisodeRepoMockCreateEpisodeResults struct {
 }
 
 // Expect sets up expected params for IEpisodeRepo.CreateEpisode
-func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Expect(episode model.Episode, idD int) *mIEpisodeRepoMockCreateEpisode {
+func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Expect(ctx context.Context, episode model.Episode, idD int) *mIEpisodeRepoMockCreateEpisode {
 	if mmCreateEpisode.mock.funcCreateEpisode != nil {
 		mmCreateEpisode.mock.t.Fatalf("IEpisodeRepoMock.CreateEpisode mock is already set by Set")
 	}
@@ -121,7 +123,7 @@ func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Expect(episode model.Epis
 		mmCreateEpisode.defaultExpectation = &IEpisodeRepoMockCreateEpisodeExpectation{}
 	}
 
-	mmCreateEpisode.defaultExpectation.params = &IEpisodeRepoMockCreateEpisodeParams{episode, idD}
+	mmCreateEpisode.defaultExpectation.params = &IEpisodeRepoMockCreateEpisodeParams{ctx, episode, idD}
 	for _, e := range mmCreateEpisode.expectations {
 		if minimock.Equal(e.params, mmCreateEpisode.defaultExpectation.params) {
 			mmCreateEpisode.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmCreateEpisode.defaultExpectation.params)
@@ -132,7 +134,7 @@ func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Expect(episode model.Epis
 }
 
 // Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.CreateEpisode
-func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Inspect(f func(episode model.Episode, idD int)) *mIEpisodeRepoMockCreateEpisode {
+func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Inspect(f func(ctx context.Context, episode model.Episode, idD int)) *mIEpisodeRepoMockCreateEpisode {
 	if mmCreateEpisode.mock.inspectFuncCreateEpisode != nil {
 		mmCreateEpisode.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.CreateEpisode")
 	}
@@ -156,7 +158,7 @@ func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Return(i1 int, err error)
 }
 
 // Set uses given function f to mock the IEpisodeRepo.CreateEpisode method
-func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Set(f func(episode model.Episode, idD int) (i1 int, err error)) *IEpisodeRepoMock {
+func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Set(f func(ctx context.Context, episode model.Episode, idD int) (i1 int, err error)) *IEpisodeRepoMock {
 	if mmCreateEpisode.defaultExpectation != nil {
 		mmCreateEpisode.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.CreateEpisode method")
 	}
@@ -171,14 +173,14 @@ func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) Set(f func(episode model.
 
 // When sets expectation for the IEpisodeRepo.CreateEpisode which will trigger the result defined by the following
 // Then helper
-func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) When(episode model.Episode, idD int) *IEpisodeRepoMockCreateEpisodeExpectation {
+func (mmCreateEpisode *mIEpisodeRepoMockCreateEpisode) When(ctx context.Context, episode model.Episode, idD int) *IEpisodeRepoMockCreateEpisodeExpectation {
 	if mmCreateEpisode.mock.funcCreateEpisode != nil {
 		mmCreateEpisode.mock.t.Fatalf("IEpisodeRepoMock.CreateEpisode mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockCreateEpisodeExpectation{
 		mock:   mmCreateEpisode.mock,
-		params: &IEpisodeRepoMockCreateEpisodeParams{episode, idD},
+		params: &IEpisodeRepoMockCreateEpisodeParams{ctx, episode, idD},
 	}
 	mmCreateEpisode.expectations = append(mmCreateEpisode.expectations, expectation)
 	return expectation
@@ -191,15 +193,15 @@ func (e *IEpisodeRepoMockCreateEpisodeExpectation) Then(i1 int, err error) *IEpi
 }
 
 // CreateEpisode implements IEpisodeRepo
-func (mmCreateEpisode *IEpisodeRepoMock) CreateEpisode(episode model.Episode, idD int) (i1 int, err error) {
+func (mmCreateEpisode *IEpisodeRepoMock) CreateEpisode(ctx context.Context, episode model.Episode, idD int) (i1 int, err error) {
 	mm_atomic.AddUint64(&mmCreateEpisode.beforeCreateEpisodeCounter, 1)
 	defer mm_atomic.AddUint64(&mmCreateEpisode.afterCreateEpisodeCounter, 1)
 
 	if mmCreateEpisode.inspectFuncCreateEpisode != nil {
-		mmCreateEpisode.inspectFuncCreateEpisode(episode, idD)
+		mmCreateEpisode.inspectFuncCreateEpisode(ctx, episode, idD)
 	}
 
-	mm_params := &IEpisodeRepoMockCreateEpisodeParams{episode, idD}
+	mm_params := &IEpisodeRepoMockCreateEpisodeParams{ctx, episode, idD}
 
 	// Record call args
 	mmCreateEpisode.CreateEpisodeMock.mutex.Lock()
@@ -216,7 +218,7 @@ func (mmCreateEpisode *IEpisodeRepoMock) CreateEpisode(episode model.Episode, id
 	if mmCreateEpisode.CreateEpisodeMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCreateEpisode.CreateEpisodeMock.defaultExpectation.Counter, 1)
 		mm_want := mmCreateEpisode.CreateEpisodeMock.defaultExpectation.params
-		mm_got := IEpisodeRepoMockCreateEpisodeParams{episode, idD}
+		mm_got := IEpisodeRepoMockCreateEpisodeParams{ctx, episode, idD}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmCreateEpisode.t.Errorf("IEpisodeRepoMock.CreateEpisode got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -228,9 +230,9 @@ func (mmCreateEpisode *IEpisodeRepoMock) CreateEpisode(episode model.Episode, id
 		return (*mm_results).i1, (*mm_results).err
 	}
 	if mmCreateEpisode.funcCreateEpisode != nil {
-		return mmCreateEpisode.funcCreateEpisode(episode, idD)
+		return mmCreateEpisode.funcCreateEpisode(ctx, episode, idD)
 	}
-	mmCreateEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.CreateEpisode. %v %v", episode, idD)
+	mmCreateEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.CreateEpisode. %v %v %v", ctx, episode, idD)
 	return
 }
 
@@ -318,7 +320,8 @@ type IEpisodeRepoMockDeleteEpisodeExpectation struct {
 
 // IEpisodeRepoMockDeleteEpisodeParams contains parameters of the IEpisodeRepo.DeleteEpisode
 type IEpisodeRepoMockDeleteEpisodeParams struct {
-	id int
+	ctx context.Context
+	id  int
 }
 
 // IEpisodeRepoMockDeleteEpisodeResults contains results of the IEpisodeRepo.DeleteEpisode
@@ -327,7 +330,7 @@ type IEpisodeRepoMockDeleteEpisodeResults struct {
 }
 
 // Expect sets up expected params for IEpisodeRepo.DeleteEpisode
-func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Expect(id int) *mIEpisodeRepoMockDeleteEpisode {
+func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Expect(ctx context.Context, id int) *mIEpisodeRepoMockDeleteEpisode {
 	if mmDeleteEpisode.mock.funcDeleteEpisode != nil {
 		mmDeleteEpisode.mock.t.Fatalf("IEpisodeRepoMock.DeleteEpisode mock is already set by Set")
 	}
@@ -336,7 +339,7 @@ func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Expect(id int) *mIEpisode
 		mmDeleteEpisode.defaultExpectation = &IEpisodeRepoMockDeleteEpisodeExpectation{}
 	}
 
-	mmDeleteEpisode.defaultExpectation.params = &IEpisodeRepoMockDeleteEpisodeParams{id}
+	mmDeleteEpisode.defaultExpectation.params = &IEpisodeRepoMockDeleteEpisodeParams{ctx, id}
 	for _, e := range mmDeleteEpisode.expectations {
 		if minimock.Equal(e.params, mmDeleteEpisode.defaultExpectation.params) {
 			mmDeleteEpisode.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmDeleteEpisode.defaultExpectation.params)
@@ -347,7 +350,7 @@ func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Expect(id int) *mIEpisode
 }
 
 // Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.DeleteEpisode
-func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Inspect(f func(id int)) *mIEpisodeRepoMockDeleteEpisode {
+func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Inspect(f func(ctx context.Context, id int)) *mIEpisodeRepoMockDeleteEpisode {
 	if mmDeleteEpisode.mock.inspectFuncDeleteEpisode != nil {
 		mmDeleteEpisode.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.DeleteEpisode")
 	}
@@ -371,7 +374,7 @@ func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Return(err error) *IEpiso
 }
 
 // Set uses given function f to mock the IEpisodeRepo.DeleteEpisode method
-func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Set(f func(id int) (err error)) *IEpisodeRepoMock {
+func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Set(f func(ctx context.Context, id int) (err error)) *IEpisodeRepoMock {
 	if mmDeleteEpisode.defaultExpectation != nil {
 		mmDeleteEpisode.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.DeleteEpisode method")
 	}
@@ -386,14 +389,14 @@ func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) Set(f func(id int) (err e
 
 // When sets expectation for the IEpisodeRepo.DeleteEpisode which will trigger the result defined by the following
 // Then helper
-func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) When(id int) *IEpisodeRepoMockDeleteEpisodeExpectation {
+func (mmDeleteEpisode *mIEpisodeRepoMockDeleteEpisode) When(ctx context.Context, id int) *IEpisodeRepoMockDeleteEpisodeExpectation {
 	if mmDeleteEpisode.mock.funcDeleteEpisode != nil {
 		mmDeleteEpisode.mock.t.Fatalf("IEpisodeRepoMock.DeleteEpisode mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockDeleteEpisodeExpectation{
 		mock:   mmDeleteEpisode.mock,
-		params: &IEpisodeRepoMockDeleteEpisodeParams{id},
+		params: &IEpisodeRepoMockDeleteEpisodeParams{ctx, id},
 	}
 	mmDeleteEpisode.expectations = append(mmDeleteEpisode.expectations, expectation)
 	return expectation
@@ -406,15 +409,15 @@ func (e *IEpisodeRepoMockDeleteEpisodeExpectation) Then(err error) *IEpisodeRepo
 }
 
 // DeleteEpisode implements IEpisodeRepo
-func (mmDeleteEpisode *IEpisodeRepoMock) DeleteEpisode(id int) (err error) {
+func (mmDeleteEpisode *IEpisodeRepoMock) DeleteEpisode(ctx context.Context, id int) (err error) {
 	mm_atomic.AddUint64(&mmDeleteEpisode.beforeDeleteEpisodeCounter, 1)
 	defer mm_atomic.AddUint64(&mmDeleteEpisode.afterDeleteEpisodeCounter, 1)
 
 	if mmDeleteEpisode.inspectFuncDeleteEpisode != nil {
-		mmDeleteEpisode.inspectFuncDeleteEpisode(id)
+		mmDeleteEpisode.inspectFuncDeleteEpisode(ctx, id)
 	}
 
-	mm_params := &IEpisodeRepoMockDeleteEpisodeParams{id}
+	mm_params := &IEpisodeRepoMockDeleteEpisodeParams{ctx, id}
 
 	// Record call args
 	mmDeleteEpisode.DeleteEpisodeMock.mutex.Lock()
@@ -431,7 +434,7 @@ func (mmDeleteEpisode *IEpisodeRepoMock) DeleteEpisode(id int) (err error) {
 	if mmDeleteEpisode.DeleteEpisodeMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmDeleteEpisode.DeleteEpisodeMock.defaultExpectation.Counter, 1)
 		mm_want := mmDeleteEpisode.DeleteEpisodeMock.defaultExpectation.params
-		mm_got := IEpisodeRepoMockDeleteEpisodeParams{id}
+		mm_got := IEpisodeRepoMockDeleteEpisodeParams{ctx, id}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmDeleteEpisode.t.Errorf("IEpisodeRepoMock.DeleteEpisode got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -443,9 +446,9 @@ func (mmDeleteEpisode *IEpisodeRepoMock) DeleteEpisode(id int) (err error) {
 		return (*mm_results).err
 	}
 	if mmDeleteEpisode.funcDeleteEpisode != nil {
-		return mmDeleteEpisode.funcDeleteEpisode(id)
+		return mmDeleteEpisode.funcDeleteEpisode(ctx, id)
 	}
-	mmDeleteEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.DeleteEpisode. %v", id)
+	mmDeleteEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.DeleteEpisode. %v %v", ctx, id)
 	return
 }
 
@@ -533,7 +536,8 @@ type IEpisodeRepoMockGetEpisodeExpectation struct {
 
 // IEpisodeRepoMockGetEpisodeParams contains parameters of the IEpisodeRepo.GetEpisode
 type IEpisodeRepoMockGetEpisodeParams struct {
-	id int
+	ctx context.Context
+	id  int
 }
 
 // IEpisodeRepoMockGetEpisodeResults contains results of the IEpisodeRepo.GetEpisode
@@ -543,7 +547,7 @@ type IEpisodeRepoMockGetEpisodeResults struct {
 }
 
 // Expect sets up expected params for IEpisodeRepo.GetEpisode
-func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Expect(id int) *mIEpisodeRepoMockGetEpisode {
+func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Expect(ctx context.Context, id int) *mIEpisodeRepoMockGetEpisode {
 	if mmGetEpisode.mock.funcGetEpisode != nil {
 		mmGetEpisode.mock.t.Fatalf("IEpisodeRepoMock.GetEpisode mock is already set by Set")
 	}
@@ -552,7 +556,7 @@ func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Expect(id int) *mIEpisodeRepoMo
 		mmGetEpisode.defaultExpectation = &IEpisodeRepoMockGetEpisodeExpectation{}
 	}
 
-	mmGetEpisode.defaultExpectation.params = &IEpisodeRepoMockGetEpisodeParams{id}
+	mmGetEpisode.defaultExpectation.params = &IEpisodeRepoMockGetEpisodeParams{ctx, id}
 	for _, e := range mmGetEpisode.expectations {
 		if minimock.Equal(e.params, mmGetEpisode.defaultExpectation.params) {
 			mmGetEpisode.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetEpisode.defaultExpectation.params)
@@ -563,7 +567,7 @@ func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Expect(id int) *mIEpisodeRepoMo
 }
 
 // Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.GetEpisode
-func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Inspect(f func(id int)) *mIEpisodeRepoMockGetEpisode {
+func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Inspect(f func(ctx context.Context, id int)) *mIEpisodeRepoMockGetEpisode {
 	if mmGetEpisode.mock.inspectFuncGetEpisode != nil {
 		mmGetEpisode.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.GetEpisode")
 	}
@@ -587,7 +591,7 @@ func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Return(ep1 *model.Episode, err 
 }
 
 // Set uses given function f to mock the IEpisodeRepo.GetEpisode method
-func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Set(f func(id int) (ep1 *model.Episode, err error)) *IEpisodeRepoMock {
+func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Set(f func(ctx context.Context, id int) (ep1 *model.Episode, err error)) *IEpisodeRepoMock {
 	if mmGetEpisode.defaultExpectation != nil {
 		mmGetEpisode.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.GetEpisode method")
 	}
@@ -602,14 +606,14 @@ func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) Set(f func(id int) (ep1 *model.
 
 // When sets expectation for the IEpisodeRepo.GetEpisode which will trigger the result defined by the following
 // Then helper
-func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) When(id int) *IEpisodeRepoMockGetEpisodeExpectation {
+func (mmGetEpisode *mIEpisodeRepoMockGetEpisode) When(ctx context.Context, id int) *IEpisodeRepoMockGetEpisodeExpectation {
 	if mmGetEpisode.mock.funcGetEpisode != nil {
 		mmGetEpisode.mock.t.Fatalf("IEpisodeRepoMock.GetEpisode mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockGetEpisodeExpectation{
 		mock:   mmGetEpisode.mock,
-		params: &IEpisodeRepoMockGetEpisodeParams{id},
+		params: &IEpisodeRepoMockGetEpisodeParams{ctx, id},
 	}
 	mmGetEpisode.expectations = append(mmGetEpisode.expectations, expectation)
 	return expectation
@@ -622,15 +626,15 @@ func (e *IEpisodeRepoMockGetEpisodeExpectation) Then(ep1 *model.Episode, err err
 }
 
 // GetEpisode implements IEpisodeRepo
-func (mmGetEpisode *IEpisodeRepoMock) GetEpisode(id int) (ep1 *model.Episode, err error) {
+func (mmGetEpisode *IEpisodeRepoMock) GetEpisode(ctx context.Context, id int) (ep1 *model.Episode, err error) {
 	mm_atomic.AddUint64(&mmGetEpisode.beforeGetEpisodeCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetEpisode.afterGetEpisodeCounter, 1)
 
 	if mmGetEpisode.inspectFuncGetEpisode != nil {
-		mmGetEpisode.inspectFuncGetEpisode(id)
+		mmGetEpisode.inspectFuncGetEpisode(ctx, id)
 	}
 
-	mm_params := &IEpisodeRepoMockGetEpisodeParams{id}
+	mm_params := &IEpisodeRepoMockGetEpisodeParams{ctx, id}
 
 	// Record call args
 	mmGetEpisode.GetEpisodeMock.mutex.Lock()
@@ -647,7 +651,7 @@ func (mmGetEpisode *IEpisodeRepoMock) GetEpisode(id int) (ep1 *model.Episode, er
 	if mmGetEpisode.GetEpisodeMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetEpisode.GetEpisodeMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetEpisode.GetEpisodeMock.defaultExpectation.params
-		mm_got := IEpisodeRepoMockGetEpisodeParams{id}
+		mm_got := IEpisodeRepoMockGetEpisodeParams{ctx, id}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetEpisode.t.Errorf("IEpisodeRepoMock.GetEpisode got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -659,9 +663,9 @@ func (mmGetEpisode *IEpisodeRepoMock) GetEpisode(id int) (ep1 *model.Episode, er
 		return (*mm_results).ep1, (*mm_results).err
 	}
 	if mmGetEpisode.funcGetEpisode != nil {
-		return mmGetEpisode.funcGetEpisode(id)
+		return mmGetEpisode.funcGetEpisode(ctx, id)
 	}
-	mmGetEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetEpisode. %v", id)
+	mmGetEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetEpisode. %v %v", ctx, id)
 	return
 }
 
@@ -749,6 +753,7 @@ type IEpisodeRepoMockGetListExpectation struct {
 
 // IEpisodeRepoMockGetListParams contains parameters of the IEpisodeRepo.GetList
 type IEpisodeRepoMockGetListParams struct {
+	ctx      context.Context
 	idDorama int
 }
 
@@ -759,7 +764,7 @@ type IEpisodeRepoMockGetListResults struct {
 }
 
 // Expect sets up expected params for IEpisodeRepo.GetList
-func (mmGetList *mIEpisodeRepoMockGetList) Expect(idDorama int) *mIEpisodeRepoMockGetList {
+func (mmGetList *mIEpisodeRepoMockGetList) Expect(ctx context.Context, idDorama int) *mIEpisodeRepoMockGetList {
 	if mmGetList.mock.funcGetList != nil {
 		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetList mock is already set by Set")
 	}
@@ -768,7 +773,7 @@ func (mmGetList *mIEpisodeRepoMockGetList) Expect(idDorama int) *mIEpisodeRepoMo
 		mmGetList.defaultExpectation = &IEpisodeRepoMockGetListExpectation{}
 	}
 
-	mmGetList.defaultExpectation.params = &IEpisodeRepoMockGetListParams{idDorama}
+	mmGetList.defaultExpectation.params = &IEpisodeRepoMockGetListParams{ctx, idDorama}
 	for _, e := range mmGetList.expectations {
 		if minimock.Equal(e.params, mmGetList.defaultExpectation.params) {
 			mmGetList.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetList.defaultExpectation.params)
@@ -779,7 +784,7 @@ func (mmGetList *mIEpisodeRepoMockGetList) Expect(idDorama int) *mIEpisodeRepoMo
 }
 
 // Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.GetList
-func (mmGetList *mIEpisodeRepoMockGetList) Inspect(f func(idDorama int)) *mIEpisodeRepoMockGetList {
+func (mmGetList *mIEpisodeRepoMockGetList) Inspect(f func(ctx context.Context, idDorama int)) *mIEpisodeRepoMockGetList {
 	if mmGetList.mock.inspectFuncGetList != nil {
 		mmGetList.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.GetList")
 	}
@@ -803,7 +808,7 @@ func (mmGetList *mIEpisodeRepoMockGetList) Return(ea1 []model.Episode, err error
 }
 
 // Set uses given function f to mock the IEpisodeRepo.GetList method
-func (mmGetList *mIEpisodeRepoMockGetList) Set(f func(idDorama int) (ea1 []model.Episode, err error)) *IEpisodeRepoMock {
+func (mmGetList *mIEpisodeRepoMockGetList) Set(f func(ctx context.Context, idDorama int) (ea1 []model.Episode, err error)) *IEpisodeRepoMock {
 	if mmGetList.defaultExpectation != nil {
 		mmGetList.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.GetList method")
 	}
@@ -818,14 +823,14 @@ func (mmGetList *mIEpisodeRepoMockGetList) Set(f func(idDorama int) (ea1 []model
 
 // When sets expectation for the IEpisodeRepo.GetList which will trigger the result defined by the following
 // Then helper
-func (mmGetList *mIEpisodeRepoMockGetList) When(idDorama int) *IEpisodeRepoMockGetListExpectation {
+func (mmGetList *mIEpisodeRepoMockGetList) When(ctx context.Context, idDorama int) *IEpisodeRepoMockGetListExpectation {
 	if mmGetList.mock.funcGetList != nil {
 		mmGetList.mock.t.Fatalf("IEpisodeRepoMock.GetList mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockGetListExpectation{
 		mock:   mmGetList.mock,
-		params: &IEpisodeRepoMockGetListParams{idDorama},
+		params: &IEpisodeRepoMockGetListParams{ctx, idDorama},
 	}
 	mmGetList.expectations = append(mmGetList.expectations, expectation)
 	return expectation
@@ -838,15 +843,15 @@ func (e *IEpisodeRepoMockGetListExpectation) Then(ea1 []model.Episode, err error
 }
 
 // GetList implements IEpisodeRepo
-func (mmGetList *IEpisodeRepoMock) GetList(idDorama int) (ea1 []model.Episode, err error) {
+func (mmGetList *IEpisodeRepoMock) GetList(ctx context.Context, idDorama int) (ea1 []model.Episode, err error) {
 	mm_atomic.AddUint64(&mmGetList.beforeGetListCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetList.afterGetListCounter, 1)
 
 	if mmGetList.inspectFuncGetList != nil {
-		mmGetList.inspectFuncGetList(idDorama)
+		mmGetList.inspectFuncGetList(ctx, idDorama)
 	}
 
-	mm_params := &IEpisodeRepoMockGetListParams{idDorama}
+	mm_params := &IEpisodeRepoMockGetListParams{ctx, idDorama}
 
 	// Record call args
 	mmGetList.GetListMock.mutex.Lock()
@@ -863,7 +868,7 @@ func (mmGetList *IEpisodeRepoMock) GetList(idDorama int) (ea1 []model.Episode, e
 	if mmGetList.GetListMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetList.GetListMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetList.GetListMock.defaultExpectation.params
-		mm_got := IEpisodeRepoMockGetListParams{idDorama}
+		mm_got := IEpisodeRepoMockGetListParams{ctx, idDorama}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetList.t.Errorf("IEpisodeRepoMock.GetList got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -875,9 +880,9 @@ func (mmGetList *IEpisodeRepoMock) GetList(idDorama int) (ea1 []model.Episode, e
 		return (*mm_results).ea1, (*mm_results).err
 	}
 	if mmGetList.funcGetList != nil {
-		return mmGetList.funcGetList(idDorama)
+		return mmGetList.funcGetList(ctx, idDorama)
 	}
-	mmGetList.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetList. %v", idDorama)
+	mmGetList.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetList. %v %v", ctx, idDorama)
 	return
 }
 
@@ -965,6 +970,7 @@ type IEpisodeRepoMockGetWatchingListExpectation struct {
 
 // IEpisodeRepoMockGetWatchingListParams contains parameters of the IEpisodeRepo.GetWatchingList
 type IEpisodeRepoMockGetWatchingListParams struct {
+	ctx      context.Context
 	username string
 	idD      int
 }
@@ -976,7 +982,7 @@ type IEpisodeRepoMockGetWatchingListResults struct {
 }
 
 // Expect sets up expected params for IEpisodeRepo.GetWatchingList
-func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Expect(username string, idD int) *mIEpisodeRepoMockGetWatchingList {
+func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Expect(ctx context.Context, username string, idD int) *mIEpisodeRepoMockGetWatchingList {
 	if mmGetWatchingList.mock.funcGetWatchingList != nil {
 		mmGetWatchingList.mock.t.Fatalf("IEpisodeRepoMock.GetWatchingList mock is already set by Set")
 	}
@@ -985,7 +991,7 @@ func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Expect(username strin
 		mmGetWatchingList.defaultExpectation = &IEpisodeRepoMockGetWatchingListExpectation{}
 	}
 
-	mmGetWatchingList.defaultExpectation.params = &IEpisodeRepoMockGetWatchingListParams{username, idD}
+	mmGetWatchingList.defaultExpectation.params = &IEpisodeRepoMockGetWatchingListParams{ctx, username, idD}
 	for _, e := range mmGetWatchingList.expectations {
 		if minimock.Equal(e.params, mmGetWatchingList.defaultExpectation.params) {
 			mmGetWatchingList.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmGetWatchingList.defaultExpectation.params)
@@ -996,7 +1002,7 @@ func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Expect(username strin
 }
 
 // Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.GetWatchingList
-func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Inspect(f func(username string, idD int)) *mIEpisodeRepoMockGetWatchingList {
+func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Inspect(f func(ctx context.Context, username string, idD int)) *mIEpisodeRepoMockGetWatchingList {
 	if mmGetWatchingList.mock.inspectFuncGetWatchingList != nil {
 		mmGetWatchingList.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.GetWatchingList")
 	}
@@ -1020,7 +1026,7 @@ func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Return(ea1 []model.Ep
 }
 
 // Set uses given function f to mock the IEpisodeRepo.GetWatchingList method
-func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Set(f func(username string, idD int) (ea1 []model.Episode, err error)) *IEpisodeRepoMock {
+func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Set(f func(ctx context.Context, username string, idD int) (ea1 []model.Episode, err error)) *IEpisodeRepoMock {
 	if mmGetWatchingList.defaultExpectation != nil {
 		mmGetWatchingList.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.GetWatchingList method")
 	}
@@ -1035,14 +1041,14 @@ func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) Set(f func(username s
 
 // When sets expectation for the IEpisodeRepo.GetWatchingList which will trigger the result defined by the following
 // Then helper
-func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) When(username string, idD int) *IEpisodeRepoMockGetWatchingListExpectation {
+func (mmGetWatchingList *mIEpisodeRepoMockGetWatchingList) When(ctx context.Context, username string, idD int) *IEpisodeRepoMockGetWatchingListExpectation {
 	if mmGetWatchingList.mock.funcGetWatchingList != nil {
 		mmGetWatchingList.mock.t.Fatalf("IEpisodeRepoMock.GetWatchingList mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockGetWatchingListExpectation{
 		mock:   mmGetWatchingList.mock,
-		params: &IEpisodeRepoMockGetWatchingListParams{username, idD},
+		params: &IEpisodeRepoMockGetWatchingListParams{ctx, username, idD},
 	}
 	mmGetWatchingList.expectations = append(mmGetWatchingList.expectations, expectation)
 	return expectation
@@ -1055,15 +1061,15 @@ func (e *IEpisodeRepoMockGetWatchingListExpectation) Then(ea1 []model.Episode, e
 }
 
 // GetWatchingList implements IEpisodeRepo
-func (mmGetWatchingList *IEpisodeRepoMock) GetWatchingList(username string, idD int) (ea1 []model.Episode, err error) {
+func (mmGetWatchingList *IEpisodeRepoMock) GetWatchingList(ctx context.Context, username string, idD int) (ea1 []model.Episode, err error) {
 	mm_atomic.AddUint64(&mmGetWatchingList.beforeGetWatchingListCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetWatchingList.afterGetWatchingListCounter, 1)
 
 	if mmGetWatchingList.inspectFuncGetWatchingList != nil {
-		mmGetWatchingList.inspectFuncGetWatchingList(username, idD)
+		mmGetWatchingList.inspectFuncGetWatchingList(ctx, username, idD)
 	}
 
-	mm_params := &IEpisodeRepoMockGetWatchingListParams{username, idD}
+	mm_params := &IEpisodeRepoMockGetWatchingListParams{ctx, username, idD}
 
 	// Record call args
 	mmGetWatchingList.GetWatchingListMock.mutex.Lock()
@@ -1080,7 +1086,7 @@ func (mmGetWatchingList *IEpisodeRepoMock) GetWatchingList(username string, idD 
 	if mmGetWatchingList.GetWatchingListMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetWatchingList.GetWatchingListMock.defaultExpectation.Counter, 1)
 		mm_want := mmGetWatchingList.GetWatchingListMock.defaultExpectation.params
-		mm_got := IEpisodeRepoMockGetWatchingListParams{username, idD}
+		mm_got := IEpisodeRepoMockGetWatchingListParams{ctx, username, idD}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmGetWatchingList.t.Errorf("IEpisodeRepoMock.GetWatchingList got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1092,9 +1098,9 @@ func (mmGetWatchingList *IEpisodeRepoMock) GetWatchingList(username string, idD 
 		return (*mm_results).ea1, (*mm_results).err
 	}
 	if mmGetWatchingList.funcGetWatchingList != nil {
-		return mmGetWatchingList.funcGetWatchingList(username, idD)
+		return mmGetWatchingList.funcGetWatchingList(ctx, username, idD)
 	}
-	mmGetWatchingList.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetWatchingList. %v %v", username, idD)
+	mmGetWatchingList.t.Fatalf("Unexpected call to IEpisodeRepoMock.GetWatchingList. %v %v %v", ctx, username, idD)
 	return
 }
 
@@ -1182,6 +1188,7 @@ type IEpisodeRepoMockMarkEpisodeExpectation struct {
 
 // IEpisodeRepoMockMarkEpisodeParams contains parameters of the IEpisodeRepo.MarkEpisode
 type IEpisodeRepoMockMarkEpisodeParams struct {
+	ctx      context.Context
 	idEp     int
 	username string
 }
@@ -1192,7 +1199,7 @@ type IEpisodeRepoMockMarkEpisodeResults struct {
 }
 
 // Expect sets up expected params for IEpisodeRepo.MarkEpisode
-func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Expect(idEp int, username string) *mIEpisodeRepoMockMarkEpisode {
+func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Expect(ctx context.Context, idEp int, username string) *mIEpisodeRepoMockMarkEpisode {
 	if mmMarkEpisode.mock.funcMarkEpisode != nil {
 		mmMarkEpisode.mock.t.Fatalf("IEpisodeRepoMock.MarkEpisode mock is already set by Set")
 	}
@@ -1201,7 +1208,7 @@ func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Expect(idEp int, username str
 		mmMarkEpisode.defaultExpectation = &IEpisodeRepoMockMarkEpisodeExpectation{}
 	}
 
-	mmMarkEpisode.defaultExpectation.params = &IEpisodeRepoMockMarkEpisodeParams{idEp, username}
+	mmMarkEpisode.defaultExpectation.params = &IEpisodeRepoMockMarkEpisodeParams{ctx, idEp, username}
 	for _, e := range mmMarkEpisode.expectations {
 		if minimock.Equal(e.params, mmMarkEpisode.defaultExpectation.params) {
 			mmMarkEpisode.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmMarkEpisode.defaultExpectation.params)
@@ -1212,7 +1219,7 @@ func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Expect(idEp int, username str
 }
 
 // Inspect accepts an inspector function that has same arguments as the IEpisodeRepo.MarkEpisode
-func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Inspect(f func(idEp int, username string)) *mIEpisodeRepoMockMarkEpisode {
+func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Inspect(f func(ctx context.Context, idEp int, username string)) *mIEpisodeRepoMockMarkEpisode {
 	if mmMarkEpisode.mock.inspectFuncMarkEpisode != nil {
 		mmMarkEpisode.mock.t.Fatalf("Inspect function is already set for IEpisodeRepoMock.MarkEpisode")
 	}
@@ -1236,7 +1243,7 @@ func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Return(err error) *IEpisodeRe
 }
 
 // Set uses given function f to mock the IEpisodeRepo.MarkEpisode method
-func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Set(f func(idEp int, username string) (err error)) *IEpisodeRepoMock {
+func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Set(f func(ctx context.Context, idEp int, username string) (err error)) *IEpisodeRepoMock {
 	if mmMarkEpisode.defaultExpectation != nil {
 		mmMarkEpisode.mock.t.Fatalf("Default expectation is already set for the IEpisodeRepo.MarkEpisode method")
 	}
@@ -1251,14 +1258,14 @@ func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) Set(f func(idEp int, username
 
 // When sets expectation for the IEpisodeRepo.MarkEpisode which will trigger the result defined by the following
 // Then helper
-func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) When(idEp int, username string) *IEpisodeRepoMockMarkEpisodeExpectation {
+func (mmMarkEpisode *mIEpisodeRepoMockMarkEpisode) When(ctx context.Context, idEp int, username string) *IEpisodeRepoMockMarkEpisodeExpectation {
 	if mmMarkEpisode.mock.funcMarkEpisode != nil {
 		mmMarkEpisode.mock.t.Fatalf("IEpisodeRepoMock.MarkEpisode mock is already set by Set")
 	}
 
 	expectation := &IEpisodeRepoMockMarkEpisodeExpectation{
 		mock:   mmMarkEpisode.mock,
-		params: &IEpisodeRepoMockMarkEpisodeParams{idEp, username},
+		params: &IEpisodeRepoMockMarkEpisodeParams{ctx, idEp, username},
 	}
 	mmMarkEpisode.expectations = append(mmMarkEpisode.expectations, expectation)
 	return expectation
@@ -1271,15 +1278,15 @@ func (e *IEpisodeRepoMockMarkEpisodeExpectation) Then(err error) *IEpisodeRepoMo
 }
 
 // MarkEpisode implements IEpisodeRepo
-func (mmMarkEpisode *IEpisodeRepoMock) MarkEpisode(idEp int, username string) (err error) {
+func (mmMarkEpisode *IEpisodeRepoMock) MarkEpisode(ctx context.Context, idEp int, username string) (err error) {
 	mm_atomic.AddUint64(&mmMarkEpisode.beforeMarkEpisodeCounter, 1)
 	defer mm_atomic.AddUint64(&mmMarkEpisode.afterMarkEpisodeCounter, 1)
 
 	if mmMarkEpisode.inspectFuncMarkEpisode != nil {
-		mmMarkEpisode.inspectFuncMarkEpisode(idEp, username)
+		mmMarkEpisode.inspectFuncMarkEpisode(ctx, idEp, username)
 	}
 
-	mm_params := &IEpisodeRepoMockMarkEpisodeParams{idEp, username}
+	mm_params := &IEpisodeRepoMockMarkEpisodeParams{ctx, idEp, username}
 
 	// Record call args
 	mmMarkEpisode.MarkEpisodeMock.mutex.Lock()
@@ -1296,7 +1303,7 @@ func (mmMarkEpisode *IEpisodeRepoMock) MarkEpisode(idEp int, username string) (e
 	if mmMarkEpisode.MarkEpisodeMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmMarkEpisode.MarkEpisodeMock.defaultExpectation.Counter, 1)
 		mm_want := mmMarkEpisode.MarkEpisodeMock.defaultExpectation.params
-		mm_got := IEpisodeRepoMockMarkEpisodeParams{idEp, username}
+		mm_got := IEpisodeRepoMockMarkEpisodeParams{ctx, idEp, username}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmMarkEpisode.t.Errorf("IEpisodeRepoMock.MarkEpisode got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -1308,9 +1315,9 @@ func (mmMarkEpisode *IEpisodeRepoMock) MarkEpisode(idEp int, username string) (e
 		return (*mm_results).err
 	}
 	if mmMarkEpisode.funcMarkEpisode != nil {
-		return mmMarkEpisode.funcMarkEpisode(idEp, username)
+		return mmMarkEpisode.funcMarkEpisode(ctx, idEp, username)
 	}
-	mmMarkEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.MarkEpisode. %v %v", idEp, username)
+	mmMarkEpisode.t.Fatalf("Unexpected call to IEpisodeRepoMock.MarkEpisode. %v %v %v", ctx, idEp, username)
 	return
 }
 

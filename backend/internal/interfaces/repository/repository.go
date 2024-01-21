@@ -1,78 +1,81 @@
 package repository
 
-import "DoramaSet/internal/logic/model"
+import (
+	"DoramaSet/internal/logic/model"
+	"context"
+)
 
 type IDoramaRepo interface {
-	GetList() ([]model.Dorama, error)
-	GetListName(name string) ([]model.Dorama, error)
-	GetDorama(id int) (*model.Dorama, error)
-	CreateDorama(dorama model.Dorama) (int, error)
-	UpdateDorama(dorama model.Dorama) error
-	DeleteDorama(id int) error
-	AddStaff(idD, idS int) error
-	GetListByListId(idL int) ([]model.Dorama, error)
+	GetList(ctx context.Context) ([]model.Dorama, error)
+	GetListName(ctx context.Context, name string) ([]model.Dorama, error)
+	GetDorama(ctx context.Context, id int) (*model.Dorama, error)
+	CreateDorama(ctx context.Context, dorama model.Dorama) (int, error)
+	UpdateDorama(ctx context.Context, dorama model.Dorama) error
+	DeleteDorama(ctx context.Context, id int) error
+	AddStaff(ctx context.Context, idD, idS int) error
+	GetListByListId(ctx context.Context, idL int) ([]model.Dorama, error)
 }
 
 type IEpisodeRepo interface {
-	GetList(idDorama int) ([]model.Episode, error)
-	GetWatchingList(username string, idD int) ([]model.Episode, error)
-	GetEpisode(id int) (*model.Episode, error)
-	MarkEpisode(idEp int, username string) error
-	CreateEpisode(episode model.Episode, idD int) (int, error)
-	DeleteEpisode(id int) error
+	GetList(ctx context.Context, idDorama int) ([]model.Episode, error)
+	GetWatchingList(ctx context.Context, username string, idD int) ([]model.Episode, error)
+	GetEpisode(ctx context.Context, id int) (*model.Episode, error)
+	MarkEpisode(ctx context.Context, idEp int, username string) error
+	CreateEpisode(ctx context.Context, episode model.Episode, idD int) (int, error)
+	DeleteEpisode(ctx context.Context, id int) error
 }
 
 type IListRepo interface {
-	GetUserLists(username string) ([]model.List, error)
-	GetPublicLists() ([]model.List, error)
-	GetListId(id int) (*model.List, error)
-	CreateList(list model.List) (int, error)
-	DelList(id int) error
-	AddToList(idL, idD int) error
-	DelFromList(idL, idD int) error
-	AddToFav(idL int, username string) error
-	GetFavList(username string) ([]model.List, error)
+	GetUserLists(ctx context.Context, username string) ([]model.List, error)
+	GetPublicLists(ctx context.Context) ([]model.List, error)
+	GetListId(ctx context.Context, id int) (*model.List, error)
+	CreateList(ctx context.Context, list model.List) (int, error)
+	DelList(ctx context.Context, id int) error
+	AddToList(ctx context.Context, idL, idD int) error
+	DelFromList(ctx context.Context, idL, idD int) error
+	AddToFav(ctx context.Context, idL int, username string) error
+	GetFavList(ctx context.Context, username string) ([]model.List, error)
 }
 
 type IPictureRepo interface {
-	GetListDorama(idDorama int) ([]model.Picture, error)
-	GetListStaff(idStaff int) ([]model.Picture, error)
-	CreatePicture(record model.Picture) (int, error)
-	AddPictureToStaff(record model.Picture, id int) error
-	AddPictureToDorama(record model.Picture, id int) error
-	DeletePicture(id int) error
+	GetListDorama(ctx context.Context, idDorama int) ([]model.Picture, error)
+	GetListStaff(ctx context.Context, idStaff int) ([]model.Picture, error)
+	CreatePicture(ctx context.Context, record model.Picture) (int, error)
+	AddPictureToStaff(ctx context.Context, record model.Picture, id int) error
+	AddPictureToDorama(ctx context.Context, record model.Picture, id int) error
+	DeletePicture(ctx context.Context, id int) error
 }
 
 type IStaffRepo interface {
-	GetList() ([]model.Staff, error)
-	GetListName(name string) ([]model.Staff, error)
-	GetListDorama(idDorama int) ([]model.Staff, error)
-	CreateStaff(record model.Staff) (int, error)
-	UpdateStaff(record model.Staff) error
-	DeleteStaff(id int) error
-	GetStaffById(id int) (*model.Staff, error)
+	GetList(ctx context.Context) ([]model.Staff, error)
+	GetListName(ctx context.Context, name string) ([]model.Staff, error)
+	GetListDorama(ctx context.Context, idDorama int) ([]model.Staff, error)
+	CreateStaff(ctx context.Context, record model.Staff) (int, error)
+	UpdateStaff(ctx context.Context, record model.Staff) error
+	DeleteStaff(ctx context.Context, id int) error
+	GetStaffById(ctx context.Context, id int) (*model.Staff, error)
 }
 
 type ISubscriptionRepo interface {
-	GetList() ([]model.Subscription, error)
-	GetSubscription(id int) (*model.Subscription, error)
-	GetSubscriptionByPrice(price int) (*model.Subscription, error)
+	GetList(ctx context.Context) ([]model.Subscription, error)
+	GetSubscription(ctx context.Context, id int) (*model.Subscription, error)
+	GetSubscriptionByPrice(ctx context.Context, price int) (*model.Subscription, error)
 }
 
 type IUserRepo interface {
-	GetUser(username string) (*model.User, error)
-	CreateUser(record *model.User) error
-	UpdateUser(record model.User) error
-	DeleteUser(username string) error
-	GetPublicInfo(username string) (*model.User, error)
+	GetUser(ctx context.Context, username string) (*model.User, error)
+	CreateUser(ctx context.Context, record *model.User) error
+	UpdateUser(ctx context.Context, record model.User) error
+	DeleteUser(ctx context.Context, username string) error
+	GetPublicInfo(ctx context.Context, username string) (*model.User, error)
 }
 
 type IReviewRepo interface {
-	GetAllReview(idD int) ([]model.Review, error)
-	CreateReview(idD int, record *model.Review) error
-	DeleteReview(username string, idD int) error
-	AggregateRate(idD int) (float64, int, error)
-	GetReview(username string, idD int) (*model.Review, error)
+	GetAllReview(ctx context.Context, idD int) ([]model.Review, error)
+	CreateReview(ctx context.Context, idD int, record *model.Review) error
+	DeleteReview(ctx context.Context, username string, idD int) error
+	AggregateRate(ctx context.Context, idD int) (float64, int, error)
+	GetReview(ctx context.Context, username string, idD int) (*model.Review, error)
 }
 
 type AllRepository struct {

@@ -4,6 +4,8 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
@@ -33,9 +35,11 @@ func NewUserRepo(db *gorm.DB, SR repository.ISubscriptionRepo, LR repository.ILi
 	return &UserRepo{db, SR, LR}
 }
 
-func (u *UserRepo) GetUser(username string) (*model.User, error) {
+func (u *UserRepo) GetUser(ctx context.Context, username string) (*model.User, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetUser")
+	defer span.End()
 	var user *userModel
-	result := u.db.Table("dorama_set.user").Where("username = ?", username).Find(&user)
+	result := u.db.WithContext(ctx).Table("dorama_set.user").Where("username = ?", username).Find(&user)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -44,12 +48,12 @@ func (u *UserRepo) GetUser(username string) (*model.User, error) {
 		return nil, nil
 	}
 
-	sub, err := u.subRepo.GetSubscription(user.SubId)
+	sub, err := u.subRepo.GetSubscription(ctx, user.SubId)
 	if err != nil {
 		return nil, fmt.Errorf("getSubById: %w", err)
 	}
 
-	lists, err := u.listRepo.GetUserLists(user.Username)
+	lists, err := u.listRepo.GetUserLists(ctx, user.Username)
 	if err != nil {
 		return nil, fmt.Errorf("getUsersLists: %w", err)
 	}
@@ -72,8 +76,10 @@ func (u *UserRepo) GetUser(username string) (*model.User, error) {
 	return &res, nil
 }
 
-func (u *UserRepo) CreateUser(record *model.User) error {
-	freeSub, err := u.subRepo.GetSubscriptionByPrice(0)
+func (u *UserRepo) CreateUser(ctx context.Context, record *model.User) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo CreateUser")
+	defer span.End()
+	freeSub, err := u.subRepo.GetSubscriptionByPrice(ctx, 0)
 	if err != nil {
 		return fmt.Errorf("getSubByPrice: %w", err)
 	}
@@ -92,12 +98,12 @@ func (u *UserRepo) CreateUser(record *model.User) error {
 		SubId:            freeSub.Id,
 	}
 	record.Sub = freeSub
-	result := u.db.Table("dorama_set.user").Create(&m)
+	result := u.db.WithContext(ctx).Table("dorama_set.user").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 
-	_, err = u.listRepo.CreateList(model.List{
+	_, err = u.listRepo.CreateList(ctx, model.List{
 		Name:        fmt.Sprintf("Просмотры %s", record.Username),
 		Description: "",
 		CreatorName: record.Username,
@@ -110,7 +116,9 @@ func (u *UserRepo) CreateUser(record *model.User) error {
 	return nil
 }
 
-func (u *UserRepo) UpdateUser(record model.User) error {
+func (u *UserRepo) UpdateUser(ctx context.Context, record model.User) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo UpdateUser")
+	defer span.End()
 	m := userModel{
 		Username:         record.Username,
 		IsAdmin:          record.IsAdmin,
@@ -124,28 +132,32 @@ func (u *UserRepo) UpdateUser(record model.User) error {
 		Color:            record.Color,
 		Emoji:            record.Emoji,
 	}
-	result := u.db.Table("dorama_set.user").Save(&m)
+	result := u.db.WithContext(ctx).Table("dorama_set.user").Save(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (u *UserRepo) DeleteUser(username string) error {
-	result := u.db.Table("dorama_set.user").Where("username = ?", username).Delete(&userModel{})
+func (u *UserRepo) DeleteUser(ctx context.Context, username string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo DeleteUser")
+	defer span.End()
+	result := u.db.WithContext(ctx).Table("dorama_set.user").Where("username = ?", username).Delete(&userModel{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (u *UserRepo) GetPublicInfo(username string) (*model.User, error) {
+func (u *UserRepo) GetPublicInfo(ctx context.Context, username string) (*model.User, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetPublicInfo")
+	defer span.End()
 	var resDB userModel
-	result := u.db.Table("dorama_set.user").Where("username = ?", username).Take(&resDB)
+	result := u.db.WithContext(ctx).Table("dorama_set.user").Where("username = ?", username).Take(&resDB)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
-	sub, err := u.subRepo.GetSubscription(resDB.SubId)
+	sub, err := u.subRepo.GetSubscription(ctx, resDB.SubId)
 	if err != nil {
 		return nil, fmt.Errorf("getSubscription: %w", err)
 	}

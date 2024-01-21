@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  backend-mongo:
+    container_name: backend-mongo
+    build:
+      context: ../../../backend
+      dockerfile: Dockerfile.mongo
+    ports:
+      - "8001:8000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - mongodb-network
+
+  mongodb:
+    container_name: mongo_db-bench
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: karine
+      MONGO_INITDB_ROOT_PASSWORD: 12346
+      MONGO_INITDB_DATABASE: "DoramaSet"
+    volumes:
+      - ../../../backend/deployments/data:/csv:rx
+      - ../../../backend/deployments/init/mongo/:/docker-entrypoint-initdb.d/
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+    ports:
+      - "27017:27017"
+    networks:
+      - mongodb-network
+
+networks:
+  mongodb-network:
