@@ -55,23 +55,28 @@ func (s *SubscriptionController) GetInfo(ctx context.Context, id int) (*model.Su
 }
 
 func (s *SubscriptionController) SubscribeUser(ctx context.Context, token string, id int) error {
+	start := time.Now()
 	ctx, span := tracing.StartSpanFromContext(ctx, "BL SubscribeUser")
 	defer span.End()
+	stop := time.Now()
+	defer fmt.Printf("Creating span: %v ns\n\n", stop.Sub(start).Seconds())
+	ctxLog, spanLog := tracing.StartSpanFromContext(ctx, "LOG SubscribeUser")
+	defer spanLog.End()
 	user, err := s.uc.AuthByToken(ctx, token)
 	if err != nil {
-		s.log.Warnf("subscribe user auth err %s, token %s, value %d", err, token, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user auth err %s, token %s, value %d", err, token, id)
 		return fmt.Errorf("authToken: %w", err)
 	}
 
 	sub, err := s.repo.GetSubscription(ctx, id)
 	if err != nil {
-		s.log.Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
 		return fmt.Errorf("getSubscription: %w", err)
 	}
 
 	err = s.pc.PurgePoint(ctx, user, sub.Cost)
 	if err != nil {
-		s.log.Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
 		return fmt.Errorf("purgePoint: %w", err)
 	}
 
@@ -80,10 +85,10 @@ func (s *SubscriptionController) SubscribeUser(ctx context.Context, token string
 
 	err = s.urepo.UpdateUser(ctx, *user)
 	if err != nil {
-		s.log.Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
+		s.log.WithContext(ctxLog).Warnf("subscribe user err %s, user %s, value %d", err, user.Username, id)
 		return fmt.Errorf("updateUser: %w", err)
 	}
-	s.log.Infof("subscribe user %s, id sub %d", user.Username, id)
+	s.log.WithContext(ctxLog).Infof("subscribe user %s, id sub %d", user.Username, id)
 	return nil
 }
 

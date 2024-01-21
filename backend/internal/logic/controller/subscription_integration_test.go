@@ -3,7 +3,6 @@
 package controller
 
 import (
-	"DoramaSet/internal/config"
 	"DoramaSet/internal/container"
 	"DoramaSet/internal/interfaces/controller"
 	"DoramaSet/internal/interfaces/repository"
@@ -12,23 +11,22 @@ import (
 	"DoramaSet/internal/tracing"
 	"context"
 	"errors"
-	"flag"
 	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 )
 
 func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
-	flag.Set("config", "../../../configs/config.yml")
-	cfg, err := config.Init()
-	if err != nil {
-		t.Fatal("config init fail:", err)
-	}
-	// _, _ = tracing.Init("http://localhost:14268/api/traces", "test", 1.0)
-	_, err = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
-	if err != nil {
-		t.Fatal("tracing init fatal", err)
-	}
+	//flag.Set("config", "../../../configs/config.yml")
+	//cfg, err := config.Init()
+	//if err != nil {
+	//	t.Fatal("config init fail:", err)
+	//}
+	_, _ = tracing.Init("http://localhost:14268/api/traces", "test", 1.0)
+	//_, err = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
+	//if err != nil {
+	//	t.Fatal("tracing init fatal", err)
+	//}
 	dbContainer, db, err := container.SetupTestDatabase()
 	if err != nil {
 		t.Fatal("setup database fatal", err)

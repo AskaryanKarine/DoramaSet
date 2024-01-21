@@ -27,16 +27,16 @@ func NewEpisodeController(ERepo repository.IEpisodeRepo, uc controller.IUserCont
 }
 
 func (e *EpisodeController) GetEpisodeList(ctx context.Context, idD int) ([]model.Episode, error) {
+	ctxLog, spanLog := tracing.StartSpanFromContext(ctx, "LOG getEpisodeList")
+	defer spanLog.End()
 	ctx, span := tracing.StartSpanFromContext(ctx, "BL getEpisodeList")
 	defer span.End()
 	res, err := e.repo.GetList(ctx, idD)
-	ctx, spanLog := tracing.StartSpanFromContext(ctx, "LOG getEpisodeList")
-	defer spanLog.End()
 	if err != nil {
-		e.log.WithContext(ctx).Warnf("get episode list, get list err: %s, value %d", err, idD)
+		e.log.WithContext(ctxLog).Warnf("get episode list, get list err: %s, value %d", err, idD)
 		return nil, fmt.Errorf("getList: %w", err)
 	}
-	e.log.WithContext(ctx).Infof("got episode list, value: %d", idD)
+	e.log.WithContext(ctxLog).Infof("got episode list, value: %d", idD)
 	return res, nil
 }
 
@@ -47,10 +47,10 @@ func (e *EpisodeController) GetEpisode(ctx context.Context, id int) (*model.Epis
 	ctx, spanLog := tracing.StartSpanFromContext(ctx, "LOG getEpisodeList")
 	defer spanLog.End()
 	if err != nil {
-		e.log.Warnf("get episode, get err: %s, value %d", err, id)
+		e.log.WithContext(ctx).Warnf("get episode, get err: %s, value %d", err, id)
 		return nil, fmt.Errorf("getEpisode: %w", err)
 	}
-	e.log.Infof("got episode, value: %d", id)
+	e.log.WithContext(ctx).Infof("got episode, value: %d", id)
 	return res, nil
 }
 
