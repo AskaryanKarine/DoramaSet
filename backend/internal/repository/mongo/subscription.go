@@ -3,6 +3,7 @@ package mongo
 import (
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -38,7 +39,7 @@ func getSubLogicModel(m subModel) *model.Subscription {
 	}
 }
 
-func (s *SubscriptionRepo) GetList() ([]model.Subscription, error) {
+func (s *SubscriptionRepo) GetList(ctx context.Context) ([]model.Subscription, error) {
 	var (
 		resDB []subModel
 		res   []model.Subscription
@@ -58,7 +59,7 @@ func (s *SubscriptionRepo) GetList() ([]model.Subscription, error) {
 	return res, nil
 }
 
-func (s *SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) {
+func (s *SubscriptionRepo) GetSubscription(ctx context.Context, id int) (*model.Subscription, error) {
 	var resDB subModel
 
 	collection := s.db.Collection("subscription")
@@ -70,7 +71,7 @@ func (s *SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) 
 	return getSubLogicModel(resDB), nil
 }
 
-func (s *SubscriptionRepo) GetSubscriptionByPrice(price int) (*model.Subscription, error) {
+func (s *SubscriptionRepo) GetSubscriptionByPrice(ctx context.Context, price int) (*model.Subscription, error) {
 	var resDB subModel
 
 	collection := s.db.Collection("subscription")

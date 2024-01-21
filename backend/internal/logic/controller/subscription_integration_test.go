@@ -8,6 +8,7 @@ import (
 	"DoramaSet/internal/interfaces/repository"
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/repository/postgres"
+	"DoramaSet/internal/tracing"
 	"context"
 	"errors"
 	"github.com/sirupsen/logrus"
@@ -16,9 +17,19 @@ import (
 )
 
 func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
+	//flag.Set("config", "../../../configs/config.yml")
+	//cfg, err := config.Init()
+	//if err != nil {
+	//	t.Fatal("config init fail:", err)
+	//}
+	_, _ = tracing.Init("http://localhost:14268/api/traces", "test", 1.0)
+	//_, err = tracing.Init(cfg.OpenTelemetry.Endpoint, "test", cfg.OpenTelemetry.Ratio)
+	//if err != nil {
+	//	t.Fatal("tracing init fatal", err)
+	//}
 	dbContainer, db, err := container.SetupTestDatabase()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("setup database fatal", err)
 	}
 	defer dbContainer.Terminate(context.Background())
 
@@ -57,7 +68,7 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 		fields  fields
 		args    args
 		wantErr bool
-		check   func(user repository.IUserRepo) error
+		check   func(ctx context.Context, user repository.IUserRepo) error
 	}{
 		{
 			name: "subscribe user",
@@ -69,8 +80,10 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 			},
 			args:    args{token: token, id: 2},
 			wantErr: false,
-			check: func(userRepo repository.IUserRepo) error {
-				user, err := userRepo.GetUser("test")
+			check: func(ctx context.Context, userRepo repository.IUserRepo) error {
+				ctx, span := tracing.StartSpanFromContext(ctx, "CHECK SubscribeUserIntegration")
+				defer span.End()
+				user, err := userRepo.GetUser(ctx, "test")
 				if err != nil {
 					return err
 				}
@@ -82,6 +95,8 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		ctx := context.Background()
+		ctx, span := tracing.StartSpanFromContext(ctx, "TEST SubscribeUserIntegration")
 		t.Run(tt.name, func(t *testing.T) {
 			s := &SubscriptionController{
 				repo:  tt.fields.repo,
@@ -90,12 +105,14 @@ func TestSubscriptionController_SubscribeUserIntegration(t *testing.T) {
 				uc:    tt.fields.uc,
 				log:   &logrus.Logger{},
 			}
-			if err := s.SubscribeUser(tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
+			if err := s.SubscribeUser(ctx, tt.args.token, tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if err := tt.check(urepo); (err != nil) != tt.wantErr {
+			if err := tt.check(ctx, urepo); (err != nil) != tt.wantErr {
 				t.Errorf("SubscribeUserIntegration() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
+		span.End()
 	}
+	time.Sleep(6 * time.Second)
 }

@@ -22,7 +22,7 @@ def main():
         print(i)
         r = requests.get(payload["url1"],headers=headers)
         r = requests.get(payload["url2"],headers=headers)
-        time.sleep(3)
+        time.sleep(10)
 
   print('process ended')
 

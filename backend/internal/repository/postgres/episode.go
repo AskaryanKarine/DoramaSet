@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"gorm.io/gorm"
 )
@@ -26,9 +28,11 @@ func NewEpisodeRepo(db *gorm.DB) *EpisodeRepo {
 	return &EpisodeRepo{db}
 }
 
-func (e *EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
+func (e *EpisodeRepo) GetList(ctx context.Context, idDorama int) ([]model.Episode, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	var res []model.Episode
-	result := e.db.Table("dorama_set.episode").Where("id_dorama = ?", idDorama).Find(&res)
+	result := e.db.WithContext(ctx).Table("dorama_set.episode").Where("id_dorama = ?", idDorama).Find(&res)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -38,9 +42,11 @@ func (e *EpisodeRepo) GetList(idDorama int) ([]model.Episode, error) {
 	return res, nil
 }
 
-func (e *EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
+func (e *EpisodeRepo) GetEpisode(ctx context.Context, id int) (*model.Episode, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	var res *model.Episode
-	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Take(&res)
+	result := e.db.WithContext(ctx).Table("dorama_set.episode").Where("id = ?", id).Take(&res)
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
 	}
@@ -48,13 +54,15 @@ func (e *EpisodeRepo) GetEpisode(id int) (*model.Episode, error) {
 	return res, nil
 }
 
-func (e *EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error) {
+func (e *EpisodeRepo) CreateEpisode(ctx context.Context, episode model.Episode, idD int) (int, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	m := episodeModel{
 		IdDorama:   idD,
 		NumSeason:  episode.NumSeason,
 		NumEpisode: episode.NumEpisode,
 	}
-	result := e.db.Table("dorama_set.episode").
+	result := e.db.WithContext(ctx).Table("dorama_set.episode").
 		Omit("id").
 		Create(&m)
 	if result.Error != nil {
@@ -63,26 +71,32 @@ func (e *EpisodeRepo) CreateEpisode(episode model.Episode, idD int) (int, error)
 	return m.ID, nil
 }
 
-func (e *EpisodeRepo) DeleteEpisode(id int) error {
-	result := e.db.Table("dorama_set.episode").Where("id = ?", id).Delete(&model.Episode{})
+func (e *EpisodeRepo) DeleteEpisode(ctx context.Context, id int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
+	result := e.db.WithContext(ctx).Table("dorama_set.episode").Where("id = ?", id).Delete(&model.Episode{})
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (e *EpisodeRepo) MarkEpisode(idEp int, username string) error {
+func (e *EpisodeRepo) MarkEpisode(ctx context.Context, idEp int, username string) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	m := markEpisode{Username: username, IdEpisode: idEp}
-	result := e.db.Table("dorama_set.userepisode").Create(&m)
+	result := e.db.WithContext(ctx).Table("dorama_set.userepisode").Create(&m)
 	if result.Error != nil {
 		return fmt.Errorf("db: %w", result.Error)
 	}
 	return nil
 }
 
-func (e *EpisodeRepo) GetWatchingList(username string, idD int) ([]model.Episode, error) {
+func (e *EpisodeRepo) GetWatchingList(ctx context.Context, username string, idD int) ([]model.Episode, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	var resDB []model.Episode
-	result := e.db.Table("dorama_set.episode e").Select("e.*").
+	result := e.db.WithContext(ctx).Table("dorama_set.episode e").Select("e.*").
 		Joins("join dorama_set.userepisode ue on ue.id_episode = e.id").
 		Where("ue.username = ? and e.id_dorama = ?", username, idD).Find(&resDB)
 

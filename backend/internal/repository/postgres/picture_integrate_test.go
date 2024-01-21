@@ -49,7 +49,7 @@ func TestPictureRepo_CreatePicture(t *testing.T) {
 			p := PictureRepo{
 				db: tt.fields.db,
 			}
-			got, err := p.CreatePicture(tt.args.record)
+			got, err := p.CreatePicture(context.Background(), tt.args.record)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreatePicture() error = %v, wantErr %v", err, tt.wantErr)
 				return

@@ -7,6 +7,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 func Open(cfg *config.Config) (*repository.AllRepository, error) {
@@ -15,6 +16,9 @@ func Open(cfg *config.Config) (*repository.AllRepository, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		return nil, fmt.Errorf("open db: %w", err)
+	}
+	if err := db.Use(tracing.NewPlugin()); err != nil {
+		panic(err)
 	}
 	sqlDB, err := db.DB()
 	if err != nil {

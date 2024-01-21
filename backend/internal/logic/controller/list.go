@@ -6,6 +6,8 @@ import (
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +29,10 @@ func NewListController(LRepo repository.IListRepo, DRepo repository.IDoramaRepo,
 	}
 }
 
-func (l *ListController) CreateList(token string, record *model.List) error {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) CreateList(ctx context.Context, token string, record *model.List) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL CreateList")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		l.log.Warnf("create list, auth err %s, token %s", err, token)
 		return fmt.Errorf("authToken: %w", err)
@@ -36,7 +40,7 @@ func (l *ListController) CreateList(token string, record *model.List) error {
 
 	record.CreatorName = user.Username
 
-	id, err := l.repo.CreateList(*record)
+	id, err := l.repo.CreateList(ctx, *record)
 	if err != nil {
 		l.log.Warnf("create list err %s username %s, record %v", err, user.Username, record)
 		return fmt.Errorf("createList: %w", err)
@@ -46,14 +50,16 @@ func (l *ListController) CreateList(token string, record *model.List) error {
 	return nil
 }
 
-func (l *ListController) GetUserLists(token string) ([]model.List, error) {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) GetUserLists(ctx context.Context, token string) ([]model.List, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetUserLists")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		l.log.Warnf("get user lists err %s, token %s", err, token)
 		return nil, fmt.Errorf("authToken: %w", err)
 	}
 
-	res, err := l.repo.GetUserLists(user.Username)
+	res, err := l.repo.GetUserLists(ctx, user.Username)
 	if err != nil {
 		l.log.Warnf("get user lists err %s, username %s", err, user.Username)
 		return nil, fmt.Errorf("getUserLists: %w", err)
@@ -62,9 +68,11 @@ func (l *ListController) GetUserLists(token string) ([]model.List, error) {
 	return res, err
 }
 
-func (l *ListController) GetPublicLists() ([]model.List, error) {
+func (l *ListController) GetPublicLists(ctx context.Context) ([]model.List, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetPublicLists")
+	defer span.End()
 
-	res, err := l.repo.GetPublicLists()
+	res, err := l.repo.GetPublicLists(ctx)
 	if err != nil {
 		l.log.Warnf("get public list err %s", err)
 		return nil, fmt.Errorf("getPublicLists: %w", err)
@@ -73,14 +81,16 @@ func (l *ListController) GetPublicLists() ([]model.List, error) {
 	return res, nil
 }
 
-func (l *ListController) GetListById(token string, id int) (*model.List, error) {
-	res, err := l.repo.GetListId(id)
+func (l *ListController) GetListById(ctx context.Context, token string, id int) (*model.List, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetListById")
+	defer span.End()
+	res, err := l.repo.GetListId(ctx, id)
 	if err != nil {
 		l.log.Warnf("get list by id err %s, value %d", err, id)
 		return nil, fmt.Errorf("getListById: %w", err)
 	}
 	if res.Type != constant.PublicList {
-		user, err := l.uc.AuthByToken(token)
+		user, err := l.uc.AuthByToken(ctx, token)
 		if err != nil {
 			l.log.Warnf("get list by id auth err %s, value %d", err, id)
 			return nil, fmt.Errorf("auth: %w", err)
@@ -94,14 +104,16 @@ func (l *ListController) GetListById(token string, id int) (*model.List, error) 
 	return res, nil
 }
 
-func (l *ListController) AddToList(token string, idL, idD int) error {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) AddToList(ctx context.Context, token string, idL, idD int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL AddToList")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		l.log.Warnf("add to list auth err %s, token %s, value %d %d", err, token, idL, idD)
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	list, err := l.repo.GetListId(idL)
+	list, err := l.repo.GetListId(ctx, idL)
 	if err != nil {
 		l.log.Warnf("add to list err %s, username %s, value %d %d", err, user.Username, idL, idD)
 		return fmt.Errorf("getListId: %w", err)
@@ -111,12 +123,12 @@ func (l *ListController) AddToList(token string, idL, idD int) error {
 		l.log.Warnf("add to list access err, username %s, value %d %d", user.Username, idL, idD)
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
-	_, err = l.drepo.GetDorama(idD)
+	_, err = l.drepo.GetDorama(ctx, idD)
 	if err != nil {
 		l.log.Warnf("add to list err %s, username %s, value %d %d", err, user.Username, idL, idD)
 		return fmt.Errorf("getDorama: %w", err)
 	}
-	err = l.repo.AddToList(idL, idD)
+	err = l.repo.AddToList(ctx, idL, idD)
 	if err != nil {
 		l.log.Warnf("add to list err %s, username %s, value %d %d", err, user.Username, idL, idD)
 		return fmt.Errorf("addToList: %w", err)
@@ -125,14 +137,16 @@ func (l *ListController) AddToList(token string, idL, idD int) error {
 	return nil
 }
 
-func (l *ListController) DelFromList(token string, idL, idD int) error {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) DelFromList(ctx context.Context, token string, idL, idD int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL DelFromList")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		l.log.Warnf("del from list auth err %s, token %s, value %d %d", err, token, idL, idD)
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	list, err := l.GetListById(token, idL)
+	list, err := l.GetListById(ctx, token, idL)
 	if err != nil {
 		l.log.Warnf("del from list err %s, username %s, values %d %d", err, user.Username, idL, idD)
 		return fmt.Errorf("getListById: %w", err)
@@ -143,12 +157,12 @@ func (l *ListController) DelFromList(token string, idL, idD int) error {
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
 
-	_, err = l.drepo.GetDorama(idD)
+	_, err = l.drepo.GetDorama(ctx, idD)
 	if err != nil {
 		l.log.Warnf("del from list err %s, username %s, values %d %d", err, user.Username, idL, idD)
 		return fmt.Errorf("getDorama: %w", err)
 	}
-	err = l.repo.DelFromList(idL, idD)
+	err = l.repo.DelFromList(ctx, idL, idD)
 	if err != nil {
 		l.log.Warnf("del from list err %s, username %s, values %d %d", err, user.Username, idL, idD)
 		return fmt.Errorf("delFromList: %w", err)
@@ -157,13 +171,15 @@ func (l *ListController) DelFromList(token string, idL, idD int) error {
 	return nil
 }
 
-func (l *ListController) DelList(token string, idL int) error {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) DelList(ctx context.Context, token string, idL int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL DelList")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	list, err := l.repo.GetListId(idL)
+	list, err := l.repo.GetListId(ctx, idL)
 	if err != nil {
 		return fmt.Errorf("getListId: %w", err)
 	}
@@ -172,7 +188,7 @@ func (l *ListController) DelList(token string, idL int) error {
 		return fmt.Errorf("%w", errors.ErrorCreatorAccess)
 	}
 
-	err = l.repo.DelList(idL)
+	err = l.repo.DelList(ctx, idL)
 
 	if err != nil {
 		return fmt.Errorf("delList: %w", err)
@@ -181,20 +197,22 @@ func (l *ListController) DelList(token string, idL int) error {
 	return nil
 }
 
-func (l *ListController) AddToFav(token string, idL int) error {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) AddToFav(ctx context.Context, token string, idL int) error {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL AddToFav")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		l.log.Warnf("add to fav auth err %s, token %s, value %d", err, token, idL)
 		return fmt.Errorf("authToken: %w", err)
 	}
 
-	_, err = l.repo.GetListId(idL)
+	_, err = l.repo.GetListId(ctx, idL)
 	if err != nil {
 		l.log.Warnf("add to fav err %s, username %s, values %d", err, user.Username, idL)
 		return fmt.Errorf("getListId: %w", err)
 	}
 
-	err = l.repo.AddToFav(idL, user.Username)
+	err = l.repo.AddToFav(ctx, idL, user.Username)
 	if err != nil {
 		l.log.Warnf("add to fav err %s, username %s, values %d", err, user.Username, idL)
 		return fmt.Errorf("addToFav: %w", err)
@@ -204,14 +222,16 @@ func (l *ListController) AddToFav(token string, idL int) error {
 	return nil
 }
 
-func (l *ListController) GetFavList(token string) ([]model.List, error) {
-	user, err := l.uc.AuthByToken(token)
+func (l *ListController) GetFavList(ctx context.Context, token string) ([]model.List, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "BL GetFavList")
+	defer span.End()
+	user, err := l.uc.AuthByToken(ctx, token)
 	if err != nil {
 		l.log.Warnf("get fav list auth err %s, token %s", err, token)
 		return nil, fmt.Errorf("authToken: %w", err)
 	}
 
-	res, err := l.repo.GetFavList(user.Username)
+	res, err := l.repo.GetFavList(ctx, user.Username)
 	if err != nil {
 		l.log.Warnf("get fav list err %s, username %s", err, user.Username)
 		return nil, fmt.Errorf("getFavList: %w", err)

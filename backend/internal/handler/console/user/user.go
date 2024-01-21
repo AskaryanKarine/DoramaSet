@@ -5,6 +5,7 @@ import (
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/model"
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -33,11 +34,11 @@ func New(lc controller.IListController, ec controller.IEpisodeController,
 }
 
 func (u *User) GetMyList(token string) error {
-	lists, err := u.lc.GetUserLists(token)
+	lists, err := u.lc.GetUserLists(context.Background(), token)
 	if err != nil {
 		return err
 	}
-	err = u.uc.UpdateActive(token)
+	err = u.uc.UpdateActive(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -78,7 +79,7 @@ func (u *User) CreateList(token string) error {
 	tl := constant.ListType[typeList]
 	list.Type = tl
 
-	err = u.lc.CreateList(token, &list)
+	err = u.lc.CreateList(context.Background(), token, &list)
 	if err != nil {
 		return err
 	}
@@ -97,11 +98,11 @@ func (u *User) AddToList(token string) error {
 		return err
 	}
 
-	err := u.lc.AddToList(token, idL, idD)
+	err := u.lc.AddToList(context.Background(), token, idL, idD)
 	if err != nil {
 		return err
 	}
-	err = u.uc.UpdateActive(token)
+	err = u.uc.UpdateActive(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -120,11 +121,11 @@ func (u *User) DelFromList(token string) error {
 		return err
 	}
 
-	err := u.lc.DelFromList(token, idL, idD)
+	err := u.lc.DelFromList(context.Background(), token, idL, idD)
 	if err != nil {
 		return err
 	}
-	err = u.uc.UpdateActive(token)
+	err = u.uc.UpdateActive(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -139,11 +140,11 @@ func (u *User) AddToFav(token string) error {
 		return err
 	}
 
-	err := u.lc.AddToFav(token, idL)
+	err := u.lc.AddToFav(context.Background(), token, idL)
 	if err != nil {
 		return err
 	}
-	err = u.uc.UpdateActive(token)
+	err = u.uc.UpdateActive(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -152,11 +153,11 @@ func (u *User) AddToFav(token string) error {
 }
 
 func (u *User) GetMyFav(token string) error {
-	lists, err := u.lc.GetFavList(token)
+	lists, err := u.lc.GetFavList(context.Background(), token)
 	if err != nil {
 		return err
 	}
-	err = u.uc.UpdateActive(token)
+	err = u.uc.UpdateActive(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -175,11 +176,11 @@ func (u *User) MarkEpisode(token string) error {
 	if _, err := fmt.Scan(&idE); err != nil {
 		return err
 	}
-	err := u.ec.MarkWatchingEpisode(token, idE)
+	err := u.ec.MarkWatchingEpisode(context.Background(), token, idE)
 	if err != nil {
 		return err
 	}
-	err = u.uc.UpdateActive(token)
+	err = u.uc.UpdateActive(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -188,7 +189,7 @@ func (u *User) MarkEpisode(token string) error {
 }
 
 func (u *User) GetAllSub(token string) error {
-	res, err := u.sc.GetAll()
+	res, err := u.sc.GetAll(context.Background())
 	if err != nil {
 		return err
 	}
@@ -205,7 +206,7 @@ func (u *User) Subscribe(token string) error {
 	if _, err := fmt.Scan(&idSub); err != nil {
 		return err
 	}
-	err := u.sc.SubscribeUser(token, idSub)
+	err := u.sc.SubscribeUser(context.Background(), token, idSub)
 	if err != nil {
 		return err
 	}
@@ -214,7 +215,7 @@ func (u *User) Subscribe(token string) error {
 }
 
 func (u *User) Unsubscribe(token string) error {
-	err := u.sc.UnsubscribeUser(token)
+	err := u.sc.UnsubscribeUser(context.Background(), token)
 	if err != nil {
 		return err
 	}
@@ -228,11 +229,11 @@ func (u *User) TopUpBalance(token string) error {
 	if _, err := fmt.Scan(&points); err != nil {
 		return err
 	}
-	user, err := u.uc.AuthByToken(token)
+	user, err := u.uc.AuthByToken(context.Background(), token)
 	if err != nil {
 		return err
 	}
-	err = u.pc.EarnPoint(user, points)
+	err = u.pc.EarnPoint(context.Background(), user, points)
 	if err != nil {
 		return err
 	}
@@ -246,7 +247,7 @@ func (u *User) DeleteReview(token string) error {
 	if _, err := fmt.Scan(&idD); err != nil {
 		return err
 	}
-	err := u.dc.DeleteReview(token, idD)
+	err := u.dc.DeleteReview(context.Background(), token, idD)
 	if err != nil {
 		return err
 	}
@@ -274,7 +275,7 @@ func (u *User) AddReview(token string) error {
 	}
 	review.Content = line
 
-	err = u.dc.AddReview(token, idD, &review)
+	err = u.dc.AddReview(context.Background(), token, idD, &review)
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -191,7 +192,7 @@ func TestRegistrationUser(t *testing.T) {
 				passwordLen:     testCase.fl.passwordLen,
 				log:             &logrus.Logger{},
 			}
-			res, err := dc.Registration(&testCase.arg)
+			res, err := dc.Registration(context.Background(), &testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Registration() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -308,7 +309,7 @@ func TestLoginUser(t *testing.T) {
 				passwordLen:     testCase.fl.passwordLen,
 				log:             &logrus.Logger{},
 			}
-			res, err := dc.Login(testCase.arg.login, testCase.arg.password)
+			res, err := dc.Login(context.Background(), testCase.arg.login, testCase.arg.password)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("Login() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -421,7 +422,7 @@ func TestUpdateActive(t *testing.T) {
 				secretKey: testCase.fl.secretKey,
 				log:       &logrus.Logger{},
 			}
-			err := dc.UpdateActive(testCase.arg)
+			err := dc.UpdateActive(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("UpdateActive() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -503,7 +504,7 @@ func TestAuthByToken(t *testing.T) {
 				secretKey: testCase.fl.secretKey,
 				log:       &logrus.Logger{},
 			}
-			res, err := dc.AuthByToken(testCase.arg)
+			res, err := dc.AuthByToken(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("AuthByToken() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -590,7 +591,7 @@ func TestUserController_ChangeEmoji(t *testing.T) {
 				tokenExpiration: tt.fields.tokenExpiration,
 				log:             &logrus.Logger{},
 			}
-			if err := u.ChangeEmoji(tt.args.token, tt.args.emojiCode); (err != nil) != tt.wantErr {
+			if err := u.ChangeEmoji(context.Background(), tt.args.token, tt.args.emojiCode); (err != nil) != tt.wantErr {
 				t.Errorf("ChangeEmoji() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -673,7 +674,7 @@ func TestUserController_ChangeAvatarColor(t *testing.T) {
 				tokenExpiration: tt.fields.tokenExpiration,
 				log:             &logrus.Logger{},
 			}
-			if err := u.ChangeAvatarColor(tt.args.token, tt.args.color); (err != nil) != tt.wantErr {
+			if err := u.ChangeAvatarColor(context.Background(), tt.args.token, tt.args.color); (err != nil) != tt.wantErr {
 				t.Errorf("ChangeAvatarColor() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

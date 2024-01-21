@@ -4,12 +4,17 @@ import (
 	"DoramaSet/internal/handler/apiserver/DTO"
 	"DoramaSet/internal/handler/apiserver/middleware"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) createPicture(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /picture/")
+	defer span.End()
 	var req DTO.Picture
 
 	if err := c.BindJSON(&req); err != nil {
@@ -24,7 +29,7 @@ func (h *Handler) createPicture(c *gin.Context) {
 	}
 
 	newPicture := DTO.MakePicture(req)
-	err = h.Services.CreatePicture(token, newPicture)
+	err = h.Services.CreatePicture(ctx, token, newPicture)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -33,6 +38,9 @@ func (h *Handler) createPicture(c *gin.Context) {
 }
 
 func (h *Handler) addPictureToStaff(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /staff/:id")
+	defer span.End()
 	rowDId := c.Param("id")
 	SId, err := strconv.Atoi(rowDId)
 	if err != nil {
@@ -54,7 +62,7 @@ func (h *Handler) addPictureToStaff(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddPictureToStaff(token, model.Picture{Id: req.Id}, SId)
+	err = h.Services.AddPictureToStaff(ctx, token, model.Picture{Id: req.Id}, SId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return
@@ -63,6 +71,9 @@ func (h *Handler) addPictureToStaff(c *gin.Context) {
 }
 
 func (h *Handler) addPictureToDorama(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "POST /dorama/:id/picture")
+	defer span.End()
 	rowDId := c.Param("id")
 	DId, err := strconv.Atoi(rowDId)
 	if err != nil {
@@ -85,7 +96,7 @@ func (h *Handler) addPictureToDorama(c *gin.Context) {
 		return
 	}
 
-	err = h.Services.AddPictureToDorama(token, model.Picture{Id: req.Id}, DId)
+	err = h.Services.AddPictureToDorama(ctx, token, model.Picture{Id: req.Id}, DId)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusBadRequest, err)
 		return

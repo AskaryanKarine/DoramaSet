@@ -51,7 +51,7 @@ func TestEpisodeRepo_GetEpisode(t *testing.T) {
 			e := EpisodeRepo{
 				db: tt.fields.db,
 			}
-			got, err := e.GetEpisode(tt.args.id)
+			got, err := e.GetEpisode(context.Background(), tt.args.id)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetEpisode() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -103,7 +103,7 @@ func TestEpisodeRepo_GetList(t *testing.T) {
 			e := EpisodeRepo{
 				db: tt.fields.db,
 			}
-			got, err := e.GetList(tt.args.idDorama)
+			got, err := e.GetList(context.Background(), tt.args.idDorama)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetStaffList() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -152,7 +152,7 @@ func TestEpisodeRepo_MarkEpisode(t *testing.T) {
 			e := EpisodeRepo{
 				db: tt.fields.db,
 			}
-			if err := e.MarkEpisode(tt.args.idEp, tt.args.username); (err != nil) != tt.wantErr {
+			if err := e.MarkEpisode(context.Background(), tt.args.idEp, tt.args.username); (err != nil) != tt.wantErr {
 				t.Errorf("MarkEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(tt.args.idEp, tt.args.username); (err != nil) != tt.wantErr {
@@ -211,7 +211,7 @@ func TestEpisodeRepo_CreateEpisode(t *testing.T) {
 			e := EpisodeRepo{
 				db: tt.fields.db,
 			}
-			got, err := e.CreateEpisode(tt.args.episode, tt.args.idD)
+			got, err := e.CreateEpisode(context.Background(), tt.args.episode, tt.args.idD)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -258,7 +258,7 @@ func TestEpisodeRepo_DeleteEpisode(t *testing.T) {
 			e := EpisodeRepo{
 				db: tt.fields.db,
 			}
-			if err := e.DeleteEpisode(tt.args.id); (err != nil) != tt.wantErr {
+			if err := e.DeleteEpisode(context.Background(), tt.args.id); (err != nil) != tt.wantErr {
 				t.Errorf("DeleteEpisode() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if err := tt.check(tt.args.id); (err != nil) != !tt.wantErr {

@@ -24,3 +24,8 @@ Logger:
 Server:
   Port: "8000"
   Mode: debug
+
+OpenTelemetry:
+  Endpoint: "http://host.docker.internal:14268/api/traces"
+  ServiceName: bench
+  Ratio: 1.0

@@ -3,6 +3,7 @@ package mongo
 import (
 	errors2 "DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,7 +23,7 @@ func NewReviewRepo(db *mongo.Database) *ReviewRepo {
 	return &ReviewRepo{db: db}
 }
 
-func (r *ReviewRepo) GetAllReview(idD int) ([]model.Review, error) {
+func (r *ReviewRepo) GetAllReview(ctx context.Context, idD int) ([]model.Review, error) {
 	var res []model.Review
 	collection := r.db.Collection("dorama")
 	filter := bson.D{{"id", idD}}
@@ -44,7 +45,7 @@ func (r *ReviewRepo) GetAllReview(idD int) ([]model.Review, error) {
 	return res, nil
 }
 
-func (r *ReviewRepo) CreateReview(idD int, record *model.Review) error {
+func (r *ReviewRepo) CreateReview(ctx context.Context, idD int, record *model.Review) error {
 	var resDB struct {
 		Review []reviewModel `bson:"review"`
 	}
@@ -71,7 +72,7 @@ func (r *ReviewRepo) CreateReview(idD int, record *model.Review) error {
 	return nil
 }
 
-func (r *ReviewRepo) DeleteReview(username string, idD int) error {
+func (r *ReviewRepo) DeleteReview(ctx context.Context, username string, idD int) error {
 	collection := r.db.Collection("dorama")
 	filter := bson.D{{"id", idD}}
 	update := bson.D{{"$pull", bson.D{{"review", bson.D{{"username", username}}}}}}
@@ -82,7 +83,7 @@ func (r *ReviewRepo) DeleteReview(username string, idD int) error {
 	return nil
 }
 
-func (r *ReviewRepo) AggregateRate(idD int) (float64, int, error) {
+func (r *ReviewRepo) AggregateRate(ctx context.Context, idD int) (float64, int, error) {
 	collection := r.db.Collection("dorama")
 	projectStage := bson.D{{"$project",
 		bson.D{{"id", "$id"},
@@ -118,7 +119,7 @@ func (r *ReviewRepo) AggregateRate(idD int) (float64, int, error) {
 	return resDB[0].Rate, resDB[0].Cnt, nil
 }
 
-func (r *ReviewRepo) GetReview(username string, idD int) (*model.Review, error) {
+func (r *ReviewRepo) GetReview(ctx context.Context, username string, idD int) (*model.Review, error) {
 	var resDB struct {
 		Review reviewModel `bson:"review"`
 	}

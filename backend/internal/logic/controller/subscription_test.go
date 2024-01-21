@@ -10,6 +10,7 @@ import (
 	"DoramaSet/internal/logic/model"
 	"DoramaSet/internal/object_mother"
 	"DoramaSet/internal/repository/mocks"
+	"context"
 	"errors"
 	"github.com/gojuno/minimock/v3"
 	"github.com/sirupsen/logrus"
@@ -57,7 +58,7 @@ func TestGetAllSub(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetAll()
+			res, err := dc.GetAll(context.Background())
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetAllDorama() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -107,7 +108,7 @@ func TestGetInfoSub(t *testing.T) {
 				uc:   testCase.fl.uc,
 				log:  &logrus.Logger{},
 			}
-			res, err := dc.GetInfo(testCase.arg)
+			res, err := dc.GetInfo(context.Background(), testCase.arg)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("GetInfo() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -196,7 +197,7 @@ func TestSubscribe(t *testing.T) {
 				urepo: testCase.fl.urepo,
 				log:   &logrus.Logger{},
 			}
-			err := dc.SubscribeUser(testCase.arg.token, testCase.arg.id)
+			err := dc.SubscribeUser(context.Background(), testCase.arg.token, testCase.arg.id)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("SubscribeUser() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -271,7 +272,7 @@ func TestUnsubscribe(t *testing.T) {
 				urepo: testCase.fl.urepo,
 				log:   &logrus.Logger{},
 			}
-			err := dc.UnsubscribeUser(testCase.arg.token)
+			err := dc.UnsubscribeUser(context.Background(), testCase.arg.token)
 			if (err != nil) != testCase.isNeg {
 				t.Errorf("UnsubscribeUser() error = %v, expect = %v", err, testCase.isNeg)
 			}
@@ -370,7 +371,7 @@ func TestSubscriptionController_UpdateSubscribe(t *testing.T) {
 				uc:    tt.fields.uc,
 				log:   &logrus.Logger{},
 			}
-			if err := s.UpdateSubscribe(tt.args.token); (err != nil) != tt.wantErr {
+			if err := s.UpdateSubscribe(context.Background(), tt.args.token); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateSubscribe() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			userUpdateSub.LastSubscribe = time.Now().Add(-constant.Day * 30)

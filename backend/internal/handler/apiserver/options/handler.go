@@ -3,6 +3,8 @@ package options
 import (
 	"DoramaSet/internal/handler/apiserver/middleware"
 	"DoramaSet/internal/handler/apiserver/services"
+	"DoramaSet/internal/tracing"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-contrib/cors"
@@ -33,7 +35,6 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	prometheus.MustRegister(requestDuration, requestsTotal)
 	router.Use(prometheusMiddleware)
-	
 	router.Use(middleware.ErrorHandler)
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:3000"},
@@ -126,6 +127,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 }
 
 func (h *Handler) updateUserDataByToken(c *gin.Context) {
+	ctx := context.Background()
+	ctx, span := tracing.StartSpanFromContext(ctx, "GET /dorama/:id/episode")
+	defer span.End()
 	var token string
 	cook, err := c.Cookie("token")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -136,12 +140,12 @@ func (h *Handler) updateUserDataByToken(c *gin.Context) {
 	} else {
 		token = cook
 
-		err := h.Services.UpdateActive(token)
+		err := h.Services.UpdateActive(ctx, token)
 		if err != nil {
 			setCookie(c, "", -1)
 			_ = c.AbortWithError(http.StatusInternalServerError, err)
 		}
-		err = h.Services.UpdateSubscribe(token)
+		err = h.Services.UpdateSubscribe(ctx, token)
 		if err != nil {
 			setCookie(c, "", -1)
 			_ = c.AbortWithError(http.StatusInternalServerError, err)

@@ -4,6 +4,8 @@ import (
 	"DoramaSet/internal/logic/constant"
 	"DoramaSet/internal/logic/errors"
 	"DoramaSet/internal/logic/model"
+	"DoramaSet/internal/tracing"
+	"context"
 	"fmt"
 	"gorm.io/gorm"
 	"time"
@@ -26,10 +28,12 @@ func NewSubscriptionRepo(db *gorm.DB) *SubscriptionRepo {
 	return &SubscriptionRepo{db}
 }
 
-func (s *SubscriptionRepo) GetList() ([]model.Subscription, error) {
+func (s *SubscriptionRepo) GetList(ctx context.Context) ([]model.Subscription, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetList")
+	defer span.End()
 	var subs []subModel
 	var resSubs []model.Subscription
-	result := s.db.Table("dorama_set.subscription").Find(&subs)
+	result := s.db.WithContext(ctx).Table("dorama_set.subscription").Find(&subs)
 
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
@@ -53,9 +57,11 @@ func (s *SubscriptionRepo) GetList() ([]model.Subscription, error) {
 	return resSubs, nil
 }
 
-func (s *SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) {
+func (s *SubscriptionRepo) GetSubscription(ctx context.Context, id int) (*model.Subscription, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetSubscription")
+	defer span.End()
 	var sub *subModel
-	result := s.db.Table("dorama_set.subscription").Where("id = ?", id).Take(&sub)
+	result := s.db.WithContext(ctx).Table("dorama_set.subscription").Where("id = ?", id).Take(&sub)
 
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
@@ -72,9 +78,11 @@ func (s *SubscriptionRepo) GetSubscription(id int) (*model.Subscription, error) 
 	return &res, nil
 }
 
-func (s *SubscriptionRepo) GetSubscriptionByPrice(price int) (*model.Subscription, error) {
+func (s *SubscriptionRepo) GetSubscriptionByPrice(ctx context.Context, price int) (*model.Subscription, error) {
+	ctx, span := tracing.StartSpanFromContext(ctx, "Repo GetSubscriptionByPrice")
+	defer span.End()
 	var sub *model.Subscription
-	result := s.db.Table("dorama_set.subscription").Where("cost = ?", price).Find(&sub)
+	result := s.db.WithContext(ctx).Table("dorama_set.subscription").Where("cost = ?", price).Find(&sub)
 
 	if result.Error != nil {
 		return nil, fmt.Errorf("db: %w", result.Error)
